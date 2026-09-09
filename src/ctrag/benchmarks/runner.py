@@ -9,9 +9,9 @@ from collections import defaultdict
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from ctrag.directional_retriever import CTRetriever
 from ctrag.embedding import HashingEmbedder
 from ctrag.models import QueryMode, RetrievalWeights
-from ctrag.retriever import CTRetriever
 from .datasets import GENERATOR_VERSION, generate
 from .metrics import evaluate
 
