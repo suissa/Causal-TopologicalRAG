@@ -22,8 +22,15 @@ jobs:
         run: pytest
       - name: Run all benchmark baselines
         run: python -m ctrag.benchmarks
+      - name: Generate research artifacts
+        run: python -m ctrag.research_artifacts --benchmark-dir benchmark-results --out research-artifacts --k 3
       - name: Upload reproducible benchmark results
         uses: actions/upload-artifact@v4
         with:
           name: benchmarks-python-${{ matrix.python-version }}
           path: benchmark-results/
+      - name: Upload paper-ready research artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-artifacts-python-${{ matrix.python-version }}
+          path: research-artifacts/
