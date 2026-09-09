@@ -170,6 +170,7 @@ class CTRetriever:
         max_hops: int = 4,
         weights: RetrievalWeights | None = None,
         include_anchors: bool = False,
+        exhaustive: bool = False,
     ) -> list[RetrievalHit]:
         if k <= 0:
             return []
@@ -212,6 +213,10 @@ class CTRetriever:
                     max_hops=max_hops,
                 )
             )
+
+        # Controlled ablations must not inherit semantic candidate pruning.
+        if exhaustive:
+            candidate_ids = set(self.topology.nodes)
 
         hits: list[RetrievalHit] = []
         for candidate_id in candidate_ids:
@@ -256,5 +261,5 @@ class CTRetriever:
                 )
             )
 
-        hits.sort(key=lambda hit: hit.score, reverse=True)
+        hits.sort(key=lambda hit: (-hit.score, hit.node.id))
         return hits[:k]

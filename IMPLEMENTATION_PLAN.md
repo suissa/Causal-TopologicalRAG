@@ -147,7 +147,20 @@ retriever.divergence(success_execution, failed_execution)
 
 ## Phase 6 — Benchmark suite
 
-Create synthetic and real trace benchmarks.
+Issue #7 implemented: `python -m ctrag.benchmarks` executes seven controlled
+baseline/ablation arms on deterministic failure/recovery and branching traces,
+including WHY, RECOVERY and WHAT_NEXT queries. It persists seeds, effective
+weights, full datasets/labels, source fingerprints and JSON/CSV observations plus
+paper-table summaries. CI executes the full suite and uploads artifacts.
+
+The harness uses exhaustive candidates and known anchors for fair score ablation.
+Its dense arm is the existing hashing proxy, not a learned embedding benchmark.
+See [methodology and exact metric definitions](docs/benchmarks.md).
+
+Remaining research work: real trace fixtures, learned dense/BM25 adapters,
+anchor-discovery evaluation, prospective tasks without future-state visibility,
+larger/more varied graphs and statistical hypothesis testing. Synthetic harness
+completion alone does not validate the core hypothesis below.
 
 Primary metrics:
 

@@ -113,7 +113,32 @@ for hit in hits:
 
 See `examples/stateful_agent.py`.
 
-## Current MVP
+## Reproducible benchmarks
+
+After installation, run every baseline and ablation with one command:
+
+```bash
+python -m ctrag.benchmarks
+```
+
+This runs lexical only, dense only, dense+lexical, graph/topology only,
+dense+causal, dense+topological and full CT-RAG on deterministic failure/recovery
+and branching success/failure traces, including explicit `WHY` queries.
+The default run produces 2,016 query/K/baseline observations across three seeds.
+
+Results in `benchmark-results/` include the complete generated datasets and
+labels, seeds/configuration, source fingerprints, per-query JSON/CSV, a summary
+with applicable sample counts and standard deviations, and a wide `table.csv`
+for paper tables. CI runs the same command on Python 3.11–3.13 and uploads the
+outputs as artifacts.
+
+All seven arms use the same known anchor and exhaustive candidate corpus.
+Here, **dense is the existing deterministic HashingEmbedder proxy, not a trained
+semantic embedding model**. These small synthetic experiments validate the
+harness; they do not establish improvements on real-world data.
+See [benchmark methodology and metric definitions](docs/benchmarks.md).
+
+## Implemented prototype
 
 Implemented in the first slice:
 
