@@ -5,6 +5,7 @@ import math
 from .adapters import EmbeddingProvider, IdfOverlapRetriever, LexicalRetriever, reciprocal_rank_fusion
 from .embedding import HashingEmbedder, cosine_similarity
 from .models import CausalPath, EdgeKind, QueryMode, RetrievalHit, RetrievalWeights
+from .query import RetrievalStage, StagedRetrievalResult
 from .topology import CausalTopology
 
 
@@ -76,6 +77,13 @@ class CTRetriever:
             return "out"
         return "both"
 
+    def _staged_direction_for(self, mode: QueryMode) -> str:
+        if mode in {QueryMode.WHY, QueryMode.COUNTERFACTUAL}:
+            return "in"
+        if mode in {QueryMode.WHAT_NEXT, QueryMode.RECOVERY}:
+            return "out"
+        return "both"
+
     @staticmethod
     def _causal_budget(
         direction: str,
@@ -123,13 +131,11 @@ class CTRetriever:
         return best
 
     def _shared_basin_score(self, candidate_id: str, anchor_ids: list[str]) -> float:
-        candidate_attractors = self.topology.attractors_for(candidate_id)
-        if not candidate_attractors:
-            return 0.0
+        best = 0.0
         for anchor_id in anchor_ids:
-            if candidate_attractors.intersection(self.topology.attractors_for(anchor_id)):
-                return 0.6
-        return 0.0
+            affinity = self.topology.shared_basin_affinity(candidate_id, anchor_id)
+            best = max(best, affinity.score)
+        return best
 
     def _topological_score(
         self,
@@ -196,6 +202,178 @@ class CTRetriever:
                     best_anchor = anchor_id
                     best_path = path
         return best_score, best_hops, best_anchor, best_path
+
+    def _select_anchor_ids(
+        self,
+        query: str,
+        *,
+        anchor_k: int,
+        anchor_ids: list[str] | None,
+    ) -> list[str]:
+        if anchor_ids is not None:
+            missing = [node_id for node_id in anchor_ids if node_id not in self.topology.nodes]
+            if missing:
+                raise KeyError(f"unknown anchor ids: {missing}")
+            return list(anchor_ids)
+        semantic = self._semantic_scores(query)
+        lexical = self._lexical_scores(query)
+        ranked = sorted(
+            self.topology.nodes,
+            key=lambda node_id: (-(0.65 * semantic[node_id] + 0.35 * lexical[node_id]), node_id),
+        )
+        return ranked[: max(1, anchor_k)]
+
+    def _recovery_prior(self, candidate_id: str, anchor_ids: list[str], max_hops: int) -> float:
+        node = self.topology.nodes[candidate_id]
+        status = str(node.metadata.get("status", "")).lower()
+        event_type = str(node.metadata.get("event_type", "")).lower()
+        successful = status in {"ok", "success", "succeeded", "completed", "recovered", "healed"}
+        successful = successful or any(token in event_type for token in ("healed", "recovered", "completed", "succeeded"))
+        if not successful:
+            return 0.0
+        best = 0.0
+        for anchor_id in anchor_ids:
+            path = self.topology.causal_path_evidence(anchor_id, candidate_id, direction="out", max_hops=max_hops)
+            if path is not None and path.hops > 0:
+                best = max(best, path.aggregate_confidence * math.exp(-self.hop_decay * (path.hops - 1)))
+        return best
+
+    def _counterfactual_prior(self, candidate_id: str, anchor_ids: list[str], max_hops: int) -> float:
+        outgoing = self.topology.outgoing(candidate_id, {EdgeKind.CAUSAL})
+        if len({edge.target for edge in outgoing}) < 2:
+            return 0.0
+        best = 0.0
+        for anchor_id in anchor_ids:
+            path = self.topology.causal_path_evidence(anchor_id, candidate_id, direction="in", max_hops=max_hops)
+            if path is not None and path.hops > 0:
+                best = max(best, path.aggregate_confidence * math.exp(-self.hop_decay * (path.hops - 1)))
+        return best
+
+    def search_staged(
+        self,
+        query: str,
+        *,
+        mode: QueryMode,
+        k: int = 5,
+        anchor_k: int = 3,
+        anchor_ids: list[str] | None = None,
+        max_hops: int = 4,
+        ancestor_hops: int | None = None,
+        descendant_hops: int | None = None,
+        weights: RetrievalWeights | None = None,
+    ) -> StagedRetrievalResult:
+        """Run query-intent-aware retrieval while exposing each navigation stage.
+
+        `search()` remains the historical baseline used by the published benchmark.
+        This method layers explicit stage telemetry and mode-specific reranking on
+        top without changing those baseline results.
+        """
+        if not self.topology.nodes or k <= 0:
+            return StagedRetrievalResult(query, mode, (), self._staged_direction_for(mode), (), [])
+
+        selected = self._select_anchor_ids(query, anchor_k=anchor_k, anchor_ids=anchor_ids)
+        direction = self._staged_direction_for(mode)
+        stage_kinds = {EdgeKind.CAUSAL, EdgeKind.BEHAVIORAL, EdgeKind.TEMPORAL}
+
+        topology_expansion: set[str] = set()
+        basin_expansion: set[str] = set()
+        causal_expansion: set[str] = set()
+        for anchor_id in selected:
+            topology_expansion.update(self.topology.neighborhood(
+                anchor_id,
+                direction=direction,
+                kinds=stage_kinds,
+                max_hops=max_hops,
+            ))
+            for attractor_id in self.topology.basin_memberships(anchor_id, max_hops=max_hops):
+                basin_expansion.update(self.topology.basin(attractor_id, max_hops=max_hops))
+            causal_expansion.update(self.topology.neighborhood(
+                anchor_id,
+                direction=direction,
+                kinds={EdgeKind.CAUSAL},
+                max_hops=max_hops,
+            ))
+
+        base_hits = self.search(
+            query,
+            mode=mode,
+            k=max(k * 4, k),
+            anchor_k=anchor_k,
+            anchor_ids=selected,
+            max_hops=max_hops,
+            ancestor_hops=ancestor_hops,
+            descendant_hops=descendant_hops,
+            weights=weights,
+            exhaustive=True,
+        )
+
+        reranked: list[RetrievalHit] = []
+        mode_nodes: list[str] = []
+        for hit in base_hits:
+            prior = 0.0
+            if mode is QueryMode.RECOVERY:
+                prior = self._recovery_prior(hit.node.id, selected, max_hops)
+            elif mode is QueryMode.COUNTERFACTUAL:
+                prior = self._counterfactual_prior(hit.node.id, selected, max_hops)
+            components = dict(hit.components)
+            components["mode_prior"] = prior
+            if prior > 0:
+                mode_nodes.append(hit.node.id)
+            reranked.append(RetrievalHit(
+                node=hit.node,
+                score=hit.score + 0.25 * prior,
+                components=components,
+                anchor_id=hit.anchor_id,
+                causal_hops=hit.causal_hops,
+                causal_path=hit.causal_path,
+            ))
+
+        reranked.sort(key=lambda hit: (-hit.score, hit.node.id))
+        stages = (
+            RetrievalStage("anchor_search", tuple(selected), "Global semantic/lexical anchor selection."),
+            RetrievalStage(
+                "basin_topology_expansion",
+                tuple(sorted(topology_expansion | basin_expansion)),
+                "Local topology and any registered basin memberships around selected anchors.",
+            ),
+            RetrievalStage(
+                "causal_traversal",
+                tuple(sorted(causal_expansion)),
+                f"Directed causal traversal ({direction}) for query mode {mode.value}.",
+            ),
+            RetrievalStage(
+                "mode_rerank",
+                tuple(sorted(set(mode_nodes))),
+                "Mode-specific prior: successful future recovery paths or historical divergence points.",
+            ),
+        )
+        note = None
+        if mode is QueryMode.COUNTERFACTUAL:
+            note = (
+                "Counterfactual results are observational/hypothesis support only. "
+                "Historical divergence does not identify intervention effects or prove causality."
+            )
+        return StagedRetrievalResult(
+            query=query,
+            mode=mode,
+            anchor_ids=tuple(selected),
+            direction=direction,
+            stages=stages,
+            hits=reranked[:k],
+            observational_note=note,
+        )
+
+    def why(self, anchor_id: str, query: str = "why did this happen?", *, k: int = 5) -> StagedRetrievalResult:
+        return self.search_staged(query, mode=QueryMode.WHY, anchor_ids=[anchor_id], k=k)
+
+    def what_next(self, anchor_id: str, query: str = "what happened next?", *, k: int = 5) -> StagedRetrievalResult:
+        return self.search_staged(query, mode=QueryMode.WHAT_NEXT, anchor_ids=[anchor_id], k=k)
+
+    def recovery(self, anchor_id: str, query: str = "how was this recovered?", *, k: int = 5) -> StagedRetrievalResult:
+        return self.search_staged(query, mode=QueryMode.RECOVERY, anchor_ids=[anchor_id], k=k)
+
+    def counterfactual(self, anchor_id: str, query: str = "where did comparable trajectories diverge?", *, k: int = 5) -> StagedRetrievalResult:
+        return self.search_staged(query, mode=QueryMode.COUNTERFACTUAL, anchor_ids=[anchor_id], k=k)
 
     def search(
         self,
