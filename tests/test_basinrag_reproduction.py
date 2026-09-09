@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 from pathlib import Path
 
 import pytest
@@ -10,6 +11,7 @@ from ctrag.benchmarks.basinrag_reproduction import (
     BASINRAG_VERSION,
     BasinRAGProtocol,
     _clone_without_causal_edges,
+    _csv,
     run_basinrag_reproduction,
 )
 from ctrag.benchmarks.datasets import generate
@@ -51,3 +53,31 @@ def test_no_causal_ablation_removes_only_explicit_causal_edges() -> None:
         for edge in ablated.outgoing(source)
     )
     assert remaining == original_noncausal
+
+
+def test_csv_handles_mixed_index_and_query_cost_rows(tmp_path: Path) -> None:
+    path = tmp_path / "costs.csv"
+    _csv(
+        path,
+        [
+            {
+                "dataset": "failure_recovery",
+                "seed": 1,
+                "arm": "basinrag_upstream_hybrid",
+                "operation": "index",
+                "elapsed_ms": 10.0,
+            },
+            {
+                "dataset": "failure_recovery",
+                "seed": 1,
+                "query_id": "q-1",
+                "arm": "basinrag_upstream_hybrid",
+                "operation": "query",
+                "elapsed_ms": 1.0,
+            },
+        ],
+    )
+    with path.open(encoding="utf-8", newline="") as stream:
+        rows = list(csv.DictReader(stream))
+    assert rows[0]["query_id"] == ""
+    assert rows[1]["query_id"] == "q-1"
