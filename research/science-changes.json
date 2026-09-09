@@ -1,0 +1,50 @@
+{
+  "entries": [
+    {
+      "affected_files": [
+        "src/ctrag/directional_retriever.py",
+        "src/ctrag/__init__.py",
+        "src/ctrag/benchmarks/runner.py",
+        "tests/test_scientific_audit.py",
+        "REPORT.md",
+        "docs/SCIENTIFIC_AUDIT_01.md"
+      ],
+      "classification": "correctness_bug",
+      "code_changed": true,
+      "date": "2026-09-09",
+      "description": "Historical search() scored RECOVERY and COUNTERFACTUAL causal evidence bidirectionally. RECOVERY must traverse descendants; observational divergence/counterfactual support must traverse ancestors.",
+      "id": "SCI-001",
+      "issue": 14,
+      "post_fix": {
+        "ci_run": 34344883091,
+        "full_ctrag_k3": {
+          "causal_distance_error": 1.5,
+          "causal_path_recall": 0.916667,
+          "context_token_efficiency": 0.881944,
+          "ndcg": 1.0,
+          "recall_at_k": 0.958333
+        },
+        "tests": "89 passed on Python 3.12; CI green on Python 3.11/3.12/3.13"
+      },
+      "pre_fix": {
+        "ci_run": 34344592917,
+        "full_ctrag_k3": {
+          "causal_distance_error": 3.5,
+          "causal_path_recall": 0.75,
+          "context_token_efficiency": 0.8365,
+          "ndcg": 0.9745,
+          "recall_at_k": 0.9028
+        },
+        "tests": "87 passed, 2 failed after regression tests were added before the fix"
+      },
+      "regression_tests": [
+        "tests/test_scientific_audit.py::test_recovery_causal_signal_is_descendant_only_regression",
+        "tests/test_scientific_audit.py::test_counterfactual_causal_signal_is_ancestor_only_regression"
+      ],
+      "status": "corrected_before_preregistration_and_holdout_freeze",
+      "title": "Enforce query-mode causal direction for RECOVERY and COUNTERFACTUAL"
+    }
+  ],
+  "policy_version": 1,
+  "schema_version": 1
+}
