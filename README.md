@@ -1,52 +1,76 @@
 <img width="1672" height="941" alt="1000448050" src="https://github.com/user-attachments/assets/604de328-89b4-47cd-8015-8a299ad1c2e8" />
 
-
 # Causal-Topological RAG (CT-RAG)
 
-CT-RAG is an experimental retrieval architecture for stateful agents and event-driven systems. It combines semantic and lexical retrieval with explicit causal evidence, topological navigation, behavioral traces, and basins of attraction.
+CT-RAG is an experimental retrieval architecture for stateful agents and event-driven systems. It combines semantic and lexical retrieval with explicit causal evidence, topological navigation, behavioral traces, dynamic terrain and basins of attraction.
 
 The core question is not only **“what looks like this?”**, but also **“where am I, how did I get here, and what happened the last time this terrain was traversed?”**
 
-## Design principles
+## Research artifacts
 
-- **Causality is explicit.** Temporal adjacency never becomes a causal edge by itself.
-- **Causal provenance is first-class.** Execution/workflow evidence is distinguishable from inferred or hypothesized links.
-- **Retrieval is navigational.** Semantic search identifies anchors; CT-RAG then traverses local causal/topological neighborhoods.
-- **Basins are structural.** Attractors can define reverse-reachable regions of the execution topology.
-- **Stateful-agent friendly.** Event-sourced systems can project causation/correlation/execution identifiers directly into the terrain.
-- **Dependency-light MVP.** The core implementation runs on the Python standard library; `pytest` is optional for tests.
+- [Experimental validation report](REPORT.md)
+- [Formal research specification and related work](docs/RESEARCH.md)
+- [Reproducibility protocol](docs/REPRODUCIBILITY.md)
+- [Topology: construction, meaning and structural parts](docs/TOPOLOGY.md)
+- [Storage boundaries and adapter conformance](docs/STORAGE.md)
+- [Benchmark methodology and metrics](docs/benchmarks.md)
+- [Implementation roadmap](IMPLEMENTATION_PLAN.md)
 
-Public contracts:
+Additional public contracts:
 
-- [topology: construction, meaning and structural parts](docs/TOPOLOGY.md);
 - [core node/edge model](docs/model-contracts.md);
 - [causal path confidence and provenance](docs/causal-paths.md);
 - [basins and attractors](docs/basins.md);
 - [dense/lexical retrieval adapters and RRF](docs/retrieval-adapters.md).
 
+## Design principles
+
+- **Causality is explicit.** Temporal adjacency never becomes a causal edge by itself.
+- **Causal provenance is first-class.** Execution/workflow/event evidence remains distinguishable from inferred or hypothesized links.
+- **Retrieval is navigational.** Semantic/lexical search identifies anchors; CT-RAG then traverses local causal/topological neighborhoods.
+- **Basins are structural.** Attractors define queryable reverse-reachable regions and can be manual or empirically discovered.
+- **Terrain is non-authoritative.** Reinforcement and erosion change navigational influence without rewriting historical events or causal edges.
+- **Storage is replaceable.** Database adapters must preserve causal semantics and ranking inputs.
+- **Stateful-agent friendly.** Event-sourced systems can project causation/correlation/execution identifiers directly into the terrain.
+- **Reproducibility is executable.** Benchmarks and paper artifacts are generated from machine-readable inputs in CI.
+
 ## Architecture
 
 ```text
-query
-  |
-  v
-semantic + lexical anchor search
-  |
-  v
-anchor states
-  |
-  +--> causal neighborhood (past/future)
-  +--> behavioral neighborhood
-  +--> basin membership / attractors
-  |
-  v
-multi-signal scoring
-  |
-  v
-ranked contextual memories
+Authoritative Event Source
+          |
+          v
+EventProjector
+          |
+          v
+CausalTopology
+  |       |       |
+  |       |       +--> basins / attractors
+  |       +----------> DynamicTerrain overlay
+  +------------------> vector / lexical signals
+          |
+          v
+staged CT-RAG retrieval
+  anchor search
+    -> basin/topology expansion
+    -> directed causal traversal
+    -> mode reranking
+          |
+          v
+explainable ranked context
 ```
 
-The score combines semantic similarity, lexical relevance, causal proximity/confidence, topological proximity, temporal relevance and behavioral affinity. Weights change according to query mode (`similar`, `why`, `what_next`, `recovery`, `counterfactual`).
+The baseline score combines semantic similarity, lexical relevance, causal proximity/confidence, topological proximity, temporal relevance and behavioral affinity. Staged retrieval additionally exposes anchors, traversal stages and mode-specific priors. `TerrainAwareRetriever` can apply empirical path reinforcement as a separate final navigation signal.
+
+Supported query modes:
+
+```text
+similar
+why
+what_next
+recovery
+counterfactual
+```
 
 ## Install
 
@@ -93,66 +117,118 @@ topology.add_edge(Edge(
 ))
 
 retriever = CTRetriever(topology)
-hits = retriever.search(
-    "why did the inventory reservation fail?",
-    mode=QueryMode.WHY,
-    anchor_ids=["stock-error"],
-)
-for hit in hits:
-    print(hit.node.id, round(hit.score, 3), hit.components)
+result = retriever.why("stock-error", "why did the inventory reservation fail?")
+
+for hit in result.hits:
+    print(hit.node.id, round(hit.score, 3), hit.components, hit.causal_path)
 ```
 
 ## Event-sourced ingestion
 
-`EventProjector` converts execution events into memory nodes. Explicit `causation_id` creates a causal edge only when the referenced event exists. Events in the same execution receive temporal/behavioral relations, but those relations are not promoted to causality.
+`EventProjector` converts execution events into memory nodes. Explicit `causation_id` creates a causal edge with evidence; if the parent event arrives after the child, pending causation is reconciled deterministically when the parent appears. Events in the same execution receive temporal/behavioral relations, but those relations are never promoted to causality by order alone.
 
-See `examples/stateful_agent.py`.
+The projector also supports configurable nested field mappings, canonical event fingerprints, idempotent replay and explicit conflict detection for reused event IDs.
+
+See `examples/stateful_agent.py` and `tests/fixtures/multi_step_trace.ndjson`.
 
 ## Retrieval adapters
 
-`CTRetriever` accepts pluggable dense and lexical adapters while retaining dependency-free defaults. Built-ins include deterministic hashing embeddings, IDF overlap, BM25, optional Sentence Transformers, an OpenAI-compatible embeddings endpoint adapter, and deterministic Reciprocal Rank Fusion. See [`docs/retrieval-adapters.md`](docs/retrieval-adapters.md).
+`CTRetriever` accepts pluggable dense and lexical adapters while retaining dependency-free defaults. Built-ins include deterministic hashing embeddings, IDF overlap, BM25, optional Sentence Transformers, an OpenAI-compatible embeddings endpoint adapter, and deterministic Reciprocal Rank Fusion.
+
+See [`docs/retrieval-adapters.md`](docs/retrieval-adapters.md).
+
+## Dynamic terrain
+
+`DynamicTerrain` tracks observed transition frequency and navigational influence separately from the authoritative graph. Repeated trajectories can be reinforced; erosion decays influence without deleting historical evidence. The terrain can discover structural sink and recurrent-SCC attractors and measure basin drift between snapshots.
+
+`TerrainAwareRetriever` consumes this overlay without changing the historical baseline `CTRetriever.search()` implementation used by the published validation report.
+
+## Persistence
+
+`src/ctrag/storage.py` defines:
+
+```text
+TopologyView
+MemoryStore
+VectorIndex
+TopologyStore
+EventSource
+TerrainStore
+```
+
+`SQLiteCTStore` is the persistent local reference adapter. Conformance tests prove that save/reload preserves nodes, embeddings, causal provenance/confidence/evidence, attractors, terrain influence and CT-RAG ranking inputs/results.
+
+See [`docs/STORAGE.md`](docs/STORAGE.md).
 
 ## Reproducible benchmarks
 
-After installation, run every baseline and ablation with one command:
+Run every baseline and ablation with:
 
 ```bash
 python -m ctrag.benchmarks
 ```
 
-This runs lexical only, dense only, dense+lexical, graph/topology only, dense+causal, dense+topological and full CT-RAG on deterministic failure/recovery and branching success/failure traces, including explicit `WHY` queries. The default run produces 2,016 query/K/baseline observations across three seeds.
+The default controlled run evaluates lexical only, dense only, dense+lexical, graph/topology only, dense+causal, dense+topological and full CT-RAG on deterministic failure/recovery and branching traces, including `WHY`, `WHAT_NEXT` and `RECOVERY` queries.
 
-Results in `benchmark-results/` include the complete generated datasets and labels, seeds/configuration, source fingerprints, per-query JSON/CSV, a summary with applicable sample counts and standard deviations, and a wide `table.csv` for paper tables. CI runs the same command on Python 3.11–3.13 and uploads the outputs as artifacts.
+Results in `benchmark-results/` include generated datasets/labels, seeds/configuration, source fingerprints, per-query JSON/CSV, summaries and paper-table CSV.
 
-All seven historical report arms use the same known anchor and exhaustive candidate corpus. In `REPORT.md`, **dense means the deterministic HashingEmbedder proxy and lexical means IdfOverlapRetriever**, not a trained semantic embedding model or BM25. Adding adapters does not retroactively change the report.
+The historical `REPORT.md` benchmark uses the deterministic `HashingEmbedder` proxy and `IdfOverlapRetriever`, not a trained semantic embedding model or production BM25. Later adapters do not retroactively redefine those reported results.
 
-See [benchmark methodology and metric definitions](docs/benchmarks.md).
+## Generate paper-ready artifacts
 
-## Implemented prototype
+After the benchmark:
 
-Implemented so far:
+```bash
+python -m ctrag.research_artifacts \
+  --benchmark-dir benchmark-results \
+  --out research-artifacts \
+  --k 3
+```
 
-- memory nodes and typed edges;
-- causal provenance, evidence and confidence;
-- deterministic model serialization contracts;
-- pluggable dense/lexical retrieval adapters;
-- deterministic hashing embeddings and IDF overlap fallback;
-- BM25 and RRF;
-- optional Sentence Transformers/OpenAI-compatible embedding adapters;
-- directed causal/topological traversal;
-- explicit attractors and basins of attraction;
-- query-mode-dependent scoring;
-- Event Sourcing projection;
-- reproducible benchmark harness and validation report.
+This generates:
 
-The issue-by-issue roadmap is in [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md).
+```text
+research-artifacts/
+  topology.dot
+  causal-path.dot
+  benchmark-k3.md
+  README.md
+  manifest.json
+```
+
+`manifest.json` fingerprints benchmark inputs and generated outputs with SHA-256. CI runs this command on Python 3.11–3.13 and uploads both benchmark and research-artifact bundles.
+
+See [`docs/REPRODUCIBILITY.md`](docs/REPRODUCIBILITY.md).
+
+## Implemented scope
+
+The repository now includes:
+
+- typed/serializable memory nodes and edges;
+- explicit causal provenance, confidence and evidence;
+- pluggable semantic/lexical retrieval and RRF;
+- provenance-aware causal path reconstruction;
+- basins, attractor descriptors, boundaries and neighboring basins;
+- idempotent Event Sourcing projection with out-of-order causation reconciliation;
+- staged `WHY`, `WHAT_NEXT`, `RECOVERY` and `COUNTERFACTUAL` retrieval;
+- reproducible seven-arm benchmark/ablation harness;
+- dynamic terrain reinforcement, erosion, SCC/sink attractor discovery and basin drift;
+- terrain-aware reranking;
+- storage protocols plus SQLite persistence/conformance tests;
+- deterministic generation of paper-ready DOT figures/tables/manifests;
+- experimental validation and formal/reproducibility documentation.
 
 ## Related work
 
-CT-RAG is directly motivated by the topological retrieval intuition demonstrated by **BasinRAG**, which uses functional-graph topology and dynamical basins for retrieval. CT-RAG extends the idea toward stateful systems where part of the topology can come from observed execution causality rather than document adjacency alone.
+CT-RAG builds on the broader RAG line of work, graph-based retrieval and the topological retrieval direction exemplified by BasinRAG. Its distinguishing research target is stateful/event-driven memory where explicit execution provenance can be preserved as causal structure rather than reconstructed solely from textual similarity.
 
-- BasinRAG: https://github.com/Basinfy/BasinRAG
+The sourced related-work discussion is in [`docs/RESEARCH.md`](docs/RESEARCH.md), including:
+
+- Lewis et al., RAG (2020);
+- Edge et al., GraphRAG (2024);
+- Martins, BasinRAG (2026), DOI `10.5281/zenodo.22664948`;
+- Fowler, Event Sourcing (2005).
 
 ## Status
 
-Research prototype. The current code is intended to make the CT-RAG hypothesis executable and benchmarkable; it is not yet a production RAG framework.
+Research prototype with controlled positive empirical evidence. `REPORT.md` demonstrates the current concept on synthetic event-sourced traces, but does not claim universal superiority over learned dense retrieval, GraphRAG, BasinRAG or real-world causal-inference systems. External-validity experiments remain future research.
