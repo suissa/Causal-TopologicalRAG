@@ -4,6 +4,7 @@ from .adapters import (
     IdfOverlapRetriever,
     LexicalRetriever,
     OpenAICompatibleEmbedder,
+    RankBM25Retriever,
     SentenceTransformersEmbedder,
     reciprocal_rank_fusion,
 )
@@ -63,6 +64,7 @@ __all__ = [
     "MemoryStore",
     "OpenAICompatibleEmbedder",
     "QueryMode",
+    "RankBM25Retriever",
     "RetrievalHit",
     "RetrievalStage",
     "RetrievalWeights",
