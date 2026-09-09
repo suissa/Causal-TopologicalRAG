@@ -9,6 +9,7 @@ on:
       - "src/ctrag/benchmarks/strong_baselines.py"
       - "src/ctrag/benchmarks/anchor_discovery.py"
       - "src/ctrag/benchmarks/graphrag_baseline.py"
+      - "src/ctrag/benchmarks/basinrag_reproduction.py"
       - "src/ctrag/benchmarks/datasets.py"
       - "src/ctrag/benchmarks/metrics.py"
       - "src/ctrag/benchmarks/holdout.py"
@@ -20,7 +21,7 @@ on:
 jobs:
   strong-baselines:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -32,7 +33,18 @@ jobs:
           path: ~/.cache/huggingface
           key: hf-ctrag-strong-v1-1110a243-e8c3b32
       - name: Install science dependencies
-        run: pip install -e ".[dev,science]"
+        run: |
+          pip install -e ".[dev,science]"
+          pip install "git+https://github.com/Basinfy/BasinRAG.git@fb62771eda11f1a70d6e99ca7aa5e19b9825b829"
+      - name: Verify pinned BasinRAG import
+        run: |
+          python - <<'PY'
+          from basinrag.factory import BasinRAGConfig
+          config = BasinRAGConfig()
+          assert config.hybrid_alpha == 0.55
+          assert config.rrf_k == 60
+          print("Pinned BasinRAG import OK", config.encoder_model)
+          PY
       - name: Unit and scientific gates
         run: |
           pytest
@@ -62,6 +74,14 @@ jobs:
         env:
           TOKENIZERS_PARALLELISM: "false"
         run: python -m ctrag.benchmarks.graphrag_baseline dev --output graphrag-results/dev
+      - name: Reproduce upstream BasinRAG train comparison
+        env:
+          TOKENIZERS_PARALLELISM: "false"
+        run: python -m ctrag.benchmarks.basinrag_reproduction train --output basinrag-results/train
+      - name: Reproduce upstream BasinRAG dev comparison
+        env:
+          TOKENIZERS_PARALLELISM: "false"
+        run: python -m ctrag.benchmarks.basinrag_reproduction dev --output basinrag-results/dev
       - name: Verify final holdout is still sealed
         run: |
           test ! -f research/holdout/UNBLINDED.json
@@ -81,3 +101,8 @@ jobs:
         with:
           name: graphrag-comparison-python-3.12
           path: graphrag-results/
+      - name: Upload BasinRAG reproduction evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: basinrag-reproduction-python-3.12
+          path: basinrag-results/
