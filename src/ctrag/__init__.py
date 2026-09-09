@@ -22,6 +22,17 @@ from .models import (
 )
 from .query import RetrievalStage, StagedRetrievalResult
 from .retriever import CTRetriever
+from .storage import (
+    EventSource,
+    InMemoryVectorIndex,
+    ListEventSource,
+    MemoryStore,
+    SQLiteCTStore,
+    TerrainStore,
+    TopologyStore,
+    TopologyView,
+    VectorIndex,
+)
 from .terrain import BasinDrift, DynamicTerrain, TerrainConfig, TerrainSnapshot
 from .terrain_retriever import TerrainAwareRetriever
 from .topology import CausalTopology
@@ -43,18 +54,27 @@ __all__ = [
     "EventFieldMapping",
     "EventProjector",
     "EventRecord",
+    "EventSource",
     "IdfOverlapRetriever",
+    "InMemoryVectorIndex",
     "LexicalRetriever",
+    "ListEventSource",
     "MemoryNode",
+    "MemoryStore",
     "OpenAICompatibleEmbedder",
     "QueryMode",
     "RetrievalHit",
     "RetrievalStage",
     "RetrievalWeights",
+    "SQLiteCTStore",
     "SentenceTransformersEmbedder",
     "StagedRetrievalResult",
     "TerrainAwareRetriever",
     "TerrainConfig",
     "TerrainSnapshot",
+    "TerrainStore",
+    "TopologyStore",
+    "TopologyView",
+    "VectorIndex",
     "reciprocal_rank_fusion",
 ]
