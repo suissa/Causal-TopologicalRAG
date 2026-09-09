@@ -210,9 +210,47 @@ Detailed evidence: `docs/GRAPHRAG_COMPARISON_01.md`.
 
 ---
 
+## SCI-005 — BasinRAG reproduction artifact serialization failure
+
+**Date:** 2026-09-09  
+**Issue:** #22  
+**Classification:** `correctness_bug`  
+**Status:** corrected, pending post-fix science rerun  
+**Final holdout:** sealed
+
+### Defect
+
+Run `34355758910` successfully installed and imported the pinned upstream `Basinfy/BasinRAG@fb62771eda11f1a70d6e99ca7aa5e19b9825b829`, passed the unit/science gates, and repeatedly built BasinRAG functional attraction basins. The run then failed while serializing `costs.csv`.
+
+Index-cost rows do not have `query_id`; query-cost rows do. The helper derived CSV fieldnames from only the first row, causing:
+
+```text
+ValueError: dict contains fields not in fieldnames: 'query_id'
+```
+
+This is an output-artifact defect in our reproduction harness, not a BasinRAG retrieval/topology failure and not a negative CT-RAG result.
+
+### Regression and correction
+
+Regression test:
+
+```text
+tests/test_basinrag_reproduction.py::test_csv_handles_mixed_index_and_query_cost_rows
+```
+
+The CSV schema is now the deterministic union of keys appearing across all rows. Missing values are serialized as empty cells.
+
+No query, relevance label, topology edge, model revision, K, token budget, dataset split or retrieval score was changed by this correction.
+
+### Scientific impact
+
+The failed run is retained as pre-fix evidence. Comparison claims from #22 remain pending until the corrected train/dev reproduction completes and its artifacts are inspected. The final holdout remains sealed.
+
+---
+
 ## How future entries must be recorded
 
-Each future scientific change must receive an ID (`SCI-005`, `SCI-006`, ...), an entry in `research/science-changes.json`, and one section in this file.
+Each future scientific change must receive an ID (`SCI-006`, `SCI-007`, ...), an entry in `research/science-changes.json`, and one section in this file.
 
 A `correctness_bug` entry must include:
 
