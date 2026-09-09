@@ -14,6 +14,7 @@ from ctrag.embedding import HashingEmbedder
 from ctrag.models import QueryMode, RetrievalWeights
 from .datasets import GENERATOR_VERSION, generate
 from .metrics import evaluate
+from .protocol import preregistration_manifest
 
 BASELINES = {
     "lexical_only": RetrievalWeights(0, 1, 0, 0, 0, 0),
@@ -100,6 +101,7 @@ def run(config: Config, output: Path) -> dict:
         for path in sorted(source_root.rglob("*.py"))}
     manifest = dict(
         schema_version=1, generator_version=GENERATOR_VERSION, **asdict(config),
+        preregistration=preregistration_manifest(),
         datasets_sha256=hashlib.sha256(dataset_json.encode("utf-8")).hexdigest(),
         embedding={"name": "HashingEmbedder", "dimensions": config.dimensions,
                    "learned_dense_model": False},
