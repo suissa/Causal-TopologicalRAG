@@ -21,7 +21,7 @@ from .models import (
     RetrievalWeights,
 )
 from .query import RetrievalStage, StagedRetrievalResult
-from .retriever import CTRetriever
+from .directional_retriever import CTRetriever
 from .storage import (
     EventSource,
     InMemoryVectorIndex,
