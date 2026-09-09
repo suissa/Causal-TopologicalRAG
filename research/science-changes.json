@@ -80,6 +80,65 @@
       ],
       "status": "corrected_before_final_holdout_unblinding",
       "title": "Measure learned retrieval arms with independent cold query embeddings"
+    },
+    {
+      "affected_files": [
+        "docs/ANCHOR_DISCOVERY_01.md"
+      ],
+      "classification": "negative_result",
+      "code_changed": false,
+      "date": "2026-09-09",
+      "description": "Removing the oracle anchor caused a large end-to-end retrieval degradation on the synthetic dev split. Exact execution-state anchor discovery is therefore a current bottleneck and the oracle result cannot be presented as end-to-end performance.",
+      "id": "SCI-003",
+      "issue": 17,
+      "evidence": {
+        "ci_run": 34353826174,
+        "oracle_hybrid_k3": {
+          "recall_at_k": 0.958333,
+          "ndcg": 0.970996,
+          "causal_path_recall": 0.916667
+        },
+        "discovered_hybrid_top1_k3": {
+          "recall_at_k": 0.480324,
+          "ndcg": 0.450726,
+          "causal_path_recall": 0.430556
+        },
+        "best_failure_recovery_anchor_top1": {
+          "selector": "lexical",
+          "accuracy": 0.5
+        },
+        "final_test_status": "sealed"
+      },
+      "status": "retained_as_limitation_before_final_holdout_unblinding",
+      "title": "No-oracle anchor discovery materially degrades end-to-end retrieval"
+    },
+    {
+      "affected_files": [
+        "docs/GRAPHRAG_COMPARISON_01.md"
+      ],
+      "classification": "dataset_artifact",
+      "code_changed": false,
+      "date": "2026-09-09",
+      "description": "The semantic GraphRAG-style comparator obtains zero trace-specific relevance at K=3 on the controlled dev benchmark because repeated semantically similar event descriptions occur across distinct traces while gold evidence is execution-specific. This is preserved as a property of the synthetic mechanism test and cannot support a broad anti-GraphRAG claim.",
+      "id": "SCI-004",
+      "issue": 21,
+      "evidence": {
+        "ci_run": 34353826174,
+        "semantic_graphrag_k3": {
+          "recall_at_k": 0.0,
+          "ndcg": 0.0,
+          "causal_path_recall": 0.0
+        },
+        "full_ctrag_mpnet_k3": {
+          "recall_at_k": 0.958333,
+          "ndcg": 0.985099,
+          "causal_path_recall": 0.916667
+        },
+        "scope": "synthetic execution-trace mechanism test only; comparator is GraphRAG-style semantic kNN, not Microsoft GraphRAG",
+        "final_test_status": "sealed"
+      },
+      "status": "documented_before_external_validity_claims",
+      "title": "Synthetic trace construction is adversarial to semantic-only graph retrieval"
     }
   ],
   "policy_version": 1,
