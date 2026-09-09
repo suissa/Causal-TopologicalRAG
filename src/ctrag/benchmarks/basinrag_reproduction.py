@@ -8,7 +8,7 @@ import statistics
 import tempfile
 import time
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
@@ -16,9 +16,9 @@ import numpy as np
 
 from ctrag.adapters import RankBM25Retriever, SentenceTransformersEmbedder
 from ctrag.directional_retriever import CTRetriever
-from ctrag.models import Edge, EdgeKind, MemoryNode, RetrievalWeights
-from ctrag.topology import CausalTopology
 from ctrag.embedding import tokenize
+from ctrag.models import Edge, EdgeKind, MemoryNode
+from ctrag.topology import CausalTopology
 from .datasets import Dataset, generate
 from .holdout import load_holdout_spec, split_dataset_sha256, split_seeds
 from .metrics import evaluate
@@ -168,16 +168,7 @@ def _aggregate(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return summary
 
 
-def _append(
-    rows: list[dict[str, Any]],
-    *,
-    split: str,
-    dataset: Dataset,
-    query,
-    arm: str,
-    ranking: list[str],
-    k: int,
-) -> None:
+def _append(rows: list[dict[str, Any]], *, split: str, dataset: Dataset, query, arm: str, ranking: list[str], k: int) -> None:
     rows.append({
         "split": split,
         "dataset": dataset.name,
@@ -228,7 +219,7 @@ def run_basinrag_reproduction(
             dataset = generate(dataset_name, seed, traces)
             with tempfile.TemporaryDirectory(prefix="ctrag-basinrag-") as storage_dir:
                 started = time.perf_counter()
-                engine, upstream_hybrid = _build_upstream_basinrag(dataset, embedder, storage_dir)
+                _engine, upstream_hybrid = _build_upstream_basinrag(dataset, embedder, storage_dir)
                 costs.append({
                     "dataset": dataset_name,
                     "seed": seed,
@@ -237,7 +228,6 @@ def run_basinrag_reproduction(
                     "elapsed_ms": (time.perf_counter() - started) * 1000.0,
                 })
 
-                # Independent CT-RAG views avoid cross-arm embedding mutation.
                 ct_full_dataset = generate(dataset_name, seed, traces)
                 ct_full = CTRetriever(
                     ct_full_dataset.topology,
@@ -254,15 +244,9 @@ def run_basinrag_reproduction(
                 )
 
                 for query in dataset.queries:
-                    # Upstream BasinRAG receives only the raw query. No gold event ID,
-                    # causation label or CT-RAG edge is injected into the upstream graph.
                     started = time.perf_counter()
                     query_embedding = np.asarray(embedder.embed(query.text), dtype=np.float32)
-                    basin_hits = upstream_hybrid.search_nodes(
-                        query.text,
-                        query_embedding,
-                        top_k=max(k * 4, k),
-                    )
+                    basin_hits = upstream_hybrid.search_nodes(query.text, query_embedding, top_k=max(k * 4, k))
                     basin_ranking = _without_anchor([str(item["id"]) for item in basin_hits], query.anchor)
                     basin_ranking = _token_budget(basin_ranking, dataset.topology, context_token_budget, k)
                     costs.append({
@@ -273,10 +257,8 @@ def run_basinrag_reproduction(
                         "operation": "query",
                         "elapsed_ms": (time.perf_counter() - started) * 1000.0,
                     })
-                    _append(rows, split=split, dataset=dataset, query=query,
-                            arm="basinrag_upstream_hybrid", ranking=basin_ranking, k=k)
+                    _append(rows, split=split, dataset=dataset, query=query, arm="basinrag_upstream_hybrid", ranking=basin_ranking, k=k)
 
-                    # End-to-end CT-RAG: discovered anchors from the same raw query.
                     started = time.perf_counter()
                     ct_hits = ct_full.search(
                         query.text,
@@ -297,11 +279,8 @@ def run_basinrag_reproduction(
                         "operation": "query",
                         "elapsed_ms": (time.perf_counter() - started) * 1000.0,
                     })
-                    _append(rows, split=split, dataset=dataset, query=query,
-                            arm="ctrag_full_no_oracle", ranking=ct_ranking, k=k)
+                    _append(rows, split=split, dataset=dataset, query=query, arm="ctrag_full_no_oracle", ranking=ct_ranking, k=k)
 
-                    # Same CT-RAG machinery after removing explicit causal metadata.
-                    # This is the topology/semantic ablation required by #22.
                     started = time.perf_counter()
                     nc_hits = ct_no_causal.search(
                         query.text,
@@ -322,10 +301,8 @@ def run_basinrag_reproduction(
                         "operation": "query",
                         "elapsed_ms": (time.perf_counter() - started) * 1000.0,
                     })
-                    _append(rows, split=split, dataset=dataset, query=query,
-                            arm="ctrag_no_causal_metadata", ranking=nc_ranking, k=k)
+                    _append(rows, split=split, dataset=dataset, query=query, arm="ctrag_no_causal_metadata", ranking=nc_ranking, k=k)
 
-                    # Oracle track is diagnostic only and is never merged with end-to-end claims.
                     oracle_hits = ct_full.search(
                         query.text,
                         mode=query.mode,
@@ -336,8 +313,7 @@ def run_basinrag_reproduction(
                     )
                     oracle_ranking = _without_anchor([hit.node.id for hit in oracle_hits], query.anchor)
                     oracle_ranking = _token_budget(oracle_ranking, dataset.topology, context_token_budget, k)
-                    _append(rows, split=split, dataset=dataset, query=query,
-                            arm="ctrag_oracle_diagnostic", ranking=oracle_ranking, k=k)
+                    _append(rows, split=split, dataset=dataset, query=query, arm="ctrag_oracle_diagnostic", ranking=oracle_ranking, k=k)
 
     summary = _aggregate(rows)
     cost_groups: dict[tuple[str, str], list[float]] = defaultdict(list)
@@ -361,7 +337,7 @@ def run_basinrag_reproduction(
         "final_test_executed": False,
         "dataset_sha256": split_dataset_sha256(split),
         "preregistration": preregistration_manifest(),
-        "basinrag": BasinRAGProtocol().__dict__,
+        "basinrag": asdict(BasinRAGProtocol()),
         "matched_protocol": {
             "corpus": "identical synthetic MemoryNode text corpus",
             "query": "identical raw query text for end-to-end arms",
