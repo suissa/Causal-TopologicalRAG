@@ -8,7 +8,7 @@ from .adapters import (
     reciprocal_rank_fusion,
 )
 from .basins import AttractorDescriptor, BasinAffinity
-from .events import EventProjector, EventRecord
+from .events import EventFieldMapping, EventProjector, EventRecord
 from .models import (
     CausalPath,
     CausalProvenance,
@@ -35,6 +35,7 @@ __all__ = [
     "EdgeEvidence",
     "EdgeKind",
     "EmbeddingProvider",
+    "EventFieldMapping",
     "EventProjector",
     "EventRecord",
     "IdfOverlapRetriever",
