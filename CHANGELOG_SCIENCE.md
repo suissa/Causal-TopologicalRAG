@@ -152,9 +152,67 @@ Quality conclusions from the first strong-baseline run remain valid for the same
 
 ---
 
+## SCI-003 — No-oracle anchor discovery degrades end-to-end retrieval
+
+**Date:** 2026-09-09  
+**Issue:** #17  
+**Classification:** `negative_result`  
+**Status:** retained as a limitation before final-holdout unblinding  
+**Code changed because of the result:** `false`
+
+### Observation
+
+The oracle-anchor proof-of-concept does not translate directly into equivalent end-to-end performance when the current execution state must be selected from raw query text.
+
+On run `34353826174`, hybrid selection at K=3 changed from:
+
+| Metric | Oracle anchor | Discovered Top-1 |
+| --- | ---: | ---: |
+| Recall@3 | 0.9583 | 0.4803 |
+| nDCG@3 | 0.9710 | 0.4507 |
+| Causal Path Recall | 0.9167 | 0.4306 |
+
+The strongest observed Top-1 anchor accuracy in the failure/recovery dataset was lexical selection at `0.5000`. Propagating Top-3 anchor uncertainty recovered part of the ranking loss but did not restore oracle causal-path performance.
+
+### Scientific impact
+
+The original oracle-anchor benchmark remains useful for isolating causal/topological navigation, but it is not an end-to-end agent-memory score. Anchor selection is currently a first-order error source and must remain separately reported.
+
+No retrieval implementation was changed to turn this result into a win. The final holdout remains sealed.
+
+Detailed evidence: `docs/ANCHOR_DISCOVERY_01.md`.
+
+---
+
+## SCI-004 — Synthetic trace construction is adversarial to semantic-only graph retrieval
+
+**Date:** 2026-09-09  
+**Issue:** #21  
+**Classification:** `dataset_artifact`  
+**Status:** documented before external-validity claims  
+**Code changed because of the observation:** `false`
+
+### Observation
+
+The matched semantic GraphRAG-style comparator obtains `0.0000` Recall@3/nDCG@3/Causal Path Recall on the controlled `dev` split, while Full CT-RAG remains high.
+
+The comparator was not intentionally deprived of semantic retrieval: it receives the same learned embedding model, BM25 component, corpus, oracle anchor and K values. It is intentionally denied CT-RAG execution-causal edges because those are the signal under test.
+
+The synthetic corpus repeats semantically similar event descriptions across distinct execution traces while the relevance target is trace-specific. A semantic k-NN relation graph therefore connects textually similar states but lacks evidence identifying which execution produced the target state.
+
+### Scientific impact
+
+This is useful mechanism evidence that semantic graph connectivity is not equivalent to observed execution causality. It is **not** evidence that Microsoft GraphRAG or graph retrieval generally has zero utility.
+
+The zero baseline score must be treated as a property of this synthetic mechanism test until real/independent datasets are evaluated.
+
+Detailed evidence: `docs/GRAPHRAG_COMPARISON_01.md`.
+
+---
+
 ## How future entries must be recorded
 
-Each future scientific change must receive an ID (`SCI-003`, `SCI-004`, ...), an entry in `research/science-changes.json`, and one section in this file.
+Each future scientific change must receive an ID (`SCI-005`, `SCI-006`, ...), an entry in `research/science-changes.json`, and one section in this file.
 
 A `correctness_bug` entry must include:
 
