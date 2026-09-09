@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 import math
-from collections import Counter
-from datetime import datetime, timezone
+from datetime import timezone
 
-from .embedding import HashingEmbedder, cosine_similarity, tokenize
+from .adapters import (
+    EmbeddingProvider,
+    IdfOverlapRetriever,
+    LexicalRetriever,
+    reciprocal_rank_fusion,
+)
+from .embedding import HashingEmbedder, cosine_similarity
 from .models import EdgeKind, QueryMode, RetrievalHit, RetrievalWeights
 from .topology import CausalTopology
 
@@ -14,11 +19,13 @@ class CTRetriever:
         self,
         topology: CausalTopology,
         *,
-        embedder: HashingEmbedder | None = None,
+        embedder: EmbeddingProvider | None = None,
+        lexical_retriever: LexicalRetriever | None = None,
         hop_decay: float = 0.7,
     ) -> None:
         self.topology = topology
-        self.embedder = embedder or HashingEmbedder()
+        self.embedder: EmbeddingProvider = embedder or HashingEmbedder()
+        self.lexical_retriever: LexicalRetriever = lexical_retriever or IdfOverlapRetriever()
         self.hop_decay = hop_decay
         self._ensure_embeddings()
 
@@ -36,24 +43,40 @@ class CTRetriever:
         }
 
     def _lexical_scores(self, query: str) -> dict[str, float]:
-        query_terms = set(tokenize(query))
-        if not query_terms:
-            return {node_id: 0.0 for node_id in self.topology.nodes}
+        documents = {node.id: node.text for node in self.topology.nodes.values()}
+        scores = self.lexical_retriever.score(query, documents)
+        missing = set(documents).difference(scores)
+        if missing:
+            raise ValueError(f"lexical retriever omitted document ids: {sorted(missing)}")
+        return {node_id: float(scores[node_id]) for node_id in documents}
 
-        documents = {node.id: set(tokenize(node.text)) for node in self.topology.nodes.values()}
-        document_frequency = Counter(
-            term for terms in documents.values() for term in query_terms.intersection(terms)
-        )
-        total = max(1, len(documents))
-        idf = {
-            term: math.log((total + 1) / (document_frequency.get(term, 0) + 1)) + 1.0
-            for term in query_terms
-        }
-        denominator = sum(idf.values()) or 1.0
-        return {
-            node_id: sum(idf[term] for term in query_terms.intersection(terms)) / denominator
-            for node_id, terms in documents.items()
-        }
+    @staticmethod
+    def _rank_scores(scores: dict[str, float], k: int) -> list[tuple[str, float]]:
+        if k <= 0:
+            return []
+        return sorted(scores.items(), key=lambda item: (-item[1], item[0]))[:k]
+
+    def rank_dense(self, query: str, *, k: int = 10) -> list[tuple[str, float]]:
+        """Rank only by the configured embedding provider."""
+        return self._rank_scores(self._semantic_scores(query), k)
+
+    def rank_lexical(self, query: str, *, k: int = 10) -> list[tuple[str, float]]:
+        """Rank only by the configured lexical adapter."""
+        return self._rank_scores(self._lexical_scores(query), k)
+
+    def rank_hybrid_rrf(
+        self,
+        query: str,
+        *,
+        k: int = 10,
+        rank_constant: int = 60,
+    ) -> list[tuple[str, float]]:
+        """Fuse dense and lexical ranks without affecting CT-RAG graph scoring."""
+        if k <= 0:
+            return []
+        dense = [node_id for node_id, _ in self.rank_dense(query, k=len(self.topology.nodes))]
+        lexical = [node_id for node_id, _ in self.rank_lexical(query, k=len(self.topology.nodes))]
+        return reciprocal_rank_fusion([dense, lexical], rank_constant=rank_constant)[:k]
 
     def _direction_for(self, mode: QueryMode) -> str:
         if mode is QueryMode.WHY:
@@ -214,7 +237,6 @@ class CTRetriever:
                 )
             )
 
-        # Controlled ablations must not inherit semantic candidate pruning.
         if exhaustive:
             candidate_ids = set(self.topology.nodes)
 
