@@ -27,6 +27,10 @@ def test_holdout_spec_is_frozen_and_splits_do_not_overlap() -> None:
     assert dev.isdisjoint(test)
 
 
+def test_final_test_dataset_fingerprint_is_frozen_without_retrieval() -> None:
+    assert holdout.split_dataset_sha256("test") == holdout.FROZEN_TEST_DATASET_SHA256
+
+
 def test_final_test_is_sealed_by_default(tmp_path) -> None:
     with pytest.raises(RuntimeError, match="final test is sealed"):
         holdout.run_split("test", tmp_path / "sealed", ks=(1,))
