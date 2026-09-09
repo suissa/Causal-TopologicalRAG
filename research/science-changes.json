@@ -43,6 +43,43 @@
       ],
       "status": "corrected_before_preregistration_and_holdout_freeze",
       "title": "Enforce query-mode causal direction for RECOVERY and COUNTERFACTUAL"
+    },
+    {
+      "affected_files": [
+        "src/ctrag/benchmarks/strong_baselines.py",
+        "tests/test_strong_baselines.py"
+      ],
+      "classification": "correctness_bug",
+      "code_changed": true,
+      "date": "2026-09-09",
+      "description": "The first strong-baseline resource run reused cached query embeddings, and the hybrid timing reused a dense ranking computed by the preceding arm. Retrieval rankings and quality metrics were valid, but the latency comparison was warm-cache and therefore not a fair per-arm query-cost measurement.",
+      "id": "SCI-002",
+      "issue": 16,
+      "post_fix": {
+        "ci_run": 34353826174,
+        "cost_policy": "Each dense, hybrid and CT-RAG arm invalidates the exact query embedding before its timed block; hybrid recomputes dense retrieval inside its own timed block. Document embeddings remain indexed.",
+        "dev_mean_query_cold_ms": {
+          "bm25_rank_bm25": 1.003076,
+          "dense_minilm_l6_v2": 11.494283,
+          "hybrid_minilm_l6_v2_bm25": 11.787358,
+          "full_ctrag_minilm_l6_v2_bm25": 12.652193,
+          "dense_mpnet_base_v2": 45.578311,
+          "hybrid_mpnet_base_v2_bm25": 45.891576,
+          "full_ctrag_mpnet_base_v2_bm25": 46.925879
+        },
+        "quality_impact": "none; dev retrieval rankings and aggregate quality metrics are unchanged",
+        "final_test_status": "sealed"
+      },
+      "pre_fix": {
+        "ci_run": 34352869207,
+        "cost_policy": "Query embedding/dense work could be reused from an earlier arm through the benchmark cache, producing invalid warm-cache latency values for cross-arm comparison.",
+        "quality_impact": "none; defect affected only resource timing"
+      },
+      "regression_tests": [
+        "tests/test_strong_baselines.py::test_cached_embedder_invalidation_forces_fresh_query_embedding"
+      ],
+      "status": "corrected_before_final_holdout_unblinding",
+      "title": "Measure learned retrieval arms with independent cold query embeddings"
     }
   ],
   "policy_version": 1,
