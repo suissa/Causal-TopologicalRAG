@@ -8,6 +8,7 @@ on:
       - "src/ctrag/adapters.py"
       - "src/ctrag/benchmarks/strong_baselines.py"
       - "src/ctrag/benchmarks/anchor_discovery.py"
+      - "src/ctrag/benchmarks/graphrag_baseline.py"
       - "src/ctrag/benchmarks/datasets.py"
       - "src/ctrag/benchmarks/metrics.py"
       - "src/ctrag/benchmarks/holdout.py"
@@ -19,7 +20,7 @@ on:
 jobs:
   strong-baselines:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -53,6 +54,14 @@ jobs:
         env:
           TOKENIZERS_PARALLELISM: "false"
         run: python -m ctrag.benchmarks.anchor_discovery dev --output anchor-discovery-results/dev
+      - name: Run matched GraphRAG train comparison
+        env:
+          TOKENIZERS_PARALLELISM: "false"
+        run: python -m ctrag.benchmarks.graphrag_baseline train --output graphrag-results/train
+      - name: Run matched GraphRAG dev comparison
+        env:
+          TOKENIZERS_PARALLELISM: "false"
+        run: python -m ctrag.benchmarks.graphrag_baseline dev --output graphrag-results/dev
       - name: Verify final holdout is still sealed
         run: |
           test ! -f research/holdout/UNBLINDED.json
@@ -67,3 +76,8 @@ jobs:
         with:
           name: anchor-discovery-python-3.12
           path: anchor-discovery-results/
+      - name: Upload matched GraphRAG evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: graphrag-comparison-python-3.12
+          path: graphrag-results/
