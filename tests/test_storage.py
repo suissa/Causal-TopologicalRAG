@@ -13,6 +13,7 @@ from ctrag import (
     MemoryNode,
     QueryMode,
 )
+from ctrag.embedding import HashingEmbedder
 from ctrag.storage import (
     EventSource,
     InMemoryVectorIndex,
@@ -155,8 +156,9 @@ def test_sqlite_topology_round_trip_preserves_all_semantic_inputs(tmp_path) -> N
 def test_reload_preserves_ctrag_ranking_inputs_and_results(tmp_path) -> None:
     original = build_topology()
     store = SQLiteCTStore(tmp_path / "rank.sqlite")
+    embedder = HashingEmbedder(dimensions=3)
 
-    before = CTRetriever(original).search(
+    before = CTRetriever(original, embedder=embedder).search(
         "why did inventory reservation fail?",
         mode=QueryMode.WHY,
         anchor_ids=["error"],
@@ -165,7 +167,7 @@ def test_reload_preserves_ctrag_ranking_inputs_and_results(tmp_path) -> None:
     )
     store.save_topology(original)
     loaded = store.load_topology()
-    after = CTRetriever(loaded).search(
+    after = CTRetriever(loaded, embedder=HashingEmbedder(dimensions=3)).search(
         "why did inventory reservation fail?",
         mode=QueryMode.WHY,
         anchor_ids=["error"],
