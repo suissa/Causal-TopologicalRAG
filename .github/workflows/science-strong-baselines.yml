@@ -1,0 +1,55 @@
+name: Science Strong Baselines
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/ctrag/adapters.py"
+      - "src/ctrag/benchmarks/strong_baselines.py"
+      - "src/ctrag/benchmarks/datasets.py"
+      - "src/ctrag/benchmarks/metrics.py"
+      - "src/ctrag/benchmarks/holdout.py"
+      - "research/holdout/manifest-v1.json"
+      - "docs/PREREGISTRATION.md"
+      - "pyproject.toml"
+      - ".github/workflows/science-strong-baselines.yml"
+
+jobs:
+  strong-baselines:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Cache Hugging Face models
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-ctrag-strong-v1-1110a243-e8c3b32
+      - name: Install science dependencies
+        run: pip install -e ".[dev,science]"
+      - name: Unit and scientific gates
+        run: |
+          pytest
+          python -m ctrag.science_gate
+          python -m ctrag.benchmarks.holdout fingerprint test
+      - name: Run strong train baselines
+        env:
+          TOKENIZERS_PARALLELISM: "false"
+        run: python -m ctrag.benchmarks.strong_baselines train --output strong-baseline-results/train
+      - name: Run strong dev baselines
+        env:
+          TOKENIZERS_PARALLELISM: "false"
+        run: python -m ctrag.benchmarks.strong_baselines dev --output strong-baseline-results/dev
+      - name: Verify final holdout is still sealed
+        run: |
+          test ! -f research/holdout/UNBLINDED.json
+          python -m ctrag.benchmarks.holdout fingerprint test
+      - name: Upload strong-baseline evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: strong-baselines-python-3.12
+          path: strong-baseline-results/
