@@ -13,6 +13,8 @@ The core question is not only **“what looks like this?”**, but also **“whe
 - **Stateful-agent friendly.** Event-sourced systems can project causation/correlation/execution identifiers directly into the terrain.
 - **Dependency-light MVP.** The initial implementation uses the Python standard library; `pytest` is optional for tests.
 
+The public node/edge identity, validation, provenance/evidence, and serialization contracts are documented in [`docs/model-contracts.md`](docs/model-contracts.md).
+
 ## Architecture
 
 ```text
@@ -143,7 +145,8 @@ See [benchmark methodology and metric definitions](docs/benchmarks.md).
 Implemented in the first slice:
 
 - memory nodes and typed edges;
-- causal provenance and confidence;
+- causal provenance, evidence and confidence;
+- deterministic model serialization contracts;
 - deterministic local hashing embeddings;
 - lexical scoring;
 - directed causal/topological traversal;

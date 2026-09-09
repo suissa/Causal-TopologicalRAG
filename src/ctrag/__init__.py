@@ -2,6 +2,7 @@ from .events import EventProjector, EventRecord
 from .models import (
     CausalProvenance,
     Edge,
+    EdgeEvidence,
     EdgeKind,
     MemoryNode,
     QueryMode,
@@ -16,6 +17,7 @@ __all__ = [
     "CausalTopology",
     "CTRetriever",
     "Edge",
+    "EdgeEvidence",
     "EdgeKind",
     "EventProjector",
     "EventRecord",

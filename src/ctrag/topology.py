@@ -20,9 +20,18 @@ class CausalTopology:
     def upsert_node(self, node: MemoryNode) -> None:
         self.nodes[node.id] = node
 
+    def has_edge(self, edge: Edge) -> bool:
+        identity = edge.identity()
+        return any(existing.identity() == identity for existing in self._out.get(edge.source, []))
+
     def add_edge(self, edge: Edge) -> None:
         if edge.source not in self.nodes or edge.target not in self.nodes:
             raise KeyError("both edge endpoints must exist before adding an edge")
+        if self.has_edge(edge):
+            raise ValueError(
+                "edge already exists: "
+                f"{edge.source}->{edge.target}:{edge.kind.value}:{edge.provenance}"
+            )
         self._out[edge.source].append(edge)
         self._in[edge.target].append(edge)
 
@@ -98,6 +107,8 @@ class CausalTopology:
             raise ValueError("direction must be one of: in, out, both")
         if node_id not in self.nodes:
             raise KeyError(node_id)
+        if max_hops < 0:
+            raise ValueError("max_hops must be non-negative")
         allowed = set(kinds) if kinds is not None else None
         queue: deque[tuple[str, int]] = deque([(node_id, 0)])
         distances = {node_id: 0}
@@ -131,10 +142,16 @@ class CausalTopology:
         max_hops: int = 4,
     ) -> tuple[int | None, float]:
         """Return shortest causal hops and best confidence product at that depth."""
+        if anchor_id not in self.nodes:
+            raise KeyError(anchor_id)
+        if candidate_id not in self.nodes:
+            raise KeyError(candidate_id)
         if anchor_id == candidate_id:
             return 0, 1.0
         if direction not in {"in", "out"}:
             raise ValueError("causal path direction must be in or out")
+        if max_hops < 0:
+            raise ValueError("max_hops must be non-negative")
 
         queue: deque[tuple[str, int, float]] = deque([(anchor_id, 0, 1.0)])
         best_seen: dict[tuple[str, int], float] = {(anchor_id, 0): 1.0}
