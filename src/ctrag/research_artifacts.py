@@ -29,7 +29,6 @@ def _edge_value(edge: dict[str, Any], key: str) -> str | None:
     if isinstance(value, str):
         return value
     if isinstance(value, dict):
-        # Defensive support for enum serializers that emit {value: ...}.
         raw = value.get("value")
         return None if raw is None else str(raw)
     return None if value is None else str(value)
@@ -92,7 +91,7 @@ def benchmark_table(rows: list[dict[str, str]], *, k: int = 3) -> str:
     selected = [row for row in rows if int(row["k"]) == k]
     selected.sort(key=lambda row: (row["dataset"], row["mode"], row["baseline"]))
     metrics = [
-        "recall",
+        "recall_at_k",
         "mrr",
         "ndcg",
         "causal_path_recall",
