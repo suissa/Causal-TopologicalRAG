@@ -22,16 +22,19 @@ from .models import (
 )
 from .query import RetrievalStage, StagedRetrievalResult
 from .retriever import CTRetriever
+from .terrain import BasinDrift, DynamicTerrain, TerrainConfig, TerrainSnapshot
 from .topology import CausalTopology
 
 __all__ = [
     "AttractorDescriptor",
     "BasinAffinity",
+    "BasinDrift",
     "BM25Retriever",
     "CausalPath",
     "CausalProvenance",
     "CausalTopology",
     "CTRetriever",
+    "DynamicTerrain",
     "Edge",
     "EdgeEvidence",
     "EdgeKind",
@@ -49,5 +52,7 @@ __all__ = [
     "RetrievalWeights",
     "SentenceTransformersEmbedder",
     "StagedRetrievalResult",
+    "TerrainConfig",
+    "TerrainSnapshot",
     "reciprocal_rank_fusion",
 ]
