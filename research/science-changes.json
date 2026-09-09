@@ -139,6 +139,34 @@
       },
       "status": "documented_before_external_validity_claims",
       "title": "Synthetic trace construction is adversarial to semantic-only graph retrieval"
+    },
+    {
+      "affected_files": [
+        "src/ctrag/benchmarks/basinrag_reproduction.py",
+        "tests/test_basinrag_reproduction.py"
+      ],
+      "classification": "correctness_bug",
+      "code_changed": true,
+      "date": "2026-09-09",
+      "description": "The first pinned BasinRAG reproduction completed upstream installation, import, basin construction and retrieval work, but failed while writing costs.csv because index rows did not contain query_id while query rows did. The CSV helper derived its schema only from the first row. Retrieval data and the upstream topology were not the cause of the failure.",
+      "id": "SCI-005",
+      "issue": 22,
+      "pre_fix": {
+        "ci_run": 34355758910,
+        "failure": "ValueError: dict contains fields not in fieldnames: 'query_id'",
+        "upstream_status": "BasinRAG 1.0.3 installed/imported successfully and repeatedly built functional attraction basins before artifact serialization failed",
+        "final_test_status": "sealed"
+      },
+      "post_fix": {
+        "status": "pending science rerun",
+        "fix": "CSV fieldnames are the deterministic union of keys across all rows",
+        "final_test_status": "sealed"
+      },
+      "regression_tests": [
+        "tests/test_basinrag_reproduction.py::test_csv_handles_mixed_index_and_query_cost_rows"
+      ],
+      "status": "corrected_pending_validation_before_final_holdout_unblinding",
+      "title": "Serialize heterogeneous BasinRAG index/query cost rows without dropping fields"
     }
   ],
   "policy_version": 1,
