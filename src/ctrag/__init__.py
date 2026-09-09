@@ -7,6 +7,7 @@ from .adapters import (
     SentenceTransformersEmbedder,
     reciprocal_rank_fusion,
 )
+from .basins import AttractorDescriptor, BasinAffinity
 from .events import EventProjector, EventRecord
 from .models import (
     CausalPath,
@@ -23,6 +24,8 @@ from .retriever import CTRetriever
 from .topology import CausalTopology
 
 __all__ = [
+    "AttractorDescriptor",
+    "BasinAffinity",
     "BM25Retriever",
     "CausalPath",
     "CausalProvenance",

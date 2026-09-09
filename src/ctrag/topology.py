@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import defaultdict, deque
 from collections.abc import Iterable
 
+from .basins import AttractorDescriptor, BasinAffinity
 from .models import CausalPath, CausalProvenance, Edge, EdgeKind, MemoryNode
 
 
@@ -15,20 +16,27 @@ PROVENANCE_FACTORS: dict[CausalProvenance, float] = {
     CausalProvenance.HYPOTHESIZED: 0.35,
 }
 
+BASIN_EDGE_KINDS = {EdgeKind.CAUSAL, EdgeKind.BEHAVIORAL}
+
 
 class CausalTopology:
     def __init__(self) -> None:
         self.nodes: dict[str, MemoryNode] = {}
         self._out: dict[str, list[Edge]] = defaultdict(list)
         self._in: dict[str, list[Edge]] = defaultdict(list)
+        self._attractors: dict[str, AttractorDescriptor] = {}
 
     def add_node(self, node: MemoryNode) -> None:
         if node.id in self.nodes:
             raise ValueError(f"node already exists: {node.id}")
         self.nodes[node.id] = node
+        if node.is_attractor:
+            self._attractors[node.id] = AttractorDescriptor(node_id=node.id, origin="legacy")
 
     def upsert_node(self, node: MemoryNode) -> None:
         self.nodes[node.id] = node
+        if node.is_attractor and node.id not in self._attractors:
+            self._attractors[node.id] = AttractorDescriptor(node_id=node.id, origin="legacy")
 
     def has_edge(self, edge: Edge) -> bool:
         identity = edge.identity()
@@ -59,31 +67,114 @@ class CausalTopology:
         allowed = set(kinds)
         return [edge for edge in edges if edge.kind in allowed]
 
-    def register_attractor(self, node_id: str) -> None:
+    def register_attractor(
+        self,
+        node_id: str,
+        *,
+        confidence: float = 1.0,
+        origin: str = "manual",
+        metadata: dict | None = None,
+    ) -> AttractorDescriptor:
+        if node_id not in self.nodes:
+            raise KeyError(node_id)
+        descriptor = AttractorDescriptor(
+            node_id=node_id,
+            confidence=confidence,
+            origin=origin,
+            metadata=dict(metadata or {}),
+        )
         self.nodes[node_id].is_attractor = True
+        self._attractors[node_id] = descriptor
+        return descriptor
+
+    def unregister_attractor(self, node_id: str) -> None:
+        if node_id not in self.nodes:
+            raise KeyError(node_id)
+        self.nodes[node_id].is_attractor = False
+        self._attractors.pop(node_id, None)
+
+    def attractor(self, node_id: str) -> AttractorDescriptor | None:
+        return self._attractors.get(node_id)
+
+    def attractor_descriptors(self) -> list[AttractorDescriptor]:
+        return [self._attractors[node_id] for node_id in sorted(self._attractors)]
 
     def basin(self, attractor_id: str, max_hops: int = 8) -> set[str]:
         if attractor_id not in self.nodes:
             raise KeyError(attractor_id)
-        if not self.nodes[attractor_id].is_attractor:
+        if attractor_id not in self._attractors:
             raise ValueError(f"node is not registered as an attractor: {attractor_id}")
         return self.neighborhood(
             attractor_id,
             direction="in",
-            kinds={EdgeKind.CAUSAL, EdgeKind.BEHAVIORAL},
+            kinds=BASIN_EDGE_KINDS,
             max_hops=max_hops,
             include_anchor=True,
         )
 
     def attractors_for(self, node_id: str, max_hops: int = 8) -> set[str]:
+        if node_id not in self.nodes:
+            raise KeyError(node_id)
         reachable = self.neighborhood(
             node_id,
             direction="out",
-            kinds={EdgeKind.CAUSAL, EdgeKind.BEHAVIORAL},
+            kinds=BASIN_EDGE_KINDS,
             max_hops=max_hops,
             include_anchor=True,
         )
-        return {candidate for candidate in reachable if self.nodes[candidate].is_attractor}
+        return set(self._attractors).intersection(reachable)
+
+    def basin_memberships(self, node_id: str, max_hops: int = 8) -> set[str]:
+        return self.attractors_for(node_id, max_hops=max_hops)
+
+    def shared_basin_affinity(
+        self,
+        left_id: str,
+        right_id: str,
+        *,
+        max_hops: int = 8,
+    ) -> BasinAffinity:
+        shared = tuple(sorted(
+            self.attractors_for(left_id, max_hops=max_hops).intersection(
+                self.attractors_for(right_id, max_hops=max_hops)
+            )
+        ))
+        if not shared:
+            return BasinAffinity(left_id, right_id, (), 0.0)
+        confidence = max(self._attractors[node_id].confidence for node_id in shared)
+        return BasinAffinity(left_id, right_id, shared, 0.6 * confidence)
+
+    def basin_boundary(self, attractor_id: str, max_hops: int = 8) -> set[str]:
+        members = self.basin(attractor_id, max_hops=max_hops)
+        boundary: set[str] = set()
+        for node_id in members:
+            neighbors = [edge.target for edge in self.outgoing(node_id, BASIN_EDGE_KINDS)]
+            neighbors.extend(edge.source for edge in self.incoming(node_id, BASIN_EDGE_KINDS))
+            if any(neighbor not in members for neighbor in neighbors):
+                boundary.add(node_id)
+        return boundary
+
+    def neighboring_basins(self, attractor_id: str, max_hops: int = 8) -> set[str]:
+        members = self.basin(attractor_id, max_hops=max_hops)
+        neighbors: set[str] = set()
+
+        # Overlapping basins are neighbors by shared state.
+        for other_id in self._attractors:
+            if other_id == attractor_id:
+                continue
+            if members.intersection(self.basin(other_id, max_hops=max_hops)):
+                neighbors.add(other_id)
+
+        # Basins connected across a boundary are also neighbors.
+        for node_id in self.basin_boundary(attractor_id, max_hops=max_hops):
+            adjacent = [edge.target for edge in self.outgoing(node_id, BASIN_EDGE_KINDS)]
+            adjacent.extend(edge.source for edge in self.incoming(node_id, BASIN_EDGE_KINDS))
+            for adjacent_id in adjacent:
+                if adjacent_id in members:
+                    continue
+                neighbors.update(self.attractors_for(adjacent_id, max_hops=max_hops))
+        neighbors.discard(attractor_id)
+        return neighbors
 
     def neighborhood(
         self,
@@ -155,13 +246,6 @@ class CausalTopology:
         direction: str,
         max_hops: int = 4,
     ) -> list[tuple[tuple[str, ...], tuple[Edge, ...], float]]:
-        """Enumerate simple causal paths up to a traversal budget.
-
-        Only `EdgeKind.CAUSAL` contributes. Cycles cannot recur inside a path.
-        Path confidence is the product of edge confidence, bounded edge weight and
-        provenance calibration factors.
-        """
-
         if anchor_id not in self.nodes:
             raise KeyError(anchor_id)
         if candidate_id not in self.nodes:
@@ -190,11 +274,7 @@ class CausalTopology:
                 neighbor = edge.source if direction == "in" else edge.target
                 if neighbor in nodes:
                     continue
-                factor = (
-                    edge.confidence
-                    * min(1.0, edge.weight)
-                    * self.provenance_factor(edge.provenance)
-                )
+                factor = edge.confidence * min(1.0, edge.weight) * self.provenance_factor(edge.provenance)
                 next_confidence = confidence * factor
                 next_nodes = nodes + (neighbor,)
                 next_edges = edges_so_far + (edge,)
@@ -246,7 +326,6 @@ class CausalTopology:
         direction: str,
         max_hops: int = 4,
     ) -> tuple[int | None, float]:
-        """Backward-compatible scalar view over explainable path evidence."""
         path = self.causal_path_evidence(
             anchor_id,
             candidate_id,
