@@ -6,6 +6,14 @@ Deliver CT-RAG as a reproducible research implementation for retrieving executio
 
 The implementation is considered research-valid only when every retrieval signal is independently testable, every causal claim preserves provenance, the benchmark is reproducible, and reported results can be regenerated from committed code/configuration.
 
+## v0.1 status
+
+**Implementation roadmap #1–#10: complete.**
+
+The repository now has a tested path from authoritative execution events to causal/topological retrieval, empirical terrain evolution, persistence and reproducible paper artifacts.
+
+The controlled experiment in [`REPORT.md`](REPORT.md) provides positive proof-of-concept evidence on synthetic event-sourced traces. External validity remains a separate post-v0.1 research phase.
+
 ## Core invariants
 
 1. Temporal adjacency MUST NOT imply causality.
@@ -19,217 +27,232 @@ The implementation is considered research-valid only when every retrieval signal
 9. Database adapters MUST preserve CT-RAG semantics.
 10. Benchmark claims MUST state their scope and limitations.
 
-## Current baseline
+## Execution policy used
 
-Already implemented before this execution pass:
+Every tracked implementation issue was completed using this sequence:
 
-- typed memory nodes and edge kinds;
-- deterministic HashingEmbedder and lexical overlap baseline;
-- causal/topological graph traversal;
-- explicit attractor registration and basin traversal;
-- hybrid CT-RAG scoring;
-- Event Sourcing projection with explicit `causation_id`;
-- synthetic benchmark harness with seven ablation arms;
-- deterministic failure/recovery and branching datasets;
-- JSON/CSV reproducibility artifacts;
-- CI on Python 3.11, 3.12 and 3.13;
-- `REPORT.md` with the first controlled validation results.
-
-The benchmark issue (#7) is functionally implemented but remains open until it is explicitly reconciled against its acceptance criteria during this pass.
-
-## Execution policy
-
-Issues are resolved in dependency order. Each issue is completed using this sequence:
-
-1. inspect current implementation against the issue acceptance criteria;
+1. inspect current implementation against acceptance criteria;
 2. implement the smallest complete semantic slice;
-3. add or strengthen tests;
-4. update public documentation/contracts when behavior changes;
-5. commit the issue independently;
-6. verify GitHub Actions;
-7. add an issue completion note with evidence;
-8. close the issue only after its criteria are satisfied.
+3. add/strengthen tests;
+4. update public documentation/contracts;
+5. commit the issue work;
+6. verify GitHub Actions on Python 3.11–3.13;
+7. add issue completion evidence;
+8. close only after criteria passed.
 
-A later issue may reuse APIs introduced by earlier issues, but earlier issue semantics must not be weakened.
+## Completed issue roadmap
 
-## Issue-by-issue roadmap
+### #1 — Core memory model and invariants — COMPLETE
 
-### #1 — Harden core memory model and CT-RAG invariants
+Delivered:
 
-Deliverables:
-
-- strict node and edge identity validation;
+- strict node/edge identity validation;
 - edge evidence/provenance metadata;
-- serialization/deserialization contracts;
-- validation for confidence/weight and invalid provenance combinations;
-- public model API documentation;
-- round-trip and invariant tests.
+- deterministic serialization/deserialization;
+- confidence/weight/provenance validation;
+- duplicate-edge protection;
+- public model contracts and tests.
 
-Exit condition: model contracts are deterministic and invalid causal representations fail fast.
+### #2 — Hybrid semantic + lexical adapters — COMPLETE
 
-### #2 — Hybrid semantic + lexical retrieval adapters
+Delivered:
 
-Deliverables:
+- `EmbeddingProvider` and `LexicalRetriever` contracts;
+- deterministic `HashingEmbedder` fallback;
+- IDF overlap and BM25;
+- optional Sentence Transformers adapter;
+- OpenAI-compatible embedding adapter;
+- deterministic Reciprocal Rank Fusion;
+- independent dense, lexical and hybrid ranking APIs.
 
-- `EmbeddingProvider` protocol;
-- `LexicalRetriever` protocol;
-- deterministic HashingEmbedder fallback;
-- BM25 implementation;
-- optional Sentence Transformers provider;
-- optional OpenAI-compatible embedding provider;
-- deterministic Reciprocal Rank Fusion (RRF);
-- independent dense, lexical and hybrid retrieval modes.
+### #3 — Causal path confidence and provenance weighting — COMPLETE
 
-Exit condition: unit tests require no network/model download and adapters are swappable without changing CT-RAG semantics.
-
-### #3 — Causal path confidence and provenance weighting
-
-Deliverables:
+Delivered:
 
 - provenance-calibrated causal confidence;
-- best path reconstruction, not only scalar confidence;
+- best path reconstruction plus multipath aggregate confidence;
 - ancestor/descendant traversal budgets;
-- cycle-safe multipath traversal;
-- causal evidence exposed on `RetrievalHit`;
-- explicit exclusion of temporal/behavioral edges from causal confidence.
+- cycle-safe causal traversal;
+- `CausalPath` evidence on retrieval hits;
+- strict exclusion of temporal/behavioral edges from causal confidence.
 
-Exit condition: equivalent inferred evidence ranks below observed execution evidence and the selected path is explainable.
+### #4 — Basin and attractor engine — COMPLETE
 
-### #4 — Basin and attractor engine
+Delivered:
 
-Deliverables:
+- `AttractorDescriptor` with confidence/origin/metadata;
+- basin membership;
+- shared-basin affinity;
+- basin boundaries;
+- neighboring basins;
+- branching, convergence, disconnected-component and cycle tests.
 
-- explicit attractor descriptors with metadata/confidence/origin;
-- basin membership API;
-- neighboring basin API;
-- basin boundary API;
-- explainable shared-basin scoring;
-- branching/converging/cyclic tests.
+### #5 — Event Sourcing and NDJSON contracts — COMPLETE
 
-Exit condition: unrelated graph components cannot leak into basin results and all basin relations can be inspected programmatically.
+Delivered:
 
-### #5 — Event Sourcing projector and NDJSON contracts
+- validated `EventRecord`;
+- configurable/nested `EventFieldMapping`;
+- canonical event fingerprints;
+- deterministic idempotent replay;
+- explicit conflict detection for reused event IDs;
+- pending/out-of-order `causation_id` reconciliation;
+- explicit causal edge evidence;
+- temporal/behavioral sequence without implicit causality;
+- NDJSON error line/event identity;
+- multi-step failure/healing integration fixture.
 
-Deliverables:
+### #6 — Staged query modes — COMPLETE
 
-- validated `EventRecord` contract;
-- configurable external field mappings;
-- idempotent duplicate replay;
-- explicit event identity/error reporting;
-- deterministic projection of causation vs temporal/behavioral sequence;
-- multi-step integration fixture.
+Delivered staged retrieval:
 
-Exit condition: replaying the same event stream produces the same topology without duplicate nodes/edges.
+```text
+anchor search
+  -> basin/topology expansion
+  -> directed causal traversal
+  -> mode-specific reranking
+```
 
-### #6 — Staged WHY / WHAT_NEXT / RECOVERY / COUNTERFACTUAL retrieval
+Modes:
 
-Deliverables:
+- `WHY`: causal ancestors;
+- `WHAT_NEXT`: causal descendants;
+- `RECOVERY`: observed successful recovery paths;
+- `COUNTERFACTUAL`: historical divergence with explicit observational-only disclaimer.
 
-- explicit staged pipeline: anchor discovery -> topology/basin expansion -> causal traversal -> reranking;
-- direction-specific behavior per query mode;
-- recovery trajectory retrieval;
-- observational divergence retrieval for counterfactual support;
-- score/path/anchor explanations in results.
+`RetrievalStage` and `StagedRetrievalResult` expose anchors, stages, component scores and path evidence.
 
-Exit condition: one deterministic graph demonstrates materially different retrieval behavior for each query mode.
+### #7 — Benchmark and ablation harness — COMPLETE
 
-### #7 — Benchmark and ablation harness
+One command:
 
-Already implemented baseline:
+```bash
+python -m ctrag.benchmarks
+```
 
-- lexical-only;
-- dense-only;
-- dense+lexical;
-- graph/topology-only;
-- dense+causal;
-- dense+topological;
-- full CT-RAG;
-- Recall@K, Precision@K, MRR, nDCG, causal/path/trajectory/basin/recovery/context metrics;
-- deterministic seeds/configuration;
-- JSON/CSV/table output;
-- CI artifacts.
+reproduces seven controlled arms:
 
-Remaining closure work:
+```text
+lexical_only
+dense_only
+dense_lexical
+graph_topology_only
+dense_causal
+dense_topological
+full_ctrag
+```
 
-- reconcile the committed harness against every acceptance criterion;
-- ensure documentation accurately states that current dense retrieval is a hashing proxy and current lexical retrieval is not BM25;
-- retain the controlled validation in `REPORT.md` without overstating external validity.
+Metrics include:
 
-Exit condition: one command reproduces all arms and issue #7 points to reproducible CI evidence.
+- Recall@K / Precision@K / MRR / nDCG;
+- Causal Recall@K;
+- Causal Path Recall;
+- Causal Distance Error;
+- Trajectory Reconstruction Accuracy;
+- Basin Purity;
+- Recovery Path Precision;
+- context-token efficiency.
 
-### #8 — Dynamic terrain reinforcement, erosion and attractor discovery
+Outputs persist seeds, effective weights, generated datasets/labels, config, source fingerprints and JSON/CSV/paper-table data. [`REPORT.md`](REPORT.md) records the controlled validation and its limitations.
 
-Deliverables:
+### #8 — Dynamic terrain — COMPLETE
 
-- transition frequency tracking;
-- navigation weight separate from historical edge evidence;
-- configurable reinforcement and time decay;
-- strongly connected components;
-- sink/recurrent-state discovery;
-- empirically discovered attractors distinguishable from manually declared ones;
-- basin snapshot/drift metric.
+Delivered:
 
-Exit condition: repeated trajectories strengthen expected paths, decay changes navigation without deleting evidence, and fixed data/config yields deterministic attractors.
+- transition-frequency tracking;
+- non-authoritative navigational influence;
+- reinforcement policies;
+- exponential erosion/decay;
+- deterministic Tarjan strongly connected components;
+- sink/recurrent attractor discovery;
+- explicit `discovered:sink` / `discovered:scc` origins;
+- protection of manually declared attractors;
+- basin snapshots and Jaccard drift;
+- `TerrainAwareRetriever` final reranking without rewriting authoritative edge semantics.
 
-### #9 — Persistence interfaces and local scalable adapter
+### #9 — Persistence and storage interfaces — COMPLETE
 
-Deliverables:
+Delivered contracts:
 
-- `MemoryStore`;
-- `VectorIndex`;
-- `TopologyStore`;
-- `EventSource`;
-- `TerrainStore`;
-- in-memory conformance implementations;
-- SQLite persistent implementation for the complete semantic state required by CT-RAG;
-- adapter equivalence tests.
+```text
+TopologyView
+MemoryStore
+VectorIndex
+TopologyStore
+EventSource
+TerrainStore
+```
 
-Exit condition: save/reload preserves all ranking inputs and produces equivalent retrieval outputs.
+Reference adapters:
 
-### #10 — Research visualization, reproducibility and paper-ready artifacts
+- `InMemoryVectorIndex`;
+- `ListEventSource`;
+- `SQLiteCTStore`.
 
-Deliverables:
+SQLite persists/reloads nodes, timestamps, metadata, embeddings, all edge kinds, causal provenance/confidence/weight/evidence, attractor descriptors and terrain overlay/config.
 
-- formal problem statement and notation;
-- machine-generated terrain/basin/causal-path figures;
-- benchmark/ablation tables generated from result files;
-- experiment manifest/config linkage;
-- sourced related work, including BasinRAG;
-- explicit observed/inferred/hypothesized/counterfactual distinctions;
+Conformance tests prove semantic serialization equality and identical CT-RAG ranking/score components/causal hops before and after reload.
+
+See [`docs/STORAGE.md`](docs/STORAGE.md).
+
+### #10 — Research visualization and reproducibility — COMPLETE
+
+Delivered:
+
+- [`docs/RESEARCH.md`](docs/RESEARCH.md): formal problem statement, notation, epistemic causal distinctions and sourced related work;
+- [`docs/REPRODUCIBILITY.md`](docs/REPRODUCIBILITY.md): exact end-to-end protocol;
+- `ctrag.research_artifacts`: deterministic paper-artifact generator;
+- topology DOT figure source;
+- ground-truth causal-path DOT figure source;
+- benchmark Markdown table generated from `table.csv`;
+- manifest with exact commands/config plus SHA-256 input/output fingerprints;
+- CI generation/upload of research artifacts for Python 3.11–3.13;
 - README research-artifact index.
 
-Exit condition: figures/tables are regenerable from machine-readable experiment output and every reported benchmark result has a reproducible command/config.
+Generated artifact command:
+
+```bash
+python -m ctrag.research_artifacts \
+  --benchmark-dir benchmark-results \
+  --out research-artifacts \
+  --k 3
+```
 
 ## v0.1 definition of done
 
-v0.1 is complete when all ten issues are closed and a fresh clone can:
+A fresh clone can execute:
 
 ```bash
 pip install -e ".[dev]"
 pytest
 python -m ctrag.benchmarks
+python -m ctrag.research_artifacts --benchmark-dir benchmark-results --out research-artifacts --k 3
 ```
 
 and can additionally:
 
-- ingest and replay an event trace idempotently;
-- preserve explicit causal provenance;
-- retrieve WHY/WHAT_NEXT/RECOVERY/COUNTERFACTUAL evidence with explanations;
-- inspect basins/attractors;
-- persist/reload retrieval state;
-- reproduce benchmark tables and research visualizations.
+- ingest/replay event traces idempotently;
+- reconcile explicit causation arriving out of order;
+- preserve observed/inferred/hypothesized provenance;
+- reconstruct explainable causal paths;
+- retrieve WHY/WHAT_NEXT/RECOVERY/COUNTERFACTUAL context;
+- inspect and discover basins/attractors;
+- reinforce/erode navigational terrain without rewriting history;
+- persist/reload semantic retrieval state;
+- reproduce benchmark tables and research visualizations from machine outputs.
 
 ## Research validation beyond v0.1
 
-The controlled synthetic result in `REPORT.md` is evidence that the architecture works for authored event-sourced traces. It is not yet evidence of universal superiority.
+The controlled synthetic result in `REPORT.md` demonstrates the architecture on authored event-sourced traces. It does not establish universal superiority.
 
 Post-v0.1 external validation should add:
 
 - real event-sourced traces;
-- strong BM25 baseline;
+- strong production BM25 baseline;
 - learned dense embedding baselines;
-- GraphRAG/BasinRAG comparisons under matched datasets;
+- GraphRAG/BasinRAG comparisons under matched datasets and context budgets;
 - anchor-discovery evaluation rather than known anchors only;
-- prospective prediction tasks without future-state visibility;
+- prospective tasks without future-state visibility;
 - larger graphs and independent datasets;
-- confidence intervals and preregistered statistical comparisons.
+- confidence intervals and preregistered statistical comparisons;
+- interventional datasets before making counterfactual-causality claims.
