@@ -52,8 +52,9 @@ def _json(value: Any) -> str:
 def _csv(path: Path, rows: list[dict[str, Any]]) -> None:
     if not rows:
         return
+    fieldnames = list(dict.fromkeys(key for row in rows for key in row))
     with path.open("w", encoding="utf-8", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(stream, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 
@@ -168,7 +169,16 @@ def _aggregate(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return summary
 
 
-def _append(rows: list[dict[str, Any]], *, split: str, dataset: Dataset, query, arm: str, ranking: list[str], k: int) -> None:
+def _append(
+    rows: list[dict[str, Any]],
+    *,
+    split: str,
+    dataset: Dataset,
+    query,
+    arm: str,
+    ranking: list[str],
+    k: int,
+) -> None:
     rows.append({
         "split": split,
         "dataset": dataset.name,
@@ -246,7 +256,11 @@ def run_basinrag_reproduction(
                 for query in dataset.queries:
                     started = time.perf_counter()
                     query_embedding = np.asarray(embedder.embed(query.text), dtype=np.float32)
-                    basin_hits = upstream_hybrid.search_nodes(query.text, query_embedding, top_k=max(k * 4, k))
+                    basin_hits = upstream_hybrid.search_nodes(
+                        query.text,
+                        query_embedding,
+                        top_k=max(k * 4, k),
+                    )
                     basin_ranking = _without_anchor([str(item["id"]) for item in basin_hits], query.anchor)
                     basin_ranking = _token_budget(basin_ranking, dataset.topology, context_token_budget, k)
                     costs.append({
@@ -257,7 +271,15 @@ def run_basinrag_reproduction(
                         "operation": "query",
                         "elapsed_ms": (time.perf_counter() - started) * 1000.0,
                     })
-                    _append(rows, split=split, dataset=dataset, query=query, arm="basinrag_upstream_hybrid", ranking=basin_ranking, k=k)
+                    _append(
+                        rows,
+                        split=split,
+                        dataset=dataset,
+                        query=query,
+                        arm="basinrag_upstream_hybrid",
+                        ranking=basin_ranking,
+                        k=k,
+                    )
 
                     started = time.perf_counter()
                     ct_hits = ct_full.search(
@@ -279,7 +301,15 @@ def run_basinrag_reproduction(
                         "operation": "query",
                         "elapsed_ms": (time.perf_counter() - started) * 1000.0,
                     })
-                    _append(rows, split=split, dataset=dataset, query=query, arm="ctrag_full_no_oracle", ranking=ct_ranking, k=k)
+                    _append(
+                        rows,
+                        split=split,
+                        dataset=dataset,
+                        query=query,
+                        arm="ctrag_full_no_oracle",
+                        ranking=ct_ranking,
+                        k=k,
+                    )
 
                     started = time.perf_counter()
                     nc_hits = ct_no_causal.search(
@@ -301,7 +331,15 @@ def run_basinrag_reproduction(
                         "operation": "query",
                         "elapsed_ms": (time.perf_counter() - started) * 1000.0,
                     })
-                    _append(rows, split=split, dataset=dataset, query=query, arm="ctrag_no_causal_metadata", ranking=nc_ranking, k=k)
+                    _append(
+                        rows,
+                        split=split,
+                        dataset=dataset,
+                        query=query,
+                        arm="ctrag_no_causal_metadata",
+                        ranking=nc_ranking,
+                        k=k,
+                    )
 
                     oracle_hits = ct_full.search(
                         query.text,
@@ -313,7 +351,15 @@ def run_basinrag_reproduction(
                     )
                     oracle_ranking = _without_anchor([hit.node.id for hit in oracle_hits], query.anchor)
                     oracle_ranking = _token_budget(oracle_ranking, dataset.topology, context_token_budget, k)
-                    _append(rows, split=split, dataset=dataset, query=query, arm="ctrag_oracle_diagnostic", ranking=oracle_ranking, k=k)
+                    _append(
+                        rows,
+                        split=split,
+                        dataset=dataset,
+                        query=query,
+                        arm="ctrag_oracle_diagnostic",
+                        ranking=oracle_ranking,
+                        k=k,
+                    )
 
     summary = _aggregate(rows)
     cost_groups: dict[tuple[str, str], list[float]] = defaultdict(list)
@@ -359,10 +405,18 @@ def run_basinrag_reproduction(
         "python_version": platform.python_version(),
         "platform": platform.platform(),
     }
-    report = {"manifest": manifest, "results": rows, "summary": summary, "costs": costs, "cost_summary": cost_summary}
+    report = {
+        "manifest": manifest,
+        "results": rows,
+        "summary": summary,
+        "costs": costs,
+        "cost_summary": cost_summary,
+    }
     (output / "manifest.json").write_text(_json(manifest), encoding="utf-8", newline="\n")
     (output / "results.json").write_text(_json(report), encoding="utf-8", newline="\n")
-    _csv(output / "results.csv", [dict(row, retrieved_ids=json.dumps(row["retrieved_ids"])) for row in rows])
+    _csv(output / "results.csv", [
+        dict(row, retrieved_ids=json.dumps(row["retrieved_ids"])) for row in rows
+    ])
     _csv(output / "summary.csv", summary)
     _csv(output / "costs.csv", costs)
     _csv(output / "cost-summary.csv", cost_summary)
