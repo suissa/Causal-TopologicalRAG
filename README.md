@@ -18,7 +18,10 @@ The core question is not only **“what looks like this?”**, but also **“whe
 
 Public contracts:
 
+- [topology: construction, meaning and structural parts](docs/TOPOLOGY.md);
 - [core node/edge model](docs/model-contracts.md);
+- [causal path confidence and provenance](docs/causal-paths.md);
+- [basins and attractors](docs/basins.md);
 - [dense/lexical retrieval adapters and RRF](docs/retrieval-adapters.md).
 
 ## Architecture
