@@ -6,7 +6,11 @@ from pathlib import Path
 import pytest
 
 from ctrag.adapters import RankBM25Retriever
-from ctrag.benchmarks.strong_baselines import STRONG_DENSE_MODELS, run_strong_baselines
+from ctrag.benchmarks.strong_baselines import (
+    CachedEmbedder,
+    STRONG_DENSE_MODELS,
+    run_strong_baselines,
+)
 
 
 def test_strong_dense_models_are_revision_pinned_and_dimension_distinct() -> None:
@@ -34,3 +38,25 @@ def test_rank_bm25_descriptor_freezes_parameters_without_optional_dependency() -
     assert descriptor["k1"] == 1.5
     assert descriptor["b"] == 0.75
     assert descriptor["epsilon"] == 0.25
+
+
+def test_cached_embedder_invalidation_forces_fresh_query_embedding() -> None:
+    class CountingEmbedder:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def embed(self, text: str) -> tuple[float, ...]:
+            self.calls += 1
+            return (float(self.calls), float(len(text)))
+
+    delegate = CountingEmbedder()
+    cached = CachedEmbedder(delegate)
+
+    first = cached.embed("query")
+    assert cached.embed("query") == first
+    assert delegate.calls == 1
+
+    cached.invalidate("query")
+    second = cached.embed("query")
+    assert delegate.calls == 2
+    assert second != first
