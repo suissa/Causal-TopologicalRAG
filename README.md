@@ -1,3 +1,6 @@
+<img width="1672" height="941" alt="1000448050" src="https://github.com/user-attachments/assets/604de328-89b4-47cd-8015-8a299ad1c2e8" />
+
+
 # Causal-Topological RAG (CT-RAG)
 
 CT-RAG is an experimental retrieval architecture for stateful agents and event-driven systems. It combines semantic and lexical retrieval with explicit causal evidence, topological navigation, behavioral traces, and basins of attraction.
