@@ -13,14 +13,14 @@ authors = [{name = "suissa"}]
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=8.3"]
+dev = ["pytest>=8.3", "numpy>=1.26"]
 science = [
   "rank-bm25==0.2.2",
   "sentence-transformers==6.0.1",
 ]
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = "src"
 
 [tool.setuptools.packages.find]
 where = ["src"]
