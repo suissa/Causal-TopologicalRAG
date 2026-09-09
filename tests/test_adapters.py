@@ -52,7 +52,8 @@ def test_rrf_is_deterministic_and_uses_first_duplicate_rank_only() -> None:
     second = reciprocal_rank_fusion(rankings, rank_constant=10)
 
     assert first == second
-    assert [node_id for node_id, _ in first] == ["b", "a", "c"]
+    assert [node_id for node_id, _ in first] == ["a", "b", "c"]
+    assert first[0][1] == pytest.approx(first[1][1])
 
 
 def test_dense_lexical_and_hybrid_can_be_ranked_independently() -> None:
