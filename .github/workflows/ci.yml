@@ -20,16 +20,22 @@ jobs:
         run: pip install -e ".[dev]"
       - name: Test
         run: pytest
-      - name: Run all benchmark baselines
-        run: python -m ctrag.benchmarks
-      - name: Generate research artifacts
-        run: python -m ctrag.research_artifacts --benchmark-dir benchmark-results --out research-artifacts --k 3
-      - name: Upload reproducible benchmark results
+      - name: Run v0.1 regression benchmark
+        run: python -m ctrag.benchmarks --output benchmark-results/regression
+      - name: Run Phase 2 train split
+        run: python -m ctrag.benchmarks.holdout run train --output benchmark-results/train
+      - name: Run Phase 2 dev split
+        run: python -m ctrag.benchmarks.holdout run dev --output benchmark-results/dev
+      - name: Fingerprint sealed final test without retrieval
+        run: python -m ctrag.benchmarks.holdout fingerprint test
+      - name: Generate research artifacts from dev only
+        run: python -m ctrag.research_artifacts --benchmark-dir benchmark-results/dev --out research-artifacts --k 3
+      - name: Upload reproducible non-test benchmark results
         uses: actions/upload-artifact@v4
         with:
           name: benchmarks-python-${{ matrix.python-version }}
           path: benchmark-results/
-      - name: Upload paper-ready research artifacts
+      - name: Upload paper-ready dev research artifacts
         uses: actions/upload-artifact@v4
         with:
           name: research-artifacts-python-${{ matrix.python-version }}
