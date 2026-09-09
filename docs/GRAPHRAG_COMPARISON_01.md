@@ -4,7 +4,8 @@
 **Scientific run:** `34353826174`  
 **Commit evaluated:** `ba31889b85588d95074ef16cd506927aded86813`  
 **Evaluation split:** `dev` only  
-**Final holdout:** sealed
+**Final holdout:** sealed  
+**Acceptance status:** complete
 
 ## Scope
 
