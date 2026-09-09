@@ -5,6 +5,7 @@ import math
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from importlib.metadata import PackageNotFoundError, version
 from typing import Any, Protocol, runtime_checkable
 from urllib.request import Request, urlopen
 
@@ -26,7 +27,7 @@ class LexicalRetriever(Protocol):
 
 
 class IdfOverlapRetriever:
-    """Dependency-free lexical baseline used by the original CT-RAG report."""
+    """Dependency-free lexical proxy used by the original CT-RAG report."""
 
     def score(self, query: str, documents: Mapping[str, str]) -> dict[str, float]:
         query_terms = set(tokenize(query))
@@ -51,11 +52,7 @@ class IdfOverlapRetriever:
 
 @dataclass(slots=True, frozen=True)
 class BM25Retriever:
-    """Small dependency-free Okapi BM25 lexical adapter.
-
-    Scores are normalized by the maximum score in the current corpus so they can
-    participate in CT-RAG's weighted [0, 1]-style component combination.
-    """
+    """Dependency-free Okapi BM25 adapter kept for deterministic regression tests."""
 
     k1: float = 1.5
     b: float = 0.75
@@ -103,22 +100,122 @@ class BM25Retriever:
         return {document_id: score / maximum for document_id, score in raw.items()}
 
 
-class SentenceTransformersEmbedder:
-    """Optional local adapter loaded lazily from `sentence-transformers`."""
+@dataclass(slots=True, frozen=True)
+class RankBM25Retriever:
+    """Production comparison adapter backed by ``rank-bm25`` BM25Okapi."""
 
-    def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2") -> None:
+    k1: float = 1.5
+    b: float = 0.75
+    epsilon: float = 0.25
+
+    def __post_init__(self) -> None:
+        if not math.isfinite(self.k1) or self.k1 <= 0:
+            raise ValueError("BM25 k1 must be finite and positive")
+        if not math.isfinite(self.b) or not 0.0 <= self.b <= 1.0:
+            raise ValueError("BM25 b must be finite and between 0 and 1")
+        if not math.isfinite(self.epsilon) or self.epsilon < 0:
+            raise ValueError("BM25 epsilon must be finite and non-negative")
+
+    def score(self, query: str, documents: Mapping[str, str]) -> dict[str, float]:
+        if not documents:
+            return {}
+        query_terms = tokenize(query)
+        if not query_terms:
+            return {document_id: 0.0 for document_id in documents}
+        try:
+            from rank_bm25 import BM25Okapi
+        except ImportError as exc:  # pragma: no cover - optional science dependency
+            raise ImportError(
+                "RankBM25Retriever requires the optional `rank-bm25` package"
+            ) from exc
+
+        ids = list(documents)
+        corpus = [tokenize(documents[document_id]) for document_id in ids]
+        engine = BM25Okapi(corpus, k1=self.k1, b=self.b, epsilon=self.epsilon)
+        raw_values = [float(value) for value in engine.get_scores(query_terms)]
+        if not raw_values:
+            return {}
+        low = min(raw_values)
+        high = max(raw_values)
+        if math.isclose(low, high):
+            return {document_id: 0.0 for document_id in ids}
+        scale = high - low
+        return {
+            document_id: (value - low) / scale
+            for document_id, value in zip(ids, raw_values, strict=True)
+        }
+
+    def descriptor(self) -> dict[str, Any]:
+        try:
+            package_version = version("rank-bm25")
+        except PackageNotFoundError:
+            package_version = None
+        return {
+            "name": "BM25Okapi",
+            "implementation": "rank-bm25",
+            "package_version": package_version,
+            "k1": self.k1,
+            "b": self.b,
+            "epsilon": self.epsilon,
+        }
+
+
+class SentenceTransformersEmbedder:
+    """Pinned local adapter loaded lazily from ``sentence-transformers``."""
+
+    def __init__(
+        self,
+        model_name: str = "sentence-transformers/all-MiniLM-L6-v2",
+        *,
+        revision: str | None = None,
+        device: str = "cpu",
+        normalize_embeddings: bool = True,
+        expected_dimensions: int | None = None,
+    ) -> None:
         try:
             from sentence_transformers import SentenceTransformer
-        except ImportError as exc:  # pragma: no cover - exercised only with optional dependency
+        except ImportError as exc:  # pragma: no cover - optional science dependency
             raise ImportError(
                 "SentenceTransformersEmbedder requires the optional `sentence-transformers` package"
             ) from exc
         self.model_name = model_name
-        self._model = SentenceTransformer(model_name)
+        self.revision = revision
+        self.device = device
+        self.normalize_embeddings = normalize_embeddings
+        self._model = SentenceTransformer(
+            model_name,
+            revision=revision,
+            device=device,
+            trust_remote_code=False,
+        )
+        dimension = self._model.get_sentence_embedding_dimension()
+        self.dimensions = int(dimension) if dimension is not None else None
+        if expected_dimensions is not None and self.dimensions != expected_dimensions:
+            raise ValueError(
+                f"embedding dimension mismatch for {model_name}: "
+                f"expected {expected_dimensions}, got {self.dimensions}"
+            )
 
     def embed(self, text: str) -> tuple[float, ...]:
-        vector = self._model.encode(text, normalize_embeddings=True)
-        return tuple(float(value) for value in vector)
+        vector = self._model.encode(text, normalize_embeddings=self.normalize_embeddings)
+        result = tuple(float(value) for value in vector)
+        if not result or any(not math.isfinite(value) for value in result):
+            raise ValueError("sentence-transformers returned an invalid embedding")
+        return result
+
+    def descriptor(self) -> dict[str, Any]:
+        try:
+            package_version = version("sentence-transformers")
+        except PackageNotFoundError:  # pragma: no cover - constructor requires the package
+            package_version = None
+        return {
+            "name": self.model_name,
+            "revision": self.revision,
+            "dimensions": self.dimensions,
+            "normalize_embeddings": self.normalize_embeddings,
+            "device": self.device,
+            "package_version": package_version,
+        }
 
 
 class OpenAICompatibleEmbedder:
@@ -149,7 +246,7 @@ class OpenAICompatibleEmbedder:
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
         request = Request(self.endpoint, data=payload, headers=headers, method="POST")
-        with urlopen(request, timeout=self.timeout) as response:  # nosec B310 - endpoint is caller-controlled by design
+        with urlopen(request, timeout=self.timeout) as response:  # nosec B310 - caller-controlled endpoint
             raw: dict[str, Any] = json.loads(response.read().decode("utf-8"))
         try:
             vector = raw["data"][0]["embedding"]
@@ -166,11 +263,7 @@ def reciprocal_rank_fusion(
     *,
     rank_constant: int = 60,
 ) -> list[tuple[str, float]]:
-    """Fuse rankings deterministically using Reciprocal Rank Fusion.
-
-    Duplicate ids inside one ranking contribute only at their first position.
-    Ties are resolved by document id, making fixed inputs reproducible.
-    """
+    """Fuse rankings deterministically using Reciprocal Rank Fusion."""
 
     if rank_constant <= 0:
         raise ValueError("rank_constant must be positive")
