@@ -101,9 +101,60 @@ The corrected result is stronger, but that fact is incidental to the classificat
 
 ---
 
+## SCI-002 — Strong-baseline query-cost cache contamination
+
+**Date:** 2026-09-09  
+**Issue:** #16  
+**Classification:** `correctness_bug`  
+**Status:** corrected before final-holdout unblinding
+
+### Defect
+
+The first strong-baseline run correctly produced retrieval rankings, but its resource-cost protocol was not fair. The exact query embedding could remain in `CachedEmbedder` after the dense arm and then be reused by hybrid and Full CT-RAG. The hybrid timing also fused a dense ranking computed before its own timed block.
+
+Therefore the first-run latency values represented mixed warm-cache work and could not be used for cross-arm performance claims. This defect did **not** change retrieved IDs, relevance metrics, causal metrics or the frozen dataset.
+
+### Regression and correction
+
+The regression test:
+
+```text
+tests/test_strong_baselines.py::test_cached_embedder_invalidation_forces_fresh_query_embedding
+```
+
+proves that invalidating a query forces a new embedding computation.
+
+The benchmark now invalidates the exact query embedding before every learned arm and recomputes dense retrieval inside the hybrid arm's timed block. Document embeddings remain indexed, which models normal retrieval operation rather than re-indexing the corpus for every query.
+
+### Before/after evidence
+
+Pre-fix resource run: `34352869207`. Its warm-cache query times are retained as invalid historical evidence and are not used as final resource measurements.
+
+Corrected run: `34353826174`.
+
+Mean cold query latency on the synthetic `dev` split:
+
+| Arm | Mean ms/query |
+| --- | ---: |
+| BM25 (`rank-bm25`) | 1.003 |
+| MiniLM dense | 11.494 |
+| MiniLM + BM25 hybrid | 11.787 |
+| Full CT-RAG + MiniLM/BM25 | 12.652 |
+| MPNet dense | 45.578 |
+| MPNet + BM25 hybrid | 45.892 |
+| Full CT-RAG + MPNet/BM25 | 46.926 |
+
+Retrieval-quality aggregates were unchanged by this correction. The final test remained sealed throughout.
+
+### Scientific impact
+
+Quality conclusions from the first strong-baseline run remain valid for the same synthetic `dev` split, but all resource comparisons must use the corrected run `34353826174` or later.
+
+---
+
 ## How future entries must be recorded
 
-Each future scientific change must receive an ID (`SCI-002`, `SCI-003`, ...), an entry in `research/science-changes.json`, and one section in this file.
+Each future scientific change must receive an ID (`SCI-003`, `SCI-004`, ...), an entry in `research/science-changes.json`, and one section in this file.
 
 A `correctness_bug` entry must include:
 
