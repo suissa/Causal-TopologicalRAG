@@ -13,8 +13,7 @@ from .runner import Config, run
 HOLDOUT_SPEC_RELATIVE_PATH = "research/holdout/manifest-v1.json"
 HOLDOUT_SPEC_SHA256 = "f0e3def445bd5c4d8c3cbc9c66e64f3a752c7bc782d15a8332bede15671e5137"
 HOLDOUT_PROTOCOL_VERSION = 1
-# Filled after the generator-derived test manifest is independently fingerprinted.
-FROZEN_TEST_DATASET_SHA256: str | None = None
+FROZEN_TEST_DATASET_SHA256 = "8e2062bba82a156141b7d1a51ca6f47e995fe9d37b6e19400beaa7ff482d1ead"
 UNBLINDED_SENTINEL_RELATIVE_PATH = "research/holdout/UNBLINDED.json"
 
 
@@ -75,12 +74,11 @@ def split_dataset_manifest(split: str) -> list[dict[str, Any]]:
 def split_dataset_sha256(split: str) -> str:
     payload = _canonical_json(split_dataset_manifest(split)).encode("utf-8")
     digest = _sha256_bytes(payload)
-    if split == "test" and FROZEN_TEST_DATASET_SHA256 is not None:
-        if digest != FROZEN_TEST_DATASET_SHA256:
-            raise RuntimeError(
-                "final-test dataset fingerprint changed; the frozen holdout is invalid "
-                f"(expected {FROZEN_TEST_DATASET_SHA256}, got {digest})"
-            )
+    if split == "test" and digest != FROZEN_TEST_DATASET_SHA256:
+        raise RuntimeError(
+            "final-test dataset fingerprint changed; the frozen holdout is invalid "
+            f"(expected {FROZEN_TEST_DATASET_SHA256}, got {digest})"
+        )
     return digest
 
 
