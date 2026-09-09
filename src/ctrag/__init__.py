@@ -20,6 +20,7 @@ from .models import (
     RetrievalHit,
     RetrievalWeights,
 )
+from .query import RetrievalStage, StagedRetrievalResult
 from .retriever import CTRetriever
 from .topology import CausalTopology
 
@@ -44,7 +45,9 @@ __all__ = [
     "OpenAICompatibleEmbedder",
     "QueryMode",
     "RetrievalHit",
+    "RetrievalStage",
     "RetrievalWeights",
     "SentenceTransformersEmbedder",
+    "StagedRetrievalResult",
     "reciprocal_rank_fusion",
 ]
