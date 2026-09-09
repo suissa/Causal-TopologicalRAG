@@ -1,437 +1,215 @@
 # CT-RAG Experimental Validation Report
 
 **Project:** Causal-Topological RAG (CT-RAG)  
-**Validated commit:** `f4827e223802b1c10cd7d5c268b00da561526882`  
-**CI run:** https://github.com/suissa/Causal-TopologicalRAG/actions/runs/34312104975  
-**Date:** 2026-09-09
+**Status:** controlled proof-of-concept evidence, under scientific validation  
+**Validated commit:** `593bdd67ffe802397f50738de6fb320a93f1a178`  
+**CI run:** https://github.com/suissa/Causal-TopologicalRAG/actions/runs/34344883091  
+**Python artifact used for the numbers below:** `benchmarks-python-3.12`  
+**Artifact SHA-256:** `671a87326d293939915cb00f2588bc9bf5ae86243385a5d178bf22eda59c8d3f`
 
 ## Executive conclusion
 
-The current experiment provides **positive empirical evidence that the Causal-Topological RAG concept works for the controlled problem it was designed to test**: retrospective retrieval over event-sourced execution histories where explicit causal relations, topology, distractors, failures, recovery paths, and branching outcomes are known.
+The current experiment provides positive empirical evidence that CT-RAG can exploit explicit causal/topological structure on the controlled synthetic event-sourced tasks implemented in this repository.
 
-The strongest result is not merely that CT-RAG eventually retrieves the same evidence with a larger context window. At small retrieval budgets it finds the correct causal evidence **earlier, in better order, with less irrelevant context, and reconstructs causal paths substantially better than semantic or lexical retrieval alone**.
+It does **not** establish external superiority over production RAG systems. The current benchmark is synthetic, retrospective, gives all retrieval arms the gold/oracle anchor, uses a deterministic hashing embedding proxy rather than a learned dense model, and uses IDF overlap rather than a production BM25 baseline. These limitations are now tracked by the scientific validation issues.
 
-At `K=3`, across all 72 query instances:
+The first scientific audit also found and corrected a real retrieval bug: the historical `search()` implementation treated `RECOVERY` and `COUNTERFACTUAL` causal traversal as bidirectional. That contradicted the query-mode contract. `RECOVERY` must retrieve causal descendants; observational counterfactual/divergence support must retrieve causal ancestors. Regression tests were added before the fix. The intentionally failing pre-fix CI produced `87 passed, 2 failed`; after the correction the same suite produced `89 passed` on Python 3.12, and all CI jobs passed on Python 3.11, 3.12 and 3.13.
+
+Because this correction materially changes benchmark outputs, the earlier report numbers are superseded by this file.
+
+## 1. Corrected K=3 result
+
+The benchmark contains 72 query instances, 7 retrieval arms and 4 K values, yielding 2,016 observations.
+
+At `K=3`:
 
 | System | Recall@3 | MRR@3 | nDCG@3 | Causal Path Recall | Causal Distance Error ↓ | Context-token efficiency |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| **Full CT-RAG** | **0.9028** | **1.0000** | **0.9745** | **0.7500** | **3.5000** | **0.8365** |
-| Dense + Causal | 0.5509 | 0.7870 | 0.7171 | 0.2500 | 16.1667 | 0.4821 |
+| **Full CT-RAG** | **0.9583** | **1.0000** | **1.0000** | **0.9167** | **1.5000** | **0.8819** |
+| Dense + Causal | 0.6019 | 0.8287 | 0.7632 | 0.3333 | 14.3333 | 0.5206 |
 | Graph / Topology only | 0.7500 | 0.8588 | 0.6331 | 0.4792 | 13.8333 | 0.7230 |
-| Dense + Topological | 0.2836 | 0.3171 | 0.2064 | 0.0833 | 30.0833 | 0.2944 |
+| Dense + Topological | 0.3021 | 0.3773 | 0.2376 | 0.0833 | 29.5833 | 0.3276 |
 | Dense only | 0.0428 | 0.1273 | 0.0292 | 0.0000 | 35.8333 | 0.0455 |
 | Dense + Lexical | 0.0382 | 0.1319 | 0.0255 | 0.0000 | 36.0000 | 0.0388 |
 | Lexical only | 0.0278 | 0.0787 | 0.0161 | 0.0000 | 36.0000 | 0.0256 |
 
-Relative to graph/topology-only at `K=3`, full CT-RAG improves:
+Relative to graph/topology-only at `K=3`, full CT-RAG currently shows:
 
-- Recall by **20.4%**;
-- nDCG by **53.9%**;
-- Causal Path Recall by **56.5%**;
-- context-token efficiency by **15.7%**;
-- causal distance error is reduced by **74.7%**.
+- Recall: **+27.8%** relative improvement;
+- nDCG: **+58.0%**;
+- Causal Path Recall: **+91.3%**;
+- context-token efficiency: **+22.0%**;
+- Causal Distance Error: **89.2% lower**.
 
-Relative to Dense + Causal, full CT-RAG improves nDCG by **35.9%**, Causal Path Recall by **200%**, and reduces causal distance error by **78.4%**.
+These effect sizes are descriptive for the current synthetic dataset. Formal confidence intervals and preregistered paired inference belong to scientific issue #25.
 
-This supports the central CT-RAG hypothesis for these experiments:
+## 2. Why the audit correction changed the result
 
-> Retrieval quality over execution history improves when semantic evidence is combined with explicit causal and topological structure rather than treating memories as independent nearest-neighbor items.
+Before the audit, the historical retriever used both incoming and outgoing causal paths for `RECOVERY` and `COUNTERFACTUAL`.
 
-It does **not** yet prove that CT-RAG is superior on arbitrary real-world corpora or with production embedding models. The present result is a controlled proof-of-concept, not a claim of universal external validity.
-
----
-
-## 1. What was executed
-
-The GitHub Actions CI executed the complete suite on Python **3.11, 3.12, and 3.13**. Every job completed successfully.
-
-For Python 3.12, the CI log records:
+That was inconsistent with the intended semantics:
 
 ```text
-25 passed in 0.45s
-Wrote 2016 query/K/baseline observations to benchmark-results
+WHY             -> causal ancestors
+COUNTERFACTUAL  -> historical ancestor/divergence support
+WHAT_NEXT       -> causal descendants
+RECOVERY        -> causal descendants / recovery trajectory
+SIMILAR         -> bidirectional structural context allowed
 ```
 
-The benchmark produced six reproducibility artifacts for every Python version:
+The audit added regression tests that first failed against the old behavior. In the failure fixture, an ancestor of a failure received causal score `1.0` during a `RECOVERY` query, and a consequence received causal score `1.0` during a `COUNTERFACTUAL` query. Those are directionally invalid signals.
+
+The correction removed those signals without changing:
+
+- query labels;
+- causal edges;
+- benchmark seeds;
+- retrieval weights;
+- K values;
+- candidate corpus;
+- metric definitions.
+
+The largest impact is on `RECOVERY`, where the corrected Full CT-RAG result at `K=3` becomes:
 
 ```text
-config.json
-datasets.json
-results.json
-results.csv
-summary.csv
-table.csv
+Recall@3                 = 1.0000
+MRR@3                    = 1.0000
+nDCG@3                   = 1.0000
+Causal Path Recall       = 1.0000
+Causal Distance Error    = 0.0000
+Recovery Path Precision  = 1.0000
+Context-token efficiency = 1.0000
 ```
 
-The 2,016 observations are exactly:
+This improvement is therefore a correctness correction, not a post-hoc parameter optimization.
 
-```text
-72 query instances
-× 7 retrieval arms
-× 4 K values (1, 3, 5, 10)
-= 2,016 observations
-```
+## 3. Per-mode corrected result
 
-The 72 query instances contain:
-
-- 36 `WHY` queries;
-- 24 `WHAT_NEXT` queries;
-- 12 `RECOVERY` queries.
-
-They are generated over deterministic failure/recovery and branching execution traces using three seeds.
-
----
-
-## 2. Controlled retrieval arms
-
-Seven ablations were evaluated against exactly the same candidate corpus and known anchor:
-
-1. `lexical_only`
-2. `dense_only`
-3. `dense_lexical`
-4. `graph_topology_only`
-5. `dense_causal`
-6. `dense_topological`
-7. `full_ctrag`
-
-The benchmark uses exhaustive candidates, which is important: an ablation is not advantaged or disadvantaged by an earlier candidate-pruning stage.
-
-The current "dense" signal is the deterministic `HashingEmbedder` proxy already implemented in the project. It is intentionally local and reproducible and is **not** a learned Sentence Transformer/OpenAI embedding benchmark. Likewise, the lexical baseline is the project's normalized token/IDF overlap, not production BM25.
-
-This means the experiment isolates the architectural value of causal/topological signals, but a later experiment is still required against strong learned dense and BM25 baselines.
-
----
-
-## 3. Primary result: CT-RAG dominates at small context budgets
-
-The most useful operating point is `K=3`, because this tests whether the architecture can recover causal context without simply retrieving most of the graph.
-
-### 3.1 Ranking quality
-
-Full CT-RAG obtains:
-
-```text
-MRR@3  = 1.0000
-nDCG@3 = 0.9745
-```
-
-The nearest alternatives are:
-
-```text
-Dense + Causal       nDCG@3 = 0.7171
-Graph/Topology only  nDCG@3 = 0.6331
-```
-
-Thus CT-RAG is not merely retrieving relevant nodes: it is placing the important nodes at the top of the context.
-
-### 3.2 Causal reconstruction
-
-At `K=3`:
-
-```text
-Full CT-RAG             Causal Path Recall = 0.7500
-Graph/Topology only     Causal Path Recall = 0.4792
-Dense + Causal          Causal Path Recall = 0.2500
-Dense only              Causal Path Recall = 0.0000
-Lexical only            Causal Path Recall = 0.0000
-```
-
-The same pattern appears in causal distance error:
-
-```text
-Full CT-RAG               3.50
-Graph/Topology only      13.83
-Dense + Causal           16.17
-Dense only               35.83
-Lexical only             36.00
-```
-
-Lower is better. Full CT-RAG reduces the graph/topology-only error by 74.7%.
-
-This is direct evidence for the part of CT-RAG that is different from ordinary RAG: **the retrieved context preserves substantially more of the causal trajectory connecting the anchor to its relevant evidence**.
-
----
-
-## 4. WHY queries: the strongest validation of the hypothesis
-
-`WHY` is the most direct test of causal retrieval because the system must recover causal ancestors of an observed state or failure.
-
-At `K=3`:
-
-| System | Recall@3 | MRR@3 | nDCG@3 | Causal Path Recall | Causal Distance Error ↓ | Trajectory reconstruction | Token efficiency |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| **Full CT-RAG** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **0.0000** | **0.9167** | **0.8750** |
-| Graph/Topology only | 0.8750 | 0.8565 | 0.7145 | 0.7500 | 6.5000 | 0.8542 | 0.7768 |
-| Dense + Causal | 0.3426 | 0.6574 | 0.5467 | 0.0000 | 23.6667 | 0.4653 | 0.1978 |
-| Dense only | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 36.0000 | 0.2500 | 0.0000 |
-| Lexical only | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 36.0000 | 0.2500 | 0.0000 |
-
-This is the clearest evidence in the current experiment.
-
-For `WHY` queries, full CT-RAG reconstructs every gold causal path at `K=3`, while the dense and lexical baselines fail completely on the authored causal evidence.
-
-That outcome is consistent with the motivation behind CT-RAG: semantic resemblance alone does not identify **what caused the current state**.
-
----
-
-## 5. RECOVERY queries
-
-Recovery tasks test whether the retriever can recover the historical remediation path after a failure.
-
-At `K=3`:
-
-| System | Recall@3 | nDCG@3 | Recovery Path Precision | Causal Distance Error ↓ |
-| --- | ---: | ---: | ---: | ---: |
-| **Full CT-RAG** | **0.6667** | **0.8473** | **0.6667** | **12.0** |
-| Graph/Topology only | 0.5833 | 0.5816 | 0.5833 | 23.0 |
-| Dense + Causal | 0.5278 | 0.6628 | 0.5278 | 17.0 |
-| Dense only | 0.0278 | 0.0303 | 0.0278 | 35.0 |
-| Lexical only | 0.0000 | 0.0000 | 0.0000 | 36.0 |
-
-At `K=5`, full CT-RAG reaches:
-
-```text
-Recall                    = 1.0000
-Causal Path Recall        = 1.0000
-Causal Distance Error     = 0.0000
-MRR                       = 1.0000
-nDCG                      = 0.9409
-Basin Purity              = 1.0000
-```
-
-Graph/topology-only also reaches full recall/path reconstruction at K=5, but its nDCG is only `0.7517`. In other words, topology can eventually recover the same path, but CT-RAG ranks the recovery evidence substantially better.
-
----
-
-## 6. WHAT_NEXT queries
-
-At `K=3`, full CT-RAG and Dense + Causal tie on the main relevance metrics:
-
-```text
-Recall@3             = 0.8750
-MRR@3                = 1.0000
-nDCG@3               = 1.0000
-Causal Path Recall   = 0.7500
-```
-
-However, CT-RAG obtains basin purity `1.0000`, while Dense + Causal obtains `0.8611`.
-
-At `K=5`, both reach complete relevant/causal path recall, while CT-RAG preserves perfect basin purity.
-
-This is an important nuance: **not every task requires every CT-RAG component to win**. For forward traversal over these synthetic traces, explicit causal edges are already a very strong signal. The topological component contributes primarily by keeping the retrieval within the correct behavioral region.
-
----
-
-## 7. Paired dominance analysis
-
-Because every retrieval arm is evaluated on exactly the same query instances, paired comparisons are possible.
-
-At `K=3`, for nDCG:
-
-### Full CT-RAG vs Dense only
-
-```text
-Wins:   72
-Ties:    0
-Losses:  0
-```
-
-Exact two-sided sign test: `p ≈ 4.24 × 10^-22`.
-
-### Full CT-RAG vs Graph/Topology only
-
-```text
-Wins:   65
-Ties:    6
-Losses:  1
-```
-
-Exact two-sided sign test excluding ties: `p ≈ 1.82 × 10^-18`.
-
-### Full CT-RAG vs Dense + Causal
-
-```text
-Wins:   44
-Ties:   28
-Losses:  0
-```
-
-Exact two-sided sign test excluding ties: `p ≈ 1.14 × 10^-13`.
-
-For Recall@3 versus Graph/Topology only:
-
-```text
-Wins:   26
-Ties:   46
-Losses:  0
-p ≈ 2.98 × 10^-8
-```
-
-For Causal Path Recall versus Graph/Topology only:
-
-```text
-Wins:   22
-Ties:   50
-Losses:  0
-p ≈ 4.77 × 10^-7
-```
-
-For Causal Distance Error versus Graph/Topology only:
-
-```text
-Better: 33
-Ties:   39
-Worse:   0
-p ≈ 2.33 × 10^-10
-```
-
-These tests should be interpreted within the synthetic benchmark design; the seeds vary terminology, identifiers and insertion order over fixed trace templates and are not independent real-world datasets. Still, they show that the observed aggregate difference is not produced by one isolated query.
-
----
-
-## 8. What happens when K increases
-
-At `K=5`, full CT-RAG reaches:
-
-```text
-Recall                    = 1.0000
-Causal Recall             = 1.0000
-Causal Path Recall        = 1.0000
-Causal Distance Error     = 0.0000
-MRR                       = 1.0000
-nDCG                      = 0.9902
-```
-
-Graph/topology-only also reaches complete recall and causal path recovery at K=5, but:
-
-```text
-MRR  = 0.8588
-nDCG = 0.7473
-```
-
-This distinction matters. With enough slots, topology alone can include the required nodes, but CT-RAG puts the correct evidence earlier.
-
-At `K=10`, many structural systems converge in recall because a large fraction of the small synthetic graph is being retrieved. Token efficiency correspondingly falls. This confirms why small-K evaluation is necessary: a retriever that simply returns most of the graph can hide ranking defects.
-
----
-
-## 9. Context efficiency
-
-At K=3:
-
-```text
-Full CT-RAG            0.8365
-Graph/Topology only    0.7230
-Dense + Causal         0.4821
-Dense only             0.0455
-Lexical only           0.0256
-```
-
-The metric is the fraction of deterministic proxy tokens belonging to positively relevant retrieved nodes.
-
-Full CT-RAG therefore places substantially less irrelevant material into the small context window than semantic/lexical baselines in this benchmark.
-
-This supports a practical argument for causal-topological retrieval: better structural retrieval can improve not only evidence coverage but also the **information density of the context sent downstream**.
-
----
-
-## 10. Cross-version reproducibility
-
-The CI generated independent benchmark artifacts on Python 3.11, 3.12 and 3.13.
-
-Observed reproducibility:
-
-- `datasets.json`: byte-identical on all three Python versions;
-- `table.csv`: byte-identical on all three Python versions;
-- Python 3.12 and 3.13 `results.csv` and `summary.csv`: byte-identical;
-- Python 3.11 differs from 3.12/3.13 in only five nDCG floating-point values, with maximum absolute difference `1.1102230246251565e-16`;
-- all rankings and substantive metrics are therefore numerically equivalent to machine precision.
-
-The `config.json` files intentionally differ because they persist the Python runtime version.
-
-This is sufficient to regard the experiment as reproducible across the tested interpreter versions for scientific purposes.
-
----
-
-## 11. What this experiment proves
-
-Within the controlled trace benchmark, the data supports the following claims.
-
-### Supported
-
-1. Explicit causal/topological information contains retrieval signal not recoverable from the current semantic/lexical proxy alone.
-2. Combining causal, topological, semantic and other retrieval components can outperform individual components.
-3. CT-RAG can retrieve causal ancestors for diagnostic `WHY` queries with much smaller context than semantic retrieval.
-4. CT-RAG can reconstruct historical failure/recovery trajectories.
-5. Basin/topological confinement can reduce retrieval leakage into unrelated regions.
-6. CT-RAG can achieve higher relevant-token density in the retrieved context.
-7. The implementation and benchmark are deterministic/reproducible across Python 3.11–3.13 to floating-point precision.
-
-### Not yet supported
-
-The experiment does **not** establish that:
-
-1. CT-RAG beats state-of-the-art learned embedding systems on real data;
-2. CT-RAG beats production BM25 implementations;
-3. CT-RAG beats BasinRAG or GraphRAG on their native benchmark suites;
-4. explicit event causation fields always represent true philosophical/statistical causality;
-5. the current weights generalize without calibration;
-6. the observed gains survive noisy, missing, incorrect, or inferred causal edges;
-7. CT-RAG improves final LLM answer accuracy on a real downstream task;
-8. the system identifies unseen counterfactual effects.
-
-Those claims require separate experiments.
-
----
-
-## 12. Why this is still a meaningful validation
-
-The benchmark is synthetic by design, but it is not a tautological "CT-RAG retrieves what CT-RAG generated" test.
-
-Ground truth is authored independently from retrieval output. The corpus includes semantically similar distractors, temporally adjacent non-causes, branching outcomes, failures, recovery sequences and explicit causal edges. Every baseline sees the same candidates and anchor.
-
-The key falsifiable question is:
-
-> Given the same memory corpus, does preserving and exploiting causal/topological structure improve retrieval of the execution evidence that actually belongs to the target trajectory?
-
-For this controlled experiment, the answer is **yes**.
-
-The semantic and lexical arms perform poorly despite seeing the same text. Adding causal information helps. Adding topology helps. Combining the signals in full CT-RAG produces the strongest overall small-K result.
-
-That is exactly the architectural proposition the first experiment was designed to test.
-
----
-
-## 13. Verdict
-
-**Status: concept validated at proof-of-concept level.**
-
-The current data is sufficient to reject the weaker null architectural assumption that semantic/lexical similarity alone is equally effective for retrieving causal execution history in these controlled scenarios.
-
-The result that matters most is:
-
-```text
-WHY queries @ K=3
+### WHY, K=3
 
 Full CT-RAG:
-Recall              1.0000
-MRR                 1.0000
-nDCG                1.0000
-Causal Path Recall  1.0000
-Causal Dist. Error  0.0000
 
-Dense only:
-Recall              0.0000
-MRR                 0.0000
-nDCG                0.0000
-Causal Path Recall  0.0000
-Causal Dist. Error 36.0000
+```text
+Recall@3                       = 1.0000
+MRR@3                          = 1.0000
+nDCG@3                         = 1.0000
+Causal Path Recall             = 1.0000
+Causal Distance Error          = 0.0000
+Trajectory Reconstruction      = 0.9167
+Context-token efficiency       = 0.8750
 ```
 
-The next scientific milestone should therefore no longer ask only "does the concept work at all?". The controlled benchmark says it does.
+`WHY` remains the strongest controlled demonstration of the core hypothesis: when the task is to retrieve explicit causal ancestors, semantic lookalikes alone are insufficient in these fixtures.
 
-The next question is:
+### RECOVERY, K=3
 
-> **How much of this gain survives when CT-RAG is evaluated on real event-sourced traces, learned dense embeddings, BM25, incomplete causal metadata, and strong GraphRAG/BasinRAG baselines?**
+Full CT-RAG:
 
-That is the experiment required to move from proof-of-concept validation to external empirical validation.
+```text
+Recall@3                       = 1.0000
+MRR@3                          = 1.0000
+nDCG@3                         = 1.0000
+Causal Path Recall             = 1.0000
+Causal Distance Error          = 0.0000
+Trajectory Reconstruction      = 1.0000
+Recovery Path Precision        = 1.0000
+Context-token efficiency       = 1.0000
+```
+
+### WHAT_NEXT, K=3
+
+Full CT-RAG:
+
+```text
+Recall@3                       = 0.8750
+MRR@3                          = 1.0000
+nDCG@3                         = 1.0000
+Causal Path Recall             = 0.7500
+Causal Distance Error          = 4.5000
+Trajectory Reconstruction      = 0.7500
+Context-token efficiency       = 0.8333
+```
+
+The non-perfect `WHAT_NEXT` result is useful: the synthetic benchmark is not universally saturated at `K=3`.
+
+## 4. Adversarial and leakage controls added by the audit
+
+The scientific audit introduced controls that explicitly verify:
+
+1. a semantic lookalike connected only temporally does not receive causal evidence;
+2. a temporal chain cannot satisfy a causal-path metric;
+3. retrieval in the wrong direction cannot satisfy a `WHY` causal path;
+4. opaque anchor IDs are not present in natural-language query text;
+5. relevant/gold node IDs are not exposed in query text;
+6. the oracle anchor is excluded from the relevance target;
+7. gold IDs correspond to actual topology nodes;
+8. hand-calculated empty and partial rankings preserve metric contracts.
+
+These are necessary internal-validity controls, but they are not a substitute for independent external datasets.
+
+## 5. What the corrected experiment supports
+
+Within the current synthetic, retrospective, oracle-anchor benchmark, the evidence supports:
+
+1. explicit causal/topological structure provides retrieval information not captured by the current semantic/lexical proxies alone;
+2. directional causal traversal matters to retrieval correctness;
+3. combining causal, topological, semantic and behavioral signals can improve small-context retrieval on the authored execution tasks;
+4. `WHY` causal-ancestor retrieval is strongly recovered by CT-RAG in these fixtures;
+5. corrected `RECOVERY` traversal reconstructs the authored descendant recovery paths at `K=3`;
+6. causal/topological retrieval can substantially increase relevant-context density in this controlled setting;
+7. the corrected code and benchmark execute successfully on Python 3.11, 3.12 and 3.13.
+
+## 6. What is still unsupported
+
+This experiment does **not** establish that CT-RAG:
+
+- beats learned dense retrieval on independent real data;
+- beats production BM25;
+- beats GraphRAG under a matched protocol;
+- beats BasinRAG under a matched protocol;
+- works without a known/oracle anchor;
+- generalizes beyond the authored trace templates;
+- predicts future events without future-state leakage;
+- identifies counterfactual/interventional causal effects from ordinary event logs;
+- remains superior under missing or corrupted causal metadata;
+- scales economically to very large event graphs;
+- improves downstream LLM answer quality on independent tasks.
+
+These are explicit targets of the Phase 2 scientific validation program (#14–#35).
+
+## 7. Reproducibility
+
+Corrected validation command:
+
+```bash
+pip install -e ".[dev]"
+pytest
+python -m ctrag.benchmarks
+python -m ctrag.research_artifacts \
+  --benchmark-dir benchmark-results \
+  --out research-artifacts \
+  --k 3
+```
+
+Validated CI evidence:
+
+```text
+Python 3.12: 89 passed in 0.97s
+Benchmark:   2016 query/K/baseline observations
+Research artifacts: 4 generated files
+```
+
+The Python 3.12 benchmark artifact is identified by:
+
+```text
+GitHub Actions artifact ID: 10101257954
+SHA-256: 671a87326d293939915cb00f2588bc9bf5ae86243385a5d178bf22eda59c8d3f
+```
+
+## 8. Scientific status
+
+The appropriate claim at this stage is:
+
+> CT-RAG has a reproducible positive proof-of-concept on controlled event-sourced synthetic traces, and the first adversarial audit found a directional retrieval bug whose correction strengthened rather than weakened the controlled result.
+
+The next objective is **falsification and external validation**, not optimization against this benchmark. The result should be considered externally defensible only after preregistration, frozen holdout evaluation, strong BM25/learned-dense comparisons, no-oracle anchor evaluation, independent datasets, topology-destruction controls, uncertainty estimates and clean-room replication.
