@@ -1,0 +1,44 @@
+{
+  "datasets": [
+    "failure_recovery",
+    "branching"
+  ],
+  "generator_version": 1,
+  "policy": {
+    "ci_default": [
+      "train",
+      "dev"
+    ],
+    "oracle_anchor_track_is_not_headline_external_evidence": true,
+    "post_unblind_runs_are_replications": true,
+    "test_requires_explicit_unblind": true
+  },
+  "protocol": "ctrag-phase2-holdout-v1",
+  "schema_version": 1,
+  "splits": {
+    "dev": {
+      "seeds": [
+        101,
+        103,
+        107
+      ]
+    },
+    "test": {
+      "seeds": [
+        1009,
+        1013,
+        1019
+      ]
+    },
+    "train": {
+      "seeds": [
+        11,
+        17,
+        23,
+        29,
+        31
+      ]
+    }
+  },
+  "traces_per_seed": 4
+}
