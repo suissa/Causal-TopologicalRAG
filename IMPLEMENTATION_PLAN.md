@@ -256,3 +256,31 @@ Post-v0.1 external validation should add:
 - larger graphs and independent datasets;
 - confidence intervals and preregistered statistical comparisons;
 - interventional datasets before making counterfactual-causality claims.
+
+## Phase 2 — Scientific validation and falsification — ACTIVE
+
+The post-v0.1 research phase is now tracked by issue **#35** and by [`SCIENTIFIC_VALIDATION_PLAN.md`](SCIENTIFIC_VALIDATION_PLAN.md).
+
+The active scientific backlog is **#14–#34**, grouped into six gates:
+
+1. **Internal validity/freeze:** #14, #15, #18, #33.
+2. **Competitive baselines/anchor realism:** #16, #17, #21, #22.
+3. **External validity:** #19, #20, #31.
+4. **Causal/topological falsification:** #23, #24, #27, #30.
+5. **Dynamics/downstream/systems evidence:** #26, #28, #29.
+6. **Inference/replication/final claims:** #25, #32, #34.
+
+### Phase 2 scientific policy
+
+- A negative result is not automatically a bug.
+- Any correctness bug exposed by an experiment must first receive a minimal failing regression test.
+- Logic corrections are recorded in `CHANGELOG_SCIENCE.md` and evaluated on train/dev before any new final-holdout run.
+- Headline claims require strong baselines, uncertainty/effect size, and evidence beyond the authored synthetic generator.
+- Destruction/placebo controls must test whether gains actually depend on causal/topological information.
+- Prospective tracks must not use future-state visibility.
+- Observational divergence must not be described as identified counterfactual effect.
+- Final scientific claims are bounded by the claim matrix in `SCIENTIFIC_VALIDATION_REPORT.md`.
+
+### Phase 2 definition of done
+
+Issue #35 may be closed only when the preregistered primary hypotheses are evaluated on frozen held-out data, strong compatible baselines have been run, independent/real data contributes to the evidence, topology falsification controls are complete, statistical uncertainty is reported, clean-room replication succeeds, and #34 produces the final claim-bounded scientific validation report.
