@@ -23,6 +23,7 @@ from .models import (
 from .query import RetrievalStage, StagedRetrievalResult
 from .retriever import CTRetriever
 from .terrain import BasinDrift, DynamicTerrain, TerrainConfig, TerrainSnapshot
+from .terrain_retriever import TerrainAwareRetriever
 from .topology import CausalTopology
 
 __all__ = [
@@ -52,6 +53,7 @@ __all__ = [
     "RetrievalWeights",
     "SentenceTransformersEmbedder",
     "StagedRetrievalResult",
+    "TerrainAwareRetriever",
     "TerrainConfig",
     "TerrainSnapshot",
     "reciprocal_rank_fusion",
