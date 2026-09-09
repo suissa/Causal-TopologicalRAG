@@ -7,6 +7,8 @@
 **Final holdout:** sealed  
 **Acceptance status:** complete
 
+The acceptance criteria for #16 are satisfied by the machine-readable artifacts and the validated run above. This document remains the human-readable evidence summary.
+
 ## Purpose
 
 This experiment replaces the original dependency-free semantic/lexical proxies with competitive local retrieval components while preserving exactly the same observable corpus, oracle anchor, K values and exhaustive candidate policy.
