@@ -9,6 +9,7 @@ from .adapters import (
 )
 from .events import EventProjector, EventRecord
 from .models import (
+    CausalPath,
     CausalProvenance,
     Edge,
     EdgeEvidence,
@@ -23,6 +24,7 @@ from .topology import CausalTopology
 
 __all__ = [
     "BM25Retriever",
+    "CausalPath",
     "CausalProvenance",
     "CausalTopology",
     "CTRetriever",

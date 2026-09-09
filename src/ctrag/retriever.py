@@ -1,16 +1,10 @@
 from __future__ import annotations
 
 import math
-from datetime import timezone
 
-from .adapters import (
-    EmbeddingProvider,
-    IdfOverlapRetriever,
-    LexicalRetriever,
-    reciprocal_rank_fusion,
-)
+from .adapters import EmbeddingProvider, IdfOverlapRetriever, LexicalRetriever, reciprocal_rank_fusion
 from .embedding import HashingEmbedder, cosine_similarity
-from .models import EdgeKind, QueryMode, RetrievalHit, RetrievalWeights
+from .models import CausalPath, EdgeKind, QueryMode, RetrievalHit, RetrievalWeights
 from .topology import CausalTopology
 
 
@@ -57,11 +51,9 @@ class CTRetriever:
         return sorted(scores.items(), key=lambda item: (-item[1], item[0]))[:k]
 
     def rank_dense(self, query: str, *, k: int = 10) -> list[tuple[str, float]]:
-        """Rank only by the configured embedding provider."""
         return self._rank_scores(self._semantic_scores(query), k)
 
     def rank_lexical(self, query: str, *, k: int = 10) -> list[tuple[str, float]]:
-        """Rank only by the configured lexical adapter."""
         return self._rank_scores(self._lexical_scores(query), k)
 
     def rank_hybrid_rrf(
@@ -71,7 +63,6 @@ class CTRetriever:
         k: int = 10,
         rank_constant: int = 60,
     ) -> list[tuple[str, float]]:
-        """Fuse dense and lexical ranks without affecting CT-RAG graph scoring."""
         if k <= 0:
             return []
         dense = [node_id for node_id, _ in self.rank_dense(query, k=len(self.topology.nodes))]
@@ -84,6 +75,20 @@ class CTRetriever:
         if mode is QueryMode.WHAT_NEXT:
             return "out"
         return "both"
+
+    @staticmethod
+    def _causal_budget(
+        direction: str,
+        *,
+        max_hops: int,
+        ancestor_hops: int | None,
+        descendant_hops: int | None,
+    ) -> int:
+        if direction == "in":
+            return max_hops if ancestor_hops is None else ancestor_hops
+        if direction == "out":
+            return max_hops if descendant_hops is None else descendant_hops
+        raise ValueError("causal budget direction must be in or out")
 
     def _temporal_scores(self) -> dict[str, float]:
         if not self.topology.nodes:
@@ -160,27 +165,37 @@ class CTRetriever:
         *,
         mode: QueryMode,
         max_hops: int,
-    ) -> tuple[float, int | None, str | None]:
+        ancestor_hops: int | None,
+        descendant_hops: int | None,
+    ) -> tuple[float, int | None, str | None, CausalPath | None]:
         directions = ["in"] if mode is QueryMode.WHY else ["out"] if mode is QueryMode.WHAT_NEXT else ["in", "out"]
         best_score = 0.0
         best_hops: int | None = None
         best_anchor: str | None = None
+        best_path: CausalPath | None = None
         for anchor_id in anchor_ids:
             for direction in directions:
-                hops, confidence = self.topology.causal_path_confidence(
+                budget = self._causal_budget(
+                    direction,
+                    max_hops=max_hops,
+                    ancestor_hops=ancestor_hops,
+                    descendant_hops=descendant_hops,
+                )
+                path = self.topology.causal_path_evidence(
                     anchor_id,
                     candidate_id,
                     direction=direction,
-                    max_hops=max_hops,
+                    max_hops=budget,
                 )
-                if hops is None or hops == 0:
+                if path is None or path.hops == 0:
                     continue
-                score = confidence * math.exp(-self.hop_decay * (hops - 1))
+                score = path.aggregate_confidence * math.exp(-self.hop_decay * (path.hops - 1))
                 if score > best_score:
                     best_score = score
-                    best_hops = hops
+                    best_hops = path.hops
                     best_anchor = anchor_id
-        return best_score, best_hops, best_anchor
+                    best_path = path
+        return best_score, best_hops, best_anchor, best_path
 
     def search(
         self,
@@ -191,6 +206,8 @@ class CTRetriever:
         anchor_k: int = 3,
         anchor_ids: list[str] | None = None,
         max_hops: int = 4,
+        ancestor_hops: int | None = None,
+        descendant_hops: int | None = None,
         weights: RetrievalWeights | None = None,
         include_anchors: bool = False,
         exhaustive: bool = False,
@@ -199,6 +216,9 @@ class CTRetriever:
             return []
         if not self.topology.nodes:
             return []
+        for name, value in (("max_hops", max_hops), ("ancestor_hops", ancestor_hops), ("descendant_hops", descendant_hops)):
+            if value is not None and value < 0:
+                raise ValueError(f"{name} must be non-negative")
 
         semantic = self._semantic_scores(query)
         lexical = self._lexical_scores(query)
@@ -227,13 +247,18 @@ class CTRetriever:
             reverse=True,
         )
         candidate_ids = set(global_ranked[: max(20, k * 4)])
+        expansion_hops = max(
+            max_hops,
+            ancestor_hops if ancestor_hops is not None else max_hops,
+            descendant_hops if descendant_hops is not None else max_hops,
+        )
         for anchor_id in anchor_ids:
             candidate_ids.update(
                 self.topology.neighborhood(
                     anchor_id,
                     direction=direction,
                     kinds={EdgeKind.CAUSAL, EdgeKind.BEHAVIORAL, EdgeKind.TEMPORAL},
-                    max_hops=max_hops,
+                    max_hops=expansion_hops,
                 )
             )
 
@@ -248,13 +273,15 @@ class CTRetriever:
                 candidate_id,
                 anchor_ids,
                 direction=direction,
-                max_hops=max_hops,
+                max_hops=expansion_hops,
             )
-            causal, causal_hops, causal_anchor = self._causal_score(
+            causal, causal_hops, causal_anchor, causal_path = self._causal_score(
                 candidate_id,
                 anchor_ids,
                 mode=mode,
                 max_hops=max_hops,
+                ancestor_hops=ancestor_hops,
+                descendant_hops=descendant_hops,
             )
             behavioral = self._behavioral_affinity(candidate_id, anchor_ids)
             components = {
@@ -280,6 +307,7 @@ class CTRetriever:
                     components=components,
                     anchor_id=causal_anchor or topo_anchor,
                     causal_hops=causal_hops,
+                    causal_path=causal_path,
                 )
             )
 

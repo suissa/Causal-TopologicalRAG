@@ -45,12 +45,6 @@ class QueryMode(str, Enum):
 
 @dataclass(slots=True, frozen=True)
 class EdgeEvidence:
-    """A stable evidence reference supporting an edge.
-
-    Metadata is intentionally open-ended but must be JSON-serializable when the
-    built-in serialization contract is used.
-    """
-
     id: str
     source: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict, hash=False)
@@ -146,7 +140,6 @@ class Edge:
             raise ValueError("edge evidence ids must be unique")
 
     def identity(self) -> tuple[str, str, EdgeKind, CausalProvenance | None]:
-        """Stable structural identity used to reject duplicate graph edges."""
         return self.source, self.target, self.kind, self.provenance
 
     def to_dict(self) -> dict[str, Any]:
@@ -174,6 +167,38 @@ class Edge:
             evidence=tuple(EdgeEvidence.from_dict(item) for item in raw.get("evidence", [])),
             provenance_metadata=dict(raw.get("provenance_metadata") or {}),
         )
+
+
+@dataclass(slots=True, frozen=True)
+class CausalPath:
+    """Explainable causal path selected for one anchor/candidate pair."""
+
+    anchor_id: str
+    candidate_id: str
+    direction: str
+    nodes: tuple[str, ...]
+    edges: tuple[Edge, ...]
+    best_confidence: float
+    aggregate_confidence: float
+
+    @property
+    def hops(self) -> int:
+        return len(self.edges)
+
+    @property
+    def evidence(self) -> tuple[EdgeEvidence, ...]:
+        seen: set[str] = set()
+        result: list[EdgeEvidence] = []
+        for edge in self.edges:
+            for item in edge.evidence:
+                if item.id not in seen:
+                    seen.add(item.id)
+                    result.append(item)
+        return tuple(result)
+
+    @property
+    def provenances(self) -> tuple[CausalProvenance, ...]:
+        return tuple(edge.provenance for edge in self.edges if edge.provenance is not None)
 
 
 @dataclass(slots=True, frozen=True)
@@ -220,3 +245,4 @@ class RetrievalHit:
     components: dict[str, float]
     anchor_id: str | None = None
     causal_hops: int | None = None
+    causal_path: CausalPath | None = None

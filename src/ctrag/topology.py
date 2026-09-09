@@ -3,7 +3,17 @@ from __future__ import annotations
 from collections import defaultdict, deque
 from collections.abc import Iterable
 
-from .models import Edge, EdgeKind, MemoryNode
+from .models import CausalPath, CausalProvenance, Edge, EdgeKind, MemoryNode
+
+
+PROVENANCE_FACTORS: dict[CausalProvenance, float] = {
+    CausalProvenance.EXECUTION: 1.00,
+    CausalProvenance.WORKFLOW: 0.95,
+    CausalProvenance.DEPENDENCY: 0.90,
+    CausalProvenance.EVENT: 0.90,
+    CausalProvenance.INFERRED: 0.60,
+    CausalProvenance.HYPOTHESIZED: 0.35,
+}
 
 
 class CausalTopology:
@@ -133,6 +143,101 @@ class CausalTopology:
                 queue.append((neighbor, candidate_hops))
         return distances
 
+    @staticmethod
+    def provenance_factor(provenance: CausalProvenance) -> float:
+        return PROVENANCE_FACTORS[provenance]
+
+    def causal_paths(
+        self,
+        anchor_id: str,
+        candidate_id: str,
+        *,
+        direction: str,
+        max_hops: int = 4,
+    ) -> list[tuple[tuple[str, ...], tuple[Edge, ...], float]]:
+        """Enumerate simple causal paths up to a traversal budget.
+
+        Only `EdgeKind.CAUSAL` contributes. Cycles cannot recur inside a path.
+        Path confidence is the product of edge confidence, bounded edge weight and
+        provenance calibration factors.
+        """
+
+        if anchor_id not in self.nodes:
+            raise KeyError(anchor_id)
+        if candidate_id not in self.nodes:
+            raise KeyError(candidate_id)
+        if direction not in {"in", "out"}:
+            raise ValueError("causal path direction must be in or out")
+        if max_hops < 0:
+            raise ValueError("max_hops must be non-negative")
+        if anchor_id == candidate_id:
+            return [((anchor_id,), (), 1.0)]
+        if max_hops == 0:
+            return []
+
+        results: list[tuple[tuple[str, ...], tuple[Edge, ...], float]] = []
+        stack: list[tuple[str, tuple[str, ...], tuple[Edge, ...], float]] = [
+            (anchor_id, (anchor_id,), (), 1.0)
+        ]
+        while stack:
+            current, nodes, edges_so_far, confidence = stack.pop()
+            if len(edges_so_far) >= max_hops:
+                continue
+            edges = self._in.get(current, []) if direction == "in" else self._out.get(current, [])
+            for edge in edges:
+                if edge.kind is not EdgeKind.CAUSAL or edge.provenance is None:
+                    continue
+                neighbor = edge.source if direction == "in" else edge.target
+                if neighbor in nodes:
+                    continue
+                factor = (
+                    edge.confidence
+                    * min(1.0, edge.weight)
+                    * self.provenance_factor(edge.provenance)
+                )
+                next_confidence = confidence * factor
+                next_nodes = nodes + (neighbor,)
+                next_edges = edges_so_far + (edge,)
+                if neighbor == candidate_id:
+                    results.append((next_nodes, next_edges, next_confidence))
+                    continue
+                if len(next_edges) < max_hops:
+                    stack.append((neighbor, next_nodes, next_edges, next_confidence))
+
+        results.sort(key=lambda item: (-item[2], len(item[1]), item[0]))
+        return results
+
+    def causal_path_evidence(
+        self,
+        anchor_id: str,
+        candidate_id: str,
+        *,
+        direction: str,
+        max_hops: int = 4,
+    ) -> CausalPath | None:
+        paths = self.causal_paths(
+            anchor_id,
+            candidate_id,
+            direction=direction,
+            max_hops=max_hops,
+        )
+        if not paths:
+            return None
+        best_nodes, best_edges, best_confidence = paths[0]
+        remaining = 1.0
+        for _, _, confidence in paths:
+            remaining *= 1.0 - max(0.0, min(1.0, confidence))
+        aggregate = 1.0 - remaining
+        return CausalPath(
+            anchor_id=anchor_id,
+            candidate_id=candidate_id,
+            direction=direction,
+            nodes=best_nodes,
+            edges=best_edges,
+            best_confidence=best_confidence,
+            aggregate_confidence=max(0.0, min(1.0, aggregate)),
+        )
+
     def causal_path_confidence(
         self,
         anchor_id: str,
@@ -141,45 +246,13 @@ class CausalTopology:
         direction: str,
         max_hops: int = 4,
     ) -> tuple[int | None, float]:
-        """Return shortest causal hops and best confidence product at that depth."""
-        if anchor_id not in self.nodes:
-            raise KeyError(anchor_id)
-        if candidate_id not in self.nodes:
-            raise KeyError(candidate_id)
-        if anchor_id == candidate_id:
-            return 0, 1.0
-        if direction not in {"in", "out"}:
-            raise ValueError("causal path direction must be in or out")
-        if max_hops < 0:
-            raise ValueError("max_hops must be non-negative")
-
-        queue: deque[tuple[str, int, float]] = deque([(anchor_id, 0, 1.0)])
-        best_seen: dict[tuple[str, int], float] = {(anchor_id, 0): 1.0}
-        best_target_hops: int | None = None
-        best_target_confidence = 0.0
-
-        while queue:
-            current, hops, confidence = queue.popleft()
-            if hops >= max_hops:
-                continue
-            edges = self._in.get(current, []) if direction == "in" else self._out.get(current, [])
-            for edge in edges:
-                if edge.kind is not EdgeKind.CAUSAL:
-                    continue
-                neighbor = edge.source if direction == "in" else edge.target
-                next_hops = hops + 1
-                next_confidence = confidence * edge.confidence * edge.weight
-                state = (neighbor, next_hops)
-                if next_confidence <= best_seen.get(state, -1.0):
-                    continue
-                best_seen[state] = next_confidence
-                if neighbor == candidate_id:
-                    if best_target_hops is None or next_hops < best_target_hops:
-                        best_target_hops = next_hops
-                        best_target_confidence = next_confidence
-                    elif next_hops == best_target_hops:
-                        best_target_confidence = max(best_target_confidence, next_confidence)
-                if best_target_hops is None or next_hops < best_target_hops:
-                    queue.append((neighbor, next_hops, next_confidence))
-
-        return best_target_hops, min(1.0, best_target_confidence)
+        """Backward-compatible scalar view over explainable path evidence."""
+        path = self.causal_path_evidence(
+            anchor_id,
+            candidate_id,
+            direction=direction,
+            max_hops=max_hops,
+        )
+        if path is None:
+            return None, 0.0
+        return path.hops, path.aggregate_confidence
