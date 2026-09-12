@@ -215,7 +215,7 @@ Detailed evidence: `docs/GRAPHRAG_COMPARISON_01.md`.
 **Date:** 2026-09-09  
 **Issue:** #22  
 **Classification:** `correctness_bug`  
-**Status:** corrected, pending post-fix science rerun  
+**Status:** corrected and validated before final-holdout unblinding  
 **Final holdout:** sealed
 
 ### Defect
@@ -242,9 +242,21 @@ The CSV schema is now the deterministic union of keys appearing across all rows.
 
 No query, relevance label, topology edge, model revision, K, token budget, dataset split or retrieval score was changed by this correction.
 
+### Post-fix evidence
+
+Validation run `34357104431` completed successfully. It passed the regression suite and science gate, reran strong baselines, no-oracle anchor evaluation, matched GraphRAG, and the pinned BasinRAG reproduction on both `train` and `dev`, verified the final holdout remained sealed, and uploaded all scientific evidence artifacts.
+
+The BasinRAG reproduction artifact produced by that run has digest:
+
+```text
+sha256:877e22478c7cd8a23919c7c232b5b76eb29bdbbeedc457542728be309e7192ab
+```
+
 ### Scientific impact
 
-The failed run is retained as pre-fix evidence. Comparison claims from #22 remain pending until the corrected train/dev reproduction completes and its artifacts are inspected. The final holdout remains sealed.
+The failed run remains preserved as pre-fix evidence, while run `34357104431` is the post-fix validation evidence. The serialization defect is therefore closed and does not invalidate the matched BasinRAG comparison. The final holdout remained sealed throughout.
+
+Detailed comparison evidence: `docs/BASINRAG_COMPARISON_01.md`.
 
 ---
 
