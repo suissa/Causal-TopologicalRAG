@@ -158,14 +158,17 @@
         "final_test_status": "sealed"
       },
       "post_fix": {
-        "status": "pending science rerun",
+        "ci_run": 34357104431,
+        "status": "validated",
         "fix": "CSV fieldnames are the deterministic union of keys across all rows",
+        "tests": "unit and scientific gates passed; strong baselines, no-oracle anchor, matched GraphRAG, BasinRAG train/dev, holdout verification and artifact uploads all succeeded",
+        "basinrag_artifact_digest": "sha256:877e22478c7cd8a23919c7c232b5b76eb29bdbbeedc457542728be309e7192ab",
         "final_test_status": "sealed"
       },
       "regression_tests": [
         "tests/test_basinrag_reproduction.py::test_csv_handles_mixed_index_and_query_cost_rows"
       ],
-      "status": "corrected_pending_validation_before_final_holdout_unblinding",
+      "status": "corrected_and_validated_before_final_holdout_unblinding",
       "title": "Serialize heterogeneous BasinRAG index/query cost rows without dropping fields"
     }
   ],
