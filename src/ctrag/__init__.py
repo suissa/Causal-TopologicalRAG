@@ -21,7 +21,7 @@ from .models import (
     RetrievalHit,
     RetrievalWeights,
 )
-from .query import RetrievalStage, StagedRetrievalResult
+from .query import CausalClaimError, EvidenceLevel, RetrievalStage, StagedRetrievalResult, validate_causal_claim
 from .directional_retriever import CTRetriever
 from .storage import (
     EventSource,
@@ -44,6 +44,7 @@ __all__ = [
     "BasinDrift",
     "BM25Retriever",
     "CausalPath",
+    "CausalClaimError",
     "CausalProvenance",
     "CausalTopology",
     "CTRetriever",
@@ -52,6 +53,7 @@ __all__ = [
     "EdgeEvidence",
     "EdgeKind",
     "EmbeddingProvider",
+    "EvidenceLevel",
     "EventFieldMapping",
     "EventProjector",
     "EventRecord",
@@ -78,5 +80,6 @@ __all__ = [
     "TopologyStore",
     "TopologyView",
     "VectorIndex",
+    "validate_causal_claim",
     "reciprocal_rank_fusion",
 ]

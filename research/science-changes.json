@@ -170,6 +170,29 @@
       ],
       "status": "corrected_and_validated_before_final_holdout_unblinding",
       "title": "Serialize heterogeneous BasinRAG index/query cost rows without dropping fields"
+    },
+    {
+      "affected_files": [
+        "docs/GATE_D_FALSIFICATION.md",
+        "research/gate-d-v1/gate-d-results.json"
+      ],
+      "classification": "negative_result",
+      "code_changed": false,
+      "date": "2026-09-13",
+      "description": "Gate D falsification found query-mode-dependent null and adverse results: removing all causal edges improved RECOVERY Recall@3, removing temporal edges changed no headline metric, and random hypothesized-edge noise did not materially degrade aggregate retrieval in the small synthetic corpus.",
+      "id": "SCI-006",
+      "issue": 23,
+      "evidence": {
+        "scope": "exploratory generated train/dev mechanism data only",
+        "intact_recovery_recall_at_3": 0.666667,
+        "causal_removed_recovery_recall_at_3": 1.0,
+        "temporal_removal_headline_change": 0.0,
+        "noise_result": "No material aggregate degradation; larger/external-graph robustness is not established",
+        "future_holdout_loaded": false,
+        "final_test_status": "sealed"
+      },
+      "status": "retained_before_final_holdout_unblinding",
+      "title": "Gate D effects are query-specific and include null/adverse topology results"
     }
   ],
   "policy_version": 1,

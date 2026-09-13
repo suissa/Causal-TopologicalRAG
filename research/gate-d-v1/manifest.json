@@ -1,0 +1,7 @@
+{
+  "artifact": "gate-d-results.json",
+  "final_holdout_status": "sealed_not_loaded",
+  "preregistration_sha256": "3e3270eb987a7b5ae403a287c1ae9de0edd6e684e2f92044d6eef88dac3cd467",
+  "schema_version": 1,
+  "sha256": "ef711b2499e98689f64bdcb6c5bb1b777a4a5b0b0a687f3acc8ab16be68533be"
+}

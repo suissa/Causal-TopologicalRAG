@@ -1,0 +1,41 @@
+name: Science Gate D Falsification
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/ctrag/benchmarks/gate_d.py"
+      - "src/ctrag/query.py"
+      - "tests/test_gate_d.py"
+      - "docs/GATE_D_FALSIFICATION.md"
+      - "research/gate-d-v1/**"
+      - ".github/workflows/science-gate-d.yml"
+
+jobs:
+  gate-d:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: Unit, contract, and science gates
+        run: |
+          pytest
+          python -m ctrag.science_gate
+          python -m ctrag.benchmarks.holdout fingerprint test
+      - name: Reproduce Gate D
+        run: python -m ctrag.benchmarks.gate_d --output gate-d-results
+      - name: Verify frozen files and committed artifact
+        run: |
+          test ! -f research/holdout/UNBLINDED.json
+          cmp gate-d-results/gate-d-results.json research/gate-d-v1/gate-d-results.json
+          cmp gate-d-results/manifest.json research/gate-d-v1/manifest.json
+      - name: Upload Gate D evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate-d-falsification-python-3.12
+          path: gate-d-results/

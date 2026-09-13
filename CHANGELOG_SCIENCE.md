@@ -260,6 +260,22 @@ Detailed comparison evidence: `docs/BASINRAG_COMPARISON_01.md`.
 
 ---
 
+## SCI-006 — Gate D effects are query-specific and include null/adverse results
+
+**Date:** 2026-09-13  
+**Issues:** #23, #24, #27, #30  
+**Classification:** `negative_result`  
+**Status:** retained before final-holdout unblinding  
+**Code changed because of the observation:** `false`
+
+The complete, pre-specified Gate D grid was retained. Removing causal edges reduced WHY Recall@3 from 1.000 to 0 and eliminated causal evidence in every mode, but increased RECOVERY Recall@3 from 0.667 to 1.000. Removing temporal edges changed none of the headline metrics. Random hypothesized-edge noise produced little aggregate degradation in this small synthetic graph.
+
+These results reject the universal claim that more causal/topological structure always improves retrieval. The supported claim is narrower: valid direction and endpoints materially support WHY and some WHAT_NEXT retrieval, while the current RECOVERY weighting can be harmed by causal structure. Noise robustness on larger or external causal graphs remains unproven.
+
+No retrieval weights, relevance labels, K values, queries, preregistration bytes, or frozen holdout bytes were changed in response. The implementation of the already-planned falsification harness is separate from this observation. Detailed evidence: `docs/GATE_D_FALSIFICATION.md` and `research/gate-d-v1/gate-d-results.json`.
+
+---
+
 ## How future entries must be recorded
 
 Each future scientific change must receive an ID (`SCI-006`, `SCI-007`, ...), an entry in `research/science-changes.json`, and one section in this file.
