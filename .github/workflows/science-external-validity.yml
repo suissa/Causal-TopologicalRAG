@@ -1,0 +1,42 @@
+name: Science External Validity
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "research/external/**"
+      - "src/ctrag/benchmarks/external_validity.py"
+      - "src/ctrag/benchmarks/human_annotation.py"
+      - "tests/test_external_validity.py"
+      - "tests/test_human_annotation.py"
+      - "docs/EXTERNAL_VALIDITY.md"
+      - "docs/HUMAN_ANNOTATION.md"
+      - ".github/workflows/science-external-validity.yml"
+
+jobs:
+  gate-c:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: Unit and science gates
+        run: |
+          pytest
+          python -m ctrag.science_gate
+          python -m ctrag.benchmarks.holdout fingerprint test
+      - name: External validity benchmark
+        run: python -m ctrag.benchmarks.external_validity --output external-validity-results
+      - name: Verify final holdout remains sealed
+        run: |
+          test ! -f research/holdout/UNBLINDED.json
+          python -m ctrag.benchmarks.holdout fingerprint test
+      - name: Upload Gate C evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: external-validity-python-3.12
+          path: external-validity-results/
