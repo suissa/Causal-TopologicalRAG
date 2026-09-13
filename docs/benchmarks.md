@@ -136,3 +136,18 @@ inapplicable values, ground-truth consistency, exhaustive candidates outside the
 default pool, baseline score isolation, stable ties, aggregation/CSV round trips,
 and byte-identical CLI output across process hash seeds. CI executes all tests and
 the full default benchmark on Python 3.11, 3.12 and 3.13 and uploads all six reports.
+
+## Dynamic terrain chronology experiment
+
+Issue #26 is exercised separately so that the static baseline files remain comparable:
+
+```bash
+python -m ctrag.benchmarks.terrain_dynamics --output benchmark-results/terrain-dynamics
+```
+
+The experiment has an initial repeated path followed by a changed path. Every ranking
+is recorded **before** the transition at that row is ingested; therefore future events
+cannot change an earlier score. It reports the ranking-regime change, a decay floor for
+a rare-but-critical protected edge, and a reset recommendation. Reset clears only the
+navigational overlay: topology and observed transition counts remain intact. This is a
+controlled mechanism result, not evidence of generalization or broad superiority.
