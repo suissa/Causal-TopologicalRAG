@@ -193,6 +193,29 @@
       },
       "status": "retained_before_final_holdout_unblinding",
       "title": "Gate D effects are query-specific and include null/adverse topology results"
+    },
+    {
+      "affected_files": [
+        "docs/SCM_GROUND_TRUTH_01.md",
+        "research/scm-ground-truth-v1/scm-results.json"
+      ],
+      "classification": "negative_result",
+      "code_changed": false,
+      "date": "2026-09-13",
+      "description": "On independent fixed-equation SCM mechanisms, CT-RAG perfectly retrieved paired interventional evidence when true topology was supplied, but performed no causal discovery and produced no identified individual counterfactual estimate. Supplied-edge retrieval cannot support either claim.",
+      "id": "SCI-007",
+      "issue": 41,
+      "evidence": {
+        "families": 3,
+        "seeds": 5,
+        "ctrag_supplied_graph_intervention_pair_recall_at_2": 1.0,
+        "dense_intervention_pair_recall_at_2": 0.0,
+        "counterfactual_estimation_coverage": 0.0,
+        "causal_discovery_performed": false,
+        "final_test_status": "sealed"
+      },
+      "status": "retained_before_final_holdout_unblinding",
+      "title": "Retrieving supplied interventional evidence is not discovery or counterfactual identification"
     }
   ],
   "policy_version": 1,

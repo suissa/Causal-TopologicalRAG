@@ -1,0 +1,39 @@
+name: Science SCM Ground Truth
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/ctrag/benchmarks/scm_ground_truth.py"
+      - "tests/test_scm_ground_truth.py"
+      - "docs/SCM_GROUND_TRUTH_01.md"
+      - "research/scm-ground-truth-v1/**"
+      - ".github/workflows/science-scm-ground-truth.yml"
+
+jobs:
+  scm-ground-truth:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: Tests and sealed-holdout gates
+        run: |
+          pytest
+          python -m ctrag.science_gate
+          test ! -f research/holdout/UNBLINDED.json
+          python -m ctrag.benchmarks.holdout fingerprint test
+      - name: Reproduce SCM experiment
+        run: python -m ctrag.benchmarks.scm_ground_truth --output scm-results
+      - name: Verify committed evidence byte-for-byte
+        run: |
+          cmp scm-results/scm-results.json research/scm-ground-truth-v1/scm-results.json
+          cmp scm-results/manifest.json research/scm-ground-truth-v1/manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scm-ground-truth-python-3.12
+          path: scm-results/

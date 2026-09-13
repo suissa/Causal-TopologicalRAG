@@ -1,0 +1,479 @@
+{
+  "families": [
+    "linear_chain",
+    "observed_confounder",
+    "hidden_confounder"
+  ],
+  "final_holdout": "sealed_not_loaded",
+  "generator": "ctrag-independent-scm-suite",
+  "information_contract": {
+    "hidden_fields": [
+      "exogenous noise",
+      "latent z",
+      "paired counterfactual outcome",
+      "true individual effect"
+    ],
+    "index_fields": [
+      "id",
+      "family",
+      "split",
+      "x",
+      "z_when_observed",
+      "y",
+      "intervention"
+    ],
+    "supplied_graph_arm_is_causal_discovery": false
+  },
+  "preregistration": {
+    "bytes": 13292,
+    "path": "docs/PREREGISTRATION.md",
+    "sha256": "3e3270eb987a7b5ae403a287c1ae9de0edd6e684e2f92044d6eef88dac3cd467",
+    "version": 1
+  },
+  "results": [
+    {
+      "absolute_error": {
+        "observational_adjusted_if_z_visible": 0.026761202769510106,
+        "observational_unadjusted": 0.026203529092997613,
+        "randomized_interventional_difference": 0.030835622379280725
+      },
+      "causal_discovery": {
+        "performed": false,
+        "reason": "true causal edges are supplied to the retrieval arm; supplying is not discovery"
+      },
+      "counterfactual_estimation": {
+        "coverage": 0.0,
+        "mae": null,
+        "reason": "CT-RAG retrieves evidence but has no identified SCM/exogenous-state estimator"
+      },
+      "estimators": {
+        "observational_adjusted_if_z_visible": 1.97323879723049,
+        "observational_unadjusted": 1.9737964709070024,
+        "randomized_interventional_difference": 2.0308356223792807
+      },
+      "family": "linear_chain",
+      "intervention_pair_recall_at_2": {
+        "ctrag_supplied_graph": 1.0,
+        "dense": 0.0
+      },
+      "n_train_dev": 192,
+      "seed": 101,
+      "true_ate": 2.0
+    },
+    {
+      "absolute_error": {
+        "observational_adjusted_if_z_visible": 0.0011916478835845012,
+        "observational_unadjusted": 0.01118357295037109,
+        "randomized_interventional_difference": 0.0051103955778579735
+      },
+      "causal_discovery": {
+        "performed": false,
+        "reason": "true causal edges are supplied to the retrieval arm; supplying is not discovery"
+      },
+      "counterfactual_estimation": {
+        "coverage": 0.0,
+        "mae": null,
+        "reason": "CT-RAG retrieves evidence but has no identified SCM/exogenous-state estimator"
+      },
+      "estimators": {
+        "observational_adjusted_if_z_visible": 2.0011916478835845,
+        "observational_unadjusted": 2.011183572950371,
+        "randomized_interventional_difference": 1.994889604422142
+      },
+      "family": "linear_chain",
+      "intervention_pair_recall_at_2": {
+        "ctrag_supplied_graph": 1.0,
+        "dense": 0.0
+      },
+      "n_train_dev": 192,
+      "seed": 202,
+      "true_ate": 2.0
+    },
+    {
+      "absolute_error": {
+        "observational_adjusted_if_z_visible": 0.004011319315047057,
+        "observational_unadjusted": 0.00467446609222133,
+        "randomized_interventional_difference": 0.010807153550239867
+      },
+      "causal_discovery": {
+        "performed": false,
+        "reason": "true causal edges are supplied to the retrieval arm; supplying is not discovery"
+      },
+      "counterfactual_estimation": {
+        "coverage": 0.0,
+        "mae": null,
+        "reason": "CT-RAG retrieves evidence but has no identified SCM/exogenous-state estimator"
+      },
+      "estimators": {
+        "observational_adjusted_if_z_visible": 2.004011319315047,
+        "observational_unadjusted": 2.0046744660922213,
+        "randomized_interventional_difference": 2.01080715355024
+      },
+      "family": "linear_chain",
+      "intervention_pair_recall_at_2": {
+        "ctrag_supplied_graph": 1.0,
+        "dense": 0.0
+      },
+      "n_train_dev": 192,
+      "seed": 303,
+      "true_ate": 2.0
+    },
+    {
+      "absolute_error": {
+        "observational_adjusted_if_z_visible": 0.031186468010515167,
+        "observational_unadjusted": 0.03239722014299873,
+        "randomized_interventional_difference": 0.0035264344611567466
+      },
+      "causal_discovery": {
+        "performed": false,
+        "reason": "true causal edges are supplied to the retrieval arm; supplying is not discovery"
+      },
+      "counterfactual_estimation": {
+        "coverage": 0.0,
+        "mae": null,
+        "reason": "CT-RAG retrieves evidence but has no identified SCM/exogenous-state estimator"
+      },
+      "estimators": {
+        "observational_adjusted_if_z_visible": 1.9688135319894848,
+        "observational_unadjusted": 1.9676027798570013,
+        "randomized_interventional_difference": 2.0035264344611567
+      },
+      "family": "linear_chain",
+      "intervention_pair_recall_at_2": {
+        "ctrag_supplied_graph": 1.0,
+        "dense": 0.0
+      },
+      "n_train_dev": 192,
+      "seed": 404,
+      "true_ate": 2.0
+    },
+    {
+      "absolute_error": {
+        "observational_adjusted_if_z_visible": 0.014982852603467212,
+        "observational_unadjusted": 0.017328641816577228,
+        "randomized_interventional_difference": 0.03557194710167888
+      },
+      "causal_discovery": {
+        "performed": false,
+        "reason": "true causal edges are supplied to the retrieval arm; supplying is not discovery"
+      },
+      "counterfactual_estimation": {
+        "coverage": 0.0,
+        "mae": null,
+        "reason": "CT-RAG retrieves evidence but has no identified SCM/exogenous-state estimator"
+      },
+      "estimators": {
+        "observational_adjusted_if_z_visible": 2.014982852603467,
+        "observational_unadjusted": 2.0173286418165772,
+        "randomized_interventional_difference": 1.9644280528983211
+      },
+      "family": "linear_chain",
+      "intervention_pair_recall_at_2": {
+        "ctrag_supplied_graph": 1.0,
+        "dense": 0.0
+      },
+      "n_train_dev": 192,
+      "seed": 505,
+      "true_ate": 2.0
+    },
+    {
+      "absolute_error": {
+        "observational_adjusted_if_z_visible": 0.04008849459941777,
+        "observational_unadjusted": 1.8978743834494956,
+        "randomized_interventional_difference": 0.4058356223792807
+      },
+      "causal_discovery": {
+        "performed": false,
+        "reason": "true causal edges are supplied to the retrieval arm; supplying is not discovery"
+      },
+      "counterfactual_estimation": {
+        "coverage": 0.0,
+        "mae": null,
+        "reason": "CT-RAG retrieves evidence but has no identified SCM/exogenous-state estimator"
+      },
+      "estimators": {
+        "observational_adjusted_if_z_visible": 1.9599115054005822,
+        "observational_unadjusted": 3.8978743834494956,
+        "randomized_interventional_difference": 2.4058356223792807
+      },
+      "family": "observed_confounder",
+      "intervention_pair_recall_at_2": {
+        "ctrag_supplied_graph": 1.0,
+        "dense": 0.0
+      },
+      "n_train_dev": 192,
+      "seed": 101,
+      "true_ate": 2.0
+    },
+    {
+      "absolute_error": {
+        "observational_adjusted_if_z_visible": 0.039321199721657596,
+        "observational_unadjusted": 1.8563918608301333,
+        "randomized_interventional_difference": 0.380110395577858
+      },
+      "causal_discovery": {
+        "performed": false,
+        "reason": "true causal edges are supplied to the retrieval arm; supplying is not discovery"
+      },
+      "counterfactual_estimation": {
+        "coverage": 0.0,
+        "mae": null,
+        "reason": "CT-RAG retrieves evidence but has no identified SCM/exogenous-state estimator"
+      },
+      "estimators": {
+        "observational_adjusted_if_z_visible": 2.0393211997216576,
+        "observational_unadjusted": 3.8563918608301333,
+        "randomized_interventional_difference": 1.619889604422142
+      },
+      "family": "observed_confounder",
+      "intervention_pair_recall_at_2": {
+        "ctrag_supplied_graph": 1.0,
+        "dense": 0.0
+      },
+      "n_train_dev": 192,
+      "seed": 202,
+      "true_ate": 2.0
+    },
+    {
+      "absolute_error": {
+        "observational_adjusted_if_z_visible": 0.0033068532642874793,
+        "observational_unadjusted": 1.7742606984753033,
+        "randomized_interventional_difference": 0.08294284644976013
+      },
+      "causal_discovery": {
+        "performed": false,
+        "reason": "true causal edges are supplied to the retrieval arm; supplying is not discovery"
+      },
+      "counterfactual_estimation": {
+        "coverage": 0.0,
+        "mae": null,
+        "reason": "CT-RAG retrieves evidence but has no identified SCM/exogenous-state estimator"
+      },
+      "estimators": {
+        "observational_adjusted_if_z_visible": 1.9966931467357125,
+        "observational_unadjusted": 3.7742606984753033,
+        "randomized_interventional_difference": 1.9170571535502399
+      },
+      "family": "observed_confounder",
+      "intervention_pair_recall_at_2": {
+        "ctrag_supplied_graph": 1.0,
+        "dense": 0.0
+      },
+      "n_train_dev": 192,
+      "seed": 303,
+      "true_ate": 2.0
+    },
+    {
+      "absolute_error": {
+        "observational_adjusted_if_z_visible": 0.029969591245713856,
+        "observational_unadjusted": 1.8282285514757866,
+        "randomized_interventional_difference": 0.47227643446115675
+      },
+      "causal_discovery": {
+        "performed": false,
+        "reason": "true causal edges are supplied to the retrieval arm; supplying is not discovery"
+      },
+      "counterfactual_estimation": {
+        "coverage": 0.0,
+        "mae": null,
+        "reason": "CT-RAG retrieves evidence but has no identified SCM/exogenous-state estimator"
+      },
+      "estimators": {
+        "observational_adjusted_if_z_visible": 1.9700304087542861,
+        "observational_unadjusted": 3.8282285514757866,
+        "randomized_interventional_difference": 2.4722764344611567
+      },
+      "family": "observed_confounder",
+      "intervention_pair_recall_at_2": {
+        "ctrag_supplied_graph": 1.0,
+        "dense": 0.0
+      },
+      "n_train_dev": 192,
+      "seed": 404,
+      "true_ate": 2.0
+    },
+    {
+      "absolute_error": {
+        "observational_adjusted_if_z_visible": 0.07706801954974019,
+        "observational_unadjusted": 1.7021973890670803,
+        "randomized_interventional_difference": 0.2925530528983211
+      },
+      "causal_discovery": {
+        "performed": false,
+        "reason": "true causal edges are supplied to the retrieval arm; supplying is not discovery"
+      },
+      "counterfactual_estimation": {
+        "coverage": 0.0,
+        "mae": null,
+        "reason": "CT-RAG retrieves evidence but has no identified SCM/exogenous-state estimator"
+      },
+      "estimators": {
+        "observational_adjusted_if_z_visible": 1.9229319804502598,
+        "observational_unadjusted": 3.7021973890670803,
+        "randomized_interventional_difference": 2.292553052898321
+      },
+      "family": "observed_confounder",
+      "intervention_pair_recall_at_2": {
+        "ctrag_supplied_graph": 1.0,
+        "dense": 0.0
+      },
+      "n_train_dev": 192,
+      "seed": 505,
+      "true_ate": 2.0
+    },
+    {
+      "absolute_error": {
+        "observational_adjusted_if_z_visible": 1.8978743834494956,
+        "observational_unadjusted": 1.8978743834494956,
+        "randomized_interventional_difference": 0.4058356223792807
+      },
+      "causal_discovery": {
+        "performed": false,
+        "reason": "true causal edges are supplied to the retrieval arm; supplying is not discovery"
+      },
+      "counterfactual_estimation": {
+        "coverage": 0.0,
+        "mae": null,
+        "reason": "CT-RAG retrieves evidence but has no identified SCM/exogenous-state estimator"
+      },
+      "estimators": {
+        "observational_adjusted_if_z_visible": 3.8978743834494956,
+        "observational_unadjusted": 3.8978743834494956,
+        "randomized_interventional_difference": 2.4058356223792807
+      },
+      "family": "hidden_confounder",
+      "intervention_pair_recall_at_2": {
+        "ctrag_supplied_graph": 1.0,
+        "dense": 0.0
+      },
+      "n_train_dev": 192,
+      "seed": 101,
+      "true_ate": 2.0
+    },
+    {
+      "absolute_error": {
+        "observational_adjusted_if_z_visible": 1.8563918608301333,
+        "observational_unadjusted": 1.8563918608301333,
+        "randomized_interventional_difference": 0.380110395577858
+      },
+      "causal_discovery": {
+        "performed": false,
+        "reason": "true causal edges are supplied to the retrieval arm; supplying is not discovery"
+      },
+      "counterfactual_estimation": {
+        "coverage": 0.0,
+        "mae": null,
+        "reason": "CT-RAG retrieves evidence but has no identified SCM/exogenous-state estimator"
+      },
+      "estimators": {
+        "observational_adjusted_if_z_visible": 3.8563918608301333,
+        "observational_unadjusted": 3.8563918608301333,
+        "randomized_interventional_difference": 1.619889604422142
+      },
+      "family": "hidden_confounder",
+      "intervention_pair_recall_at_2": {
+        "ctrag_supplied_graph": 1.0,
+        "dense": 0.0
+      },
+      "n_train_dev": 192,
+      "seed": 202,
+      "true_ate": 2.0
+    },
+    {
+      "absolute_error": {
+        "observational_adjusted_if_z_visible": 1.7742606984753033,
+        "observational_unadjusted": 1.7742606984753033,
+        "randomized_interventional_difference": 0.08294284644976013
+      },
+      "causal_discovery": {
+        "performed": false,
+        "reason": "true causal edges are supplied to the retrieval arm; supplying is not discovery"
+      },
+      "counterfactual_estimation": {
+        "coverage": 0.0,
+        "mae": null,
+        "reason": "CT-RAG retrieves evidence but has no identified SCM/exogenous-state estimator"
+      },
+      "estimators": {
+        "observational_adjusted_if_z_visible": 3.7742606984753033,
+        "observational_unadjusted": 3.7742606984753033,
+        "randomized_interventional_difference": 1.9170571535502399
+      },
+      "family": "hidden_confounder",
+      "intervention_pair_recall_at_2": {
+        "ctrag_supplied_graph": 1.0,
+        "dense": 0.0
+      },
+      "n_train_dev": 192,
+      "seed": 303,
+      "true_ate": 2.0
+    },
+    {
+      "absolute_error": {
+        "observational_adjusted_if_z_visible": 1.8282285514757866,
+        "observational_unadjusted": 1.8282285514757866,
+        "randomized_interventional_difference": 0.47227643446115675
+      },
+      "causal_discovery": {
+        "performed": false,
+        "reason": "true causal edges are supplied to the retrieval arm; supplying is not discovery"
+      },
+      "counterfactual_estimation": {
+        "coverage": 0.0,
+        "mae": null,
+        "reason": "CT-RAG retrieves evidence but has no identified SCM/exogenous-state estimator"
+      },
+      "estimators": {
+        "observational_adjusted_if_z_visible": 3.8282285514757866,
+        "observational_unadjusted": 3.8282285514757866,
+        "randomized_interventional_difference": 2.4722764344611567
+      },
+      "family": "hidden_confounder",
+      "intervention_pair_recall_at_2": {
+        "ctrag_supplied_graph": 1.0,
+        "dense": 0.0
+      },
+      "n_train_dev": 192,
+      "seed": 404,
+      "true_ate": 2.0
+    },
+    {
+      "absolute_error": {
+        "observational_adjusted_if_z_visible": 1.7021973890670803,
+        "observational_unadjusted": 1.7021973890670803,
+        "randomized_interventional_difference": 0.2925530528983211
+      },
+      "causal_discovery": {
+        "performed": false,
+        "reason": "true causal edges are supplied to the retrieval arm; supplying is not discovery"
+      },
+      "counterfactual_estimation": {
+        "coverage": 0.0,
+        "mae": null,
+        "reason": "CT-RAG retrieves evidence but has no identified SCM/exogenous-state estimator"
+      },
+      "estimators": {
+        "observational_adjusted_if_z_visible": 3.7021973890670803,
+        "observational_unadjusted": 3.7021973890670803,
+        "randomized_interventional_difference": 2.292553052898321
+      },
+      "family": "hidden_confounder",
+      "intervention_pair_recall_at_2": {
+        "ctrag_supplied_graph": 1.0,
+        "dense": 0.0
+      },
+      "n_train_dev": 192,
+      "seed": 505,
+      "true_ate": 2.0
+    }
+  ],
+  "schema_version": 1,
+  "seeds": [
+    101,
+    202,
+    303,
+    404,
+    505
+  ],
+  "status": "exploratory_train_dev_only"
+}

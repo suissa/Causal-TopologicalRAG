@@ -276,6 +276,22 @@ No retrieval weights, relevance labels, K values, queries, preregistration bytes
 
 ---
 
+## SCI-007 — Supplied interventional evidence is not discovery or identification
+
+**Date:** 2026-09-13  
+**Issues:** #38, #41  
+**Classification:** `negative_result`  
+**Status:** retained before final-holdout unblinding  
+**Code changed because of the observation:** `false`
+
+Across three fixed-equation SCM families and five seeds, CT-RAG with supplied true causal topology achieved intervention-pair Recall@2 of 1.000, versus 0.000 for dense retrieval. This supports causal-evidence navigation under valid supplied topology.
+
+CT-RAG did not discover the graph and emitted no individual counterfactual estimate: counterfactual coverage is 0.0. The hidden-confounder negative control also retained the naive observational ATE error of approximately 1.806. These results prohibit relabelling retrieval as causal discovery or counterfactual identification.
+
+No weights, labels or mechanisms were changed after observing the result. The frozen final holdout remains sealed. Detailed evidence: `docs/SCM_GROUND_TRUTH_01.md`.
+
+---
+
 ## How future entries must be recorded
 
 Each future scientific change must receive an ID (`SCI-006`, `SCI-007`, ...), an entry in `research/science-changes.json`, and one section in this file.

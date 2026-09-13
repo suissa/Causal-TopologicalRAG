@@ -1,0 +1,7 @@
+{
+  "artifact": "scm-results.json",
+  "final_holdout": "sealed_not_loaded",
+  "preregistration_sha256": "3e3270eb987a7b5ae403a287c1ae9de0edd6e684e2f92044d6eef88dac3cd467",
+  "schema_version": 1,
+  "sha256": "3e86d52fa2d4cc4a6299551ed0c75fc085961a656f63d8bc22291fd53ff4dc46"
+}
