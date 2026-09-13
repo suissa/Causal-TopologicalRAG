@@ -20,6 +20,7 @@ class TerrainConfig:
     decay_rate: float = 0.001
     minimum_influence: float = 0.0
     maximum_influence: float = 10.0
+    protected_minimum_influence: float = 1.0
 
     def __post_init__(self) -> None:
         if self.reinforcement_step < 0 or not math.isfinite(self.reinforcement_step):
@@ -32,6 +33,10 @@ class TerrainConfig:
             raise ValueError("maximum_influence must be finite and positive")
         if self.minimum_influence > self.maximum_influence:
             raise ValueError("minimum_influence cannot exceed maximum_influence")
+        if not math.isfinite(self.protected_minimum_influence):
+            raise ValueError("protected_minimum_influence must be finite")
+        if not self.minimum_influence <= self.protected_minimum_influence <= self.maximum_influence:
+            raise ValueError("protected_minimum_influence must be within influence bounds")
 
 
 @dataclass(slots=True, frozen=True)
@@ -42,6 +47,7 @@ class TerrainSnapshot:
     influences: dict[EdgeIdentity, float]
     attractors: dict[str, AttractorDescriptor]
     basins: dict[str, frozenset[str]]
+    protected_edges: frozenset[EdgeIdentity]
 
 
 @dataclass(slots=True, frozen=True)
@@ -65,6 +71,7 @@ class DynamicTerrain:
         self.config = config or TerrainConfig()
         self._transition_counts: dict[EdgeIdentity, int] = {}
         self._influence: dict[EdgeIdentity, float] = {}
+        self._protected: set[EdgeIdentity] = set()
 
     @staticmethod
     def edge_identity(edge: Edge) -> EdgeIdentity:
@@ -77,6 +84,29 @@ class DynamicTerrain:
     @property
     def influences(self) -> dict[EdgeIdentity, float]:
         return dict(self._influence)
+
+    @property
+    def protected_edges(self) -> frozenset[EdgeIdentity]:
+        """Edges protected from decay below the configured safety floor."""
+        return frozenset(self._protected)
+
+    def protect_edge(self, edge: Edge) -> None:
+        """Protect a rare-but-critical path without changing graph semantics."""
+        if not self.topology.has_edge(edge):
+            raise KeyError("cannot protect an edge that is not present in the topology")
+        identity = self.edge_identity(edge)
+        self._protected.add(identity)
+        if identity in self._influence:
+            self._influence[identity] = max(
+                self._influence[identity], self.config.protected_minimum_influence
+            )
+
+    def unprotect_edge(self, edge: Edge) -> None:
+        self._protected.discard(self.edge_identity(edge))
+
+    def reset_navigation(self) -> None:
+        """Reset only the learned overlay; observed transition history remains immutable."""
+        self._influence.clear()
 
     def transition_count(self, edge: Edge) -> int:
         return self._transition_counts.get(self.edge_identity(edge), 0)
@@ -153,8 +183,13 @@ class DynamicTerrain:
             raise ValueError("elapsed must be finite and non-negative")
         factor = math.exp(-self.config.decay_rate * elapsed)
         for identity, current in list(self._influence.items()):
+            floor = (
+                self.config.protected_minimum_influence
+                if identity in self._protected
+                else self.config.minimum_influence
+            )
             self._influence[identity] = max(
-                self.config.minimum_influence,
+                floor,
                 current * factor,
             )
 
@@ -314,6 +349,7 @@ class DynamicTerrain:
             influences=dict(self._influence),
             attractors=attractors,
             basins=basins,
+            protected_edges=frozenset(self._protected),
         )
 
     @staticmethod
