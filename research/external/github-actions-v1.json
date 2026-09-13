@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-09-12T23:10:00Z",
+  "transformation_policy": {
+    "step_sequence": "temporal_only",
+    "causal_edges": "only_if_explicit_source_dependency_exists",
+    "timestamps": "deterministic_order_surrogate_when_step_timestamps_are_unavailable",
+    "labels": "derived_from_observed source step order/status, never CT-RAG output"
+  },
+  "sources": [
+    {
+      "dataset_id": "ctrag-science-success",
+      "repository": "suissa/Causal-TopologicalRAG",
+      "run_id": 34357104431,
+      "job_id": 102484458156,
+      "run_url": "https://github.com/suissa/Causal-TopologicalRAG/actions/runs/34357104431",
+      "conclusion": "success",
+      "independent_public": false,
+      "steps": [
+        [1,"Set up job","success"],[2,"Run actions/checkout@v4","success"],[3,"Run actions/setup-python@v5","success"],[4,"Cache Hugging Face models","success"],[5,"Install science dependencies","success"],[6,"Verify pinned BasinRAG import","success"],[7,"Unit and scientific gates","success"],[8,"Run strong train baselines","success"],[9,"Run strong dev baselines","success"],[10,"Run no-oracle anchor train track","success"],[11,"Run no-oracle anchor dev track","success"],[12,"Run matched GraphRAG train comparison","success"],[13,"Run matched GraphRAG dev comparison","success"],[14,"Reproduce upstream BasinRAG train comparison","success"],[15,"Reproduce upstream BasinRAG dev comparison","success"],[16,"Verify final holdout is still sealed","success"],[17,"Upload strong-baseline evidence","success"],[18,"Upload no-oracle anchor evidence","success"],[19,"Upload matched GraphRAG evidence","success"],[20,"Upload BasinRAG reproduction evidence","success"]
+      ]
+    },
+    {
+      "dataset_id": "ctrag-science-failure",
+      "repository": "suissa/Causal-TopologicalRAG",
+      "run_id": 34355758910,
+      "job_id": 102479894547,
+      "run_url": "https://github.com/suissa/Causal-TopologicalRAG/actions/runs/34355758910",
+      "conclusion": "failure",
+      "independent_public": false,
+      "steps": [
+        [1,"Set up job","success"],[2,"Run actions/checkout@v4","success"],[3,"Run actions/setup-python@v5","success"],[4,"Cache Hugging Face models","success"],[5,"Install science dependencies","success"],[6,"Verify pinned BasinRAG import","success"],[7,"Unit and scientific gates","success"],[8,"Run strong train baselines","success"],[9,"Run strong dev baselines","success"],[10,"Run no-oracle anchor train track","success"],[11,"Run no-oracle anchor dev track","success"],[12,"Run matched GraphRAG train comparison","success"],[13,"Run matched GraphRAG dev comparison","success"],[14,"Reproduce upstream BasinRAG train comparison","failure"],[15,"Reproduce upstream BasinRAG dev comparison","skipped"],[16,"Verify final holdout is still sealed","skipped"],[17,"Upload strong-baseline evidence","skipped"],[18,"Upload no-oracle anchor evidence","skipped"],[19,"Upload matched GraphRAG evidence","skipped"],[20,"Upload BasinRAG reproduction evidence","skipped"]
+      ]
+    },
+    {
+      "dataset_id": "basinrag-ci-failure",
+      "repository": "Basinfy/BasinRAG",
+      "run_id": 34723586051,
+      "job_id": 103633706996,
+      "run_url": "https://github.com/Basinfy/BasinRAG/actions/runs/34723586051",
+      "conclusion": "failure",
+      "independent_public": true,
+      "steps": [[1,"Set up job","success"],[2,"Run actions/checkout@v4","success"],[3,"Set up Python","success"],[4,"Install dependencies","success"],[5,"Run Ruff Lint","failure"],[6,"Tests + Coverage","skipped"],[12,"Post Run actions/checkout@v4","success"]]
+    },
+    {
+      "dataset_id": "requests-lock-success",
+      "repository": "psf/requests",
+      "run_id": 34660530936,
+      "job_id": 103461905665,
+      "run_url": "https://github.com/psf/requests/actions/runs/34660530936",
+      "conclusion": "success",
+      "independent_public": true,
+      "steps": [[1,"Set up job","success"],[2,"Run dessant/lock-threads action","success"],[3,"Complete job","success"]]
+    }
+  ]
+}
