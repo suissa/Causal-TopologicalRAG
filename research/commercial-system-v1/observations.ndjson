@@ -1,0 +1,1060 @@
+{
+  "action_id": "Sales.CheckoutStarted",
+  "actor_id": "sales.agent",
+  "causation_id": null,
+  "correlation_id": "incident:inventory_projection_lag",
+  "event_id": "evt-4aed5f3408ecab65",
+  "event_type": "Sales.CheckoutStarted",
+  "execution_id": "commercial:inventory_projection_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "checkout opened for a catalog item",
+    "domain": "sales",
+    "quantity": 4,
+    "sku": "SKU-42"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:00:00+00:00"
+}
+{
+  "action_id": "Inventory.ProjectionCheckpointStalled",
+  "actor_id": "inventory.agent",
+  "causation_id": "evt-4aed5f3408ecab65",
+  "correlation_id": "incident:inventory_projection_lag",
+  "event_id": "evt-9a5917d9670355b1",
+  "event_type": "Inventory.ProjectionCheckpointStalled",
+  "execution_id": "commercial:inventory_projection_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "checkpoint": 875,
+    "detail": "read projection checkpoint stopped advancing",
+    "domain": "inventory",
+    "lag_events": 37,
+    "write_version": 912
+  },
+  "status": "warning",
+  "timestamp": "2026-09-14T09:00:01+00:00"
+}
+{
+  "action_id": "Sales.AvailabilityRead",
+  "actor_id": "sales.agent",
+  "causation_id": "evt-9a5917d9670355b1",
+  "correlation_id": "incident:inventory_projection_lag",
+  "event_id": "evt-6a18eb8b1b1a180b",
+  "event_type": "Sales.AvailabilityRead",
+  "execution_id": "commercial:inventory_projection_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "committed_available": 3,
+    "detail": "checkout read an outdated available quantity",
+    "domain": "sales",
+    "reported_available": 7
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:00:02+00:00"
+}
+{
+  "action_id": "Sales.OrderAccepted",
+  "actor_id": "sales.agent",
+  "causation_id": "evt-6a18eb8b1b1a180b",
+  "correlation_id": "incident:inventory_projection_lag",
+  "event_id": "evt-e967c32758fe15c2",
+  "event_type": "Sales.OrderAccepted",
+  "execution_id": "commercial:inventory_projection_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "order accepted from the stale availability view",
+    "domain": "sales",
+    "order": "ORD-1001"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:00:03+00:00"
+}
+{
+  "action_id": "Inventory.ReservationRejected",
+  "actor_id": "inventory.agent",
+  "causation_id": "evt-e967c32758fe15c2",
+  "correlation_id": "incident:inventory_projection_lag",
+  "event_id": "evt-1fdd992b4a19ac21",
+  "event_type": "Inventory.ReservationRejected",
+  "execution_id": "commercial:inventory_projection_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "available": 3,
+    "detail": "authoritative stock rejected requested reservation",
+    "domain": "inventory",
+    "requested": 4
+  },
+  "status": "error",
+  "timestamp": "2026-09-14T09:00:04+00:00"
+}
+{
+  "action_id": "Sales.OrderCancelled",
+  "actor_id": "sales.agent",
+  "causation_id": "evt-1fdd992b4a19ac21",
+  "correlation_id": "incident:inventory_projection_lag",
+  "event_id": "evt-203f3f13a6dfee43",
+  "event_type": "Sales.OrderCancelled",
+  "execution_id": "commercial:inventory_projection_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "accepted order cancelled after inventory reservation failure",
+    "domain": "sales",
+    "order": "ORD-1001"
+  },
+  "status": "error",
+  "timestamp": "2026-09-14T09:00:05+00:00"
+}
+{
+  "action_id": "Inventory.ProjectionRebuilt",
+  "actor_id": "inventory.agent",
+  "causation_id": "evt-203f3f13a6dfee43",
+  "correlation_id": "incident:inventory_projection_lag",
+  "event_id": "evt-72c0a36095410881",
+  "event_type": "Inventory.ProjectionRebuilt",
+  "execution_id": "commercial:inventory_projection_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "checkpoint": 912,
+    "detail": "projection replayed from the authoritative stock ledger",
+    "domain": "inventory"
+  },
+  "status": "healed",
+  "timestamp": "2026-09-14T09:00:06+00:00"
+}
+{
+  "action_id": "Inventory.ReservationAccepted",
+  "actor_id": "inventory.agent",
+  "causation_id": "evt-72c0a36095410881",
+  "correlation_id": "incident:inventory_projection_lag",
+  "event_id": "evt-eca774228375dd15",
+  "event_type": "Inventory.ReservationAccepted",
+  "execution_id": "commercial:inventory_projection_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "reservation retry used the rebuilt projection",
+    "domain": "inventory",
+    "quantity": 3
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:00:07+00:00"
+}
+{
+  "action_id": "Sales.OrderCompleted",
+  "actor_id": "sales.agent",
+  "causation_id": "evt-eca774228375dd15",
+  "correlation_id": "incident:inventory_projection_lag",
+  "event_id": "evt-29f96bb2d7ddefc6",
+  "event_type": "Sales.OrderCompleted",
+  "execution_id": "commercial:inventory_projection_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "corrected order completed after customer confirmation",
+    "domain": "sales",
+    "order": "ORD-1001-R1"
+  },
+  "status": "completed",
+  "timestamp": "2026-09-14T09:00:08+00:00"
+}
+{
+  "action_id": "Knowledge.RunbookIndexed",
+  "actor_id": "knowledge.agent",
+  "causation_id": null,
+  "correlation_id": "knowledge:inventory_projection_lag",
+  "event_id": "evt-a36b91a46bd38ba2",
+  "event_type": "Knowledge.RunbookIndexed",
+  "execution_id": "noise:inventory_projection_lag:runbook",
+  "intent_id": "Knowledge.IndexDocument",
+  "payload": {
+    "detail": "Por que uma venda aceita foi cancelada quando a reserva de estoque falhou? archived troubleshooting guide",
+    "domain": "sales"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:01:30+00:00"
+}
+{
+  "action_id": "Operations.RecoveryDrillCompleted",
+  "actor_id": "operations.agent",
+  "causation_id": null,
+  "correlation_id": "training:inventory_projection_lag",
+  "event_id": "evt-9ef697d32f3c536c",
+  "event_type": "Operations.RecoveryDrillCompleted",
+  "execution_id": "noise:inventory_projection_lag:drill",
+  "intent_id": "Operations.RunDrill",
+  "payload": {
+    "detail": "Qual correção permitiu reservar o estoque e concluir a venda? simulated training record",
+    "domain": "sales"
+  },
+  "status": "completed",
+  "timestamp": "2026-09-14T09:01:30.001000+00:00"
+}
+{
+  "action_id": "Payments.WebhookReceived",
+  "actor_id": "payments.agent",
+  "causation_id": null,
+  "correlation_id": "incident:payment_webhook_replay",
+  "event_id": "evt-7f2171f036927dc9",
+  "event_type": "Payments.WebhookReceived",
+  "execution_id": "commercial:payment_webhook_replay",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "gateway capture notification received",
+    "domain": "payments",
+    "gateway_event": "GW-7781"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:10:00+00:00"
+}
+{
+  "action_id": "Payments.IdempotencyLookupBypassed",
+  "actor_id": "payments.agent",
+  "causation_id": "evt-7f2171f036927dc9",
+  "correlation_id": "incident:payment_webhook_replay",
+  "event_id": "evt-1068461ee444ccbd",
+  "event_type": "Payments.IdempotencyLookupBypassed",
+  "execution_id": "commercial:payment_webhook_replay",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "legacy webhook route skipped the idempotency lookup",
+    "domain": "payments",
+    "key": "GW-7781",
+    "route": "/hooks/capture-v1"
+  },
+  "status": "warning",
+  "timestamp": "2026-09-14T09:10:01+00:00"
+}
+{
+  "action_id": "Payments.CaptureApplied",
+  "actor_id": "payments.agent",
+  "causation_id": "evt-1068461ee444ccbd",
+  "correlation_id": "incident:payment_webhook_replay",
+  "event_id": "evt-b5e22f9a6dd1b33d",
+  "event_type": "Payments.CaptureApplied",
+  "execution_id": "commercial:payment_webhook_replay",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "amount_cents": 15990,
+    "detail": "capture notification applied again to the sale",
+    "domain": "payments",
+    "payment": "PAY-88"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:10:02+00:00"
+}
+{
+  "action_id": "Finance.LedgerPostingDuplicated",
+  "actor_id": "finance.agent",
+  "causation_id": "evt-b5e22f9a6dd1b33d",
+  "correlation_id": "incident:payment_webhook_replay",
+  "event_id": "evt-461e4a68769f5e4d",
+  "event_type": "Finance.LedgerPostingDuplicated",
+  "execution_id": "commercial:payment_webhook_replay",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "second receivable posting created for one payment",
+    "domain": "finance",
+    "ledger_key": "PAY-88"
+  },
+  "status": "error",
+  "timestamp": "2026-09-14T09:10:03+00:00"
+}
+{
+  "action_id": "Finance.ReconciliationFailed",
+  "actor_id": "finance.agent",
+  "causation_id": "evt-461e4a68769f5e4d",
+  "correlation_id": "incident:payment_webhook_replay",
+  "event_id": "evt-1a99e61e0b380e76",
+  "event_type": "Finance.ReconciliationFailed",
+  "execution_id": "commercial:payment_webhook_replay",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "gateway total did not match duplicated internal receivable",
+    "difference_cents": 15990,
+    "domain": "finance"
+  },
+  "status": "error",
+  "timestamp": "2026-09-14T09:10:04+00:00"
+}
+{
+  "action_id": "Payments.IdempotencyGuardRestored",
+  "actor_id": "payments.agent",
+  "causation_id": "evt-1a99e61e0b380e76",
+  "correlation_id": "incident:payment_webhook_replay",
+  "event_id": "evt-a58604816bdf04fa",
+  "event_type": "Payments.IdempotencyGuardRestored",
+  "execution_id": "commercial:payment_webhook_replay",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "webhook route now rejects previously consumed gateway keys",
+    "domain": "payments",
+    "route": "/hooks/capture-v1"
+  },
+  "status": "healed",
+  "timestamp": "2026-09-14T09:10:05+00:00"
+}
+{
+  "action_id": "Finance.DuplicatePostingReversed",
+  "actor_id": "finance.agent",
+  "causation_id": "evt-a58604816bdf04fa",
+  "correlation_id": "incident:payment_webhook_replay",
+  "event_id": "evt-1841ab60a27d11bc",
+  "event_type": "Finance.DuplicatePostingReversed",
+  "execution_id": "commercial:payment_webhook_replay",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "duplicate receivable was reversed with an audit reference",
+    "domain": "finance",
+    "ledger_key": "PAY-88"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:10:06+00:00"
+}
+{
+  "action_id": "Finance.ReconciliationCompleted",
+  "actor_id": "finance.agent",
+  "causation_id": "evt-1841ab60a27d11bc",
+  "correlation_id": "incident:payment_webhook_replay",
+  "event_id": "evt-5aeef9dfd9932dc0",
+  "event_type": "Finance.ReconciliationCompleted",
+  "execution_id": "commercial:payment_webhook_replay",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "gateway and internal receivable totals matched",
+    "difference_cents": 0,
+    "domain": "finance"
+  },
+  "status": "completed",
+  "timestamp": "2026-09-14T09:10:07+00:00"
+}
+{
+  "action_id": "Knowledge.RunbookIndexed",
+  "actor_id": "knowledge.agent",
+  "causation_id": null,
+  "correlation_id": "knowledge:payment_webhook_replay",
+  "event_id": "evt-fb82fe29cbacef12",
+  "event_type": "Knowledge.RunbookIndexed",
+  "execution_id": "noise:payment_webhook_replay:runbook",
+  "intent_id": "Knowledge.IndexDocument",
+  "payload": {
+    "detail": "Por que a conciliação financeira encontrou duas capturas para a mesma venda? archived troubleshooting guide",
+    "domain": "finance"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:11:30+00:00"
+}
+{
+  "action_id": "Operations.RecoveryDrillCompleted",
+  "actor_id": "operations.agent",
+  "causation_id": null,
+  "correlation_id": "training:payment_webhook_replay",
+  "event_id": "evt-f7bd84fda86344ff",
+  "event_type": "Operations.RecoveryDrillCompleted",
+  "execution_id": "noise:payment_webhook_replay:drill",
+  "intent_id": "Operations.RunDrill",
+  "payload": {
+    "detail": "Qual ação removeu o lançamento duplicado e impediu novo replay? simulated training record",
+    "domain": "finance"
+  },
+  "status": "completed",
+  "timestamp": "2026-09-14T09:11:30.001000+00:00"
+}
+{
+  "action_id": "Fiscal.InvoiceRequested",
+  "actor_id": "fiscal.agent",
+  "causation_id": null,
+  "correlation_id": "incident:fiscal_certificate_expiry",
+  "event_id": "evt-a84b89c3e7309d92",
+  "event_type": "Fiscal.InvoiceRequested",
+  "execution_id": "commercial:fiscal_certificate_expiry",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "invoice requested for a paid order",
+    "domain": "fiscal",
+    "order": "ORD-2204"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:20:00+00:00"
+}
+{
+  "action_id": "Fiscal.CertificateValidationFailed",
+  "actor_id": "fiscal.agent",
+  "causation_id": "evt-a84b89c3e7309d92",
+  "correlation_id": "incident:fiscal_certificate_expiry",
+  "event_id": "evt-d23b4277b4129733",
+  "event_type": "Fiscal.CertificateValidationFailed",
+  "execution_id": "commercial:fiscal_certificate_expiry",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "certificate": "CERT-A",
+    "detail": "signing certificate was outside its validity interval",
+    "domain": "fiscal",
+    "expired_days": 1
+  },
+  "status": "error",
+  "timestamp": "2026-09-14T09:20:01+00:00"
+}
+{
+  "action_id": "Fiscal.InvoiceAuthorizationRejected",
+  "actor_id": "fiscal.agent",
+  "causation_id": "evt-d23b4277b4129733",
+  "correlation_id": "incident:fiscal_certificate_expiry",
+  "event_id": "evt-49eada8334ac0178",
+  "event_type": "Fiscal.InvoiceAuthorizationRejected",
+  "execution_id": "commercial:fiscal_certificate_expiry",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "code": "CERT_EXPIRED",
+    "detail": "tax authority rejected the unsigned invoice",
+    "domain": "fiscal"
+  },
+  "status": "error",
+  "timestamp": "2026-09-14T09:20:02+00:00"
+}
+{
+  "action_id": "Fulfillment.ReleaseBlocked",
+  "actor_id": "fulfillment.agent",
+  "causation_id": "evt-49eada8334ac0178",
+  "correlation_id": "incident:fiscal_certificate_expiry",
+  "event_id": "evt-ba3996fbc52f7f4a",
+  "event_type": "Fulfillment.ReleaseBlocked",
+  "execution_id": "commercial:fiscal_certificate_expiry",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "warehouse release requires an authorized invoice",
+    "domain": "fulfillment",
+    "order": "ORD-2204"
+  },
+  "status": "error",
+  "timestamp": "2026-09-14T09:20:03+00:00"
+}
+{
+  "action_id": "Sales.CompletionTimedOut",
+  "actor_id": "sales.agent",
+  "causation_id": "evt-ba3996fbc52f7f4a",
+  "correlation_id": "incident:fiscal_certificate_expiry",
+  "event_id": "evt-86d32776aaa73df7",
+  "event_type": "Sales.CompletionTimedOut",
+  "execution_id": "commercial:fiscal_certificate_expiry",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "paid order remained incomplete while fulfillment was blocked",
+    "domain": "sales",
+    "order": "ORD-2204"
+  },
+  "status": "error",
+  "timestamp": "2026-09-14T09:20:04+00:00"
+}
+{
+  "action_id": "Fiscal.SigningCertificateRotated",
+  "actor_id": "fiscal.agent",
+  "causation_id": "evt-86d32776aaa73df7",
+  "correlation_id": "incident:fiscal_certificate_expiry",
+  "event_id": "evt-96d9355c612bbfa1",
+  "event_type": "Fiscal.SigningCertificateRotated",
+  "execution_id": "commercial:fiscal_certificate_expiry",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "certificate": "CERT-B",
+    "detail": "valid signing certificate activated and verified",
+    "domain": "fiscal"
+  },
+  "status": "healed",
+  "timestamp": "2026-09-14T09:20:05+00:00"
+}
+{
+  "action_id": "Fiscal.InvoiceAuthorized",
+  "actor_id": "fiscal.agent",
+  "causation_id": "evt-96d9355c612bbfa1",
+  "correlation_id": "incident:fiscal_certificate_expiry",
+  "event_id": "evt-d80a3aa8e38fa674",
+  "event_type": "Fiscal.InvoiceAuthorized",
+  "execution_id": "commercial:fiscal_certificate_expiry",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "invoice retry authorized by the tax authority",
+    "domain": "fiscal",
+    "order": "ORD-2204"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:20:06+00:00"
+}
+{
+  "action_id": "Fulfillment.OrderReleased",
+  "actor_id": "fulfillment.agent",
+  "causation_id": "evt-d80a3aa8e38fa674",
+  "correlation_id": "incident:fiscal_certificate_expiry",
+  "event_id": "evt-be2dbc941f57f3cd",
+  "event_type": "Fulfillment.OrderReleased",
+  "execution_id": "commercial:fiscal_certificate_expiry",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "warehouse received the authorized invoice and released the order",
+    "domain": "fulfillment",
+    "order": "ORD-2204"
+  },
+  "status": "completed",
+  "timestamp": "2026-09-14T09:20:07+00:00"
+}
+{
+  "action_id": "Knowledge.RunbookIndexed",
+  "actor_id": "knowledge.agent",
+  "causation_id": null,
+  "correlation_id": "knowledge:fiscal_certificate_expiry",
+  "event_id": "evt-e7939c8f3ea5ed88",
+  "event_type": "Knowledge.RunbookIndexed",
+  "execution_id": "noise:fiscal_certificate_expiry:runbook",
+  "intent_id": "Knowledge.IndexDocument",
+  "payload": {
+    "detail": "Por que o pedido pago não pôde ser expedido após a rejeição da nota fiscal? archived troubleshooting guide",
+    "domain": "sales"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:21:30+00:00"
+}
+{
+  "action_id": "Operations.RecoveryDrillCompleted",
+  "actor_id": "operations.agent",
+  "causation_id": null,
+  "correlation_id": "training:fiscal_certificate_expiry",
+  "event_id": "evt-bbb6c081dd25cd31",
+  "event_type": "Operations.RecoveryDrillCompleted",
+  "execution_id": "noise:fiscal_certificate_expiry:drill",
+  "intent_id": "Operations.RunDrill",
+  "payload": {
+    "detail": "Qual correção liberou a autorização fiscal e a expedição? simulated training record",
+    "domain": "sales"
+  },
+  "status": "completed",
+  "timestamp": "2026-09-14T09:21:30.001000+00:00"
+}
+{
+  "action_id": "Procurement.SupplierCostChanged",
+  "actor_id": "procurement.agent",
+  "causation_id": null,
+  "correlation_id": "incident:procurement_cost_feed_lag",
+  "event_id": "evt-4058c7e1af83730a",
+  "event_type": "Procurement.SupplierCostChanged",
+  "execution_id": "commercial:procurement_cost_feed_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "cost_cents": 8200,
+    "detail": "supplier published a higher acquisition cost",
+    "domain": "procurement",
+    "sku": "SKU-91"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:30:00+00:00"
+}
+{
+  "action_id": "Pricing.CostFeedCheckpointStalled",
+  "actor_id": "pricing.agent",
+  "causation_id": "evt-4058c7e1af83730a",
+  "correlation_id": "incident:procurement_cost_feed_lag",
+  "event_id": "evt-341f1ea2c468faa4",
+  "event_type": "Pricing.CostFeedCheckpointStalled",
+  "execution_id": "commercial:procurement_cost_feed_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "pricing consumer did not ingest the latest supplier cost",
+    "domain": "pricing",
+    "lag_events": 12,
+    "visible_cost_cents": 6100
+  },
+  "status": "warning",
+  "timestamp": "2026-09-14T09:30:01+00:00"
+}
+{
+  "action_id": "Pricing.MarginCalculated",
+  "actor_id": "pricing.agent",
+  "causation_id": "evt-341f1ea2c468faa4",
+  "correlation_id": "incident:procurement_cost_feed_lag",
+  "event_id": "evt-b4d4619d6b9a2c71",
+  "event_type": "Pricing.MarginCalculated",
+  "execution_id": "commercial:procurement_cost_feed_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "promotion margin calculated from the previous acquisition cost",
+    "domain": "pricing",
+    "sale_price_cents": 7490,
+    "visible_cost_cents": 6100
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:30:02+00:00"
+}
+{
+  "action_id": "Marketing.PromotionApproved",
+  "actor_id": "marketing.agent",
+  "causation_id": "evt-b4d4619d6b9a2c71",
+  "correlation_id": "incident:procurement_cost_feed_lag",
+  "event_id": "evt-8591048025dfe04f",
+  "event_type": "Marketing.PromotionApproved",
+  "execution_id": "commercial:procurement_cost_feed_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "campaign": "WEEKEND-9",
+    "detail": "campaign activated using the stale positive margin",
+    "domain": "marketing"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:30:03+00:00"
+}
+{
+  "action_id": "Sales.PromotionalOrderCompleted",
+  "actor_id": "sales.agent",
+  "causation_id": "evt-8591048025dfe04f",
+  "correlation_id": "incident:procurement_cost_feed_lag",
+  "event_id": "evt-6b3c9b132aa72f05",
+  "event_type": "Sales.PromotionalOrderCompleted",
+  "execution_id": "commercial:procurement_cost_feed_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "promotional order completed below current acquisition cost",
+    "domain": "sales",
+    "order": "ORD-3310"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:30:04+00:00"
+}
+{
+  "action_id": "Finance.NegativeMarginDetected",
+  "actor_id": "finance.agent",
+  "causation_id": "evt-6b3c9b132aa72f05",
+  "correlation_id": "incident:procurement_cost_feed_lag",
+  "event_id": "evt-4474e0ef13bb5ef1",
+  "event_type": "Finance.NegativeMarginDetected",
+  "execution_id": "commercial:procurement_cost_feed_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "realized contribution margin became negative",
+    "domain": "finance",
+    "margin_cents": -710
+  },
+  "status": "error",
+  "timestamp": "2026-09-14T09:30:05+00:00"
+}
+{
+  "action_id": "Pricing.CostProjectionReplayed",
+  "actor_id": "pricing.agent",
+  "causation_id": "evt-4474e0ef13bb5ef1",
+  "correlation_id": "incident:procurement_cost_feed_lag",
+  "event_id": "evt-456795d9cfa1fe8a",
+  "event_type": "Pricing.CostProjectionReplayed",
+  "execution_id": "commercial:procurement_cost_feed_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "supplier cost events replayed into the pricing view",
+    "domain": "pricing",
+    "visible_cost_cents": 8200
+  },
+  "status": "healed",
+  "timestamp": "2026-09-14T09:30:06+00:00"
+}
+{
+  "action_id": "Pricing.PromotionPriceCorrected",
+  "actor_id": "pricing.agent",
+  "causation_id": "evt-456795d9cfa1fe8a",
+  "correlation_id": "incident:procurement_cost_feed_lag",
+  "event_id": "evt-9e1da60b3fa39897",
+  "event_type": "Pricing.PromotionPriceCorrected",
+  "execution_id": "commercial:procurement_cost_feed_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "promotion recalculated against the current cost",
+    "domain": "pricing",
+    "sale_price_cents": 9790
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:30:07+00:00"
+}
+{
+  "action_id": "Finance.PositiveMarginVerified",
+  "actor_id": "finance.agent",
+  "causation_id": "evt-9e1da60b3fa39897",
+  "correlation_id": "incident:procurement_cost_feed_lag",
+  "event_id": "evt-da0277ffa348c541",
+  "event_type": "Finance.PositiveMarginVerified",
+  "execution_id": "commercial:procurement_cost_feed_lag",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "new promotional sale produced a positive margin",
+    "domain": "finance",
+    "margin_cents": 1590
+  },
+  "status": "completed",
+  "timestamp": "2026-09-14T09:30:08+00:00"
+}
+{
+  "action_id": "Knowledge.RunbookIndexed",
+  "actor_id": "knowledge.agent",
+  "causation_id": null,
+  "correlation_id": "knowledge:procurement_cost_feed_lag",
+  "event_id": "evt-da062bee8c193087",
+  "event_type": "Knowledge.RunbookIndexed",
+  "execution_id": "noise:procurement_cost_feed_lag:runbook",
+  "intent_id": "Knowledge.IndexDocument",
+  "payload": {
+    "detail": "Por que uma promoção aprovada vendeu produtos com margem negativa? archived troubleshooting guide",
+    "domain": "finance"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:31:30+00:00"
+}
+{
+  "action_id": "Operations.RecoveryDrillCompleted",
+  "actor_id": "operations.agent",
+  "causation_id": null,
+  "correlation_id": "training:procurement_cost_feed_lag",
+  "event_id": "evt-d2d606b46d61206e",
+  "event_type": "Operations.RecoveryDrillCompleted",
+  "execution_id": "noise:procurement_cost_feed_lag:drill",
+  "intent_id": "Operations.RunDrill",
+  "payload": {
+    "detail": "Qual correção restaurou o custo atual e recalculou o preço? simulated training record",
+    "domain": "finance"
+  },
+  "status": "completed",
+  "timestamp": "2026-09-14T09:31:30.001000+00:00"
+}
+{
+  "action_id": "CRM.CustomerContactReceived",
+  "actor_id": "crm.agent",
+  "causation_id": null,
+  "correlation_id": "incident:customer_identity_normalization",
+  "event_id": "evt-bf077ea45faa8691",
+  "event_type": "CRM.CustomerContactReceived",
+  "execution_id": "commercial:customer_identity_normalization",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "channel": "whatsapp",
+    "detail": "customer returned through the WhatsApp checkout",
+    "domain": "crm"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:40:00+00:00"
+}
+{
+  "action_id": "CRM.PhoneNormalizationRuleDiverged",
+  "actor_id": "crm.agent",
+  "causation_id": "evt-bf077ea45faa8691",
+  "correlation_id": "incident:customer_identity_normalization",
+  "event_id": "evt-e6ef10dcf54233de",
+  "event_type": "CRM.PhoneNormalizationRuleDiverged",
+  "execution_id": "commercial:customer_identity_normalization",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "checkout_rule": "local-v1",
+    "detail": "contact import and checkout produced different canonical phone forms",
+    "domain": "crm",
+    "import_rule": "E164-v2"
+  },
+  "status": "warning",
+  "timestamp": "2026-09-14T09:40:01+00:00"
+}
+{
+  "action_id": "CRM.DuplicateCustomerCreated",
+  "actor_id": "crm.agent",
+  "causation_id": "evt-e6ef10dcf54233de",
+  "correlation_id": "incident:customer_identity_normalization",
+  "event_id": "evt-4cfbffe879ffcc2d",
+  "event_type": "CRM.DuplicateCustomerCreated",
+  "execution_id": "commercial:customer_identity_normalization",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "customer": "CUS-902B",
+    "detail": "checkout resolved the contact to a second customer identity",
+    "domain": "crm"
+  },
+  "status": "error",
+  "timestamp": "2026-09-14T09:40:02+00:00"
+}
+{
+  "action_id": "Loyalty.BalanceSplit",
+  "actor_id": "loyalty.agent",
+  "causation_id": "evt-4cfbffe879ffcc2d",
+  "correlation_id": "incident:customer_identity_normalization",
+  "event_id": "evt-4b1c69b47996a3d7",
+  "event_type": "Loyalty.BalanceSplit",
+  "execution_id": "commercial:customer_identity_normalization",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "available_points": 0,
+    "detail": "earned points remained attached to the original identity",
+    "domain": "loyalty",
+    "original_points": 840
+  },
+  "status": "error",
+  "timestamp": "2026-09-14T09:40:03+00:00"
+}
+{
+  "action_id": "Checkout.LoyaltyRedemptionRejected",
+  "actor_id": "sales.agent",
+  "causation_id": "evt-4b1c69b47996a3d7",
+  "correlation_id": "incident:customer_identity_normalization",
+  "event_id": "evt-dcf5453c123776a3",
+  "event_type": "Checkout.LoyaltyRedemptionRejected",
+  "execution_id": "commercial:customer_identity_normalization",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "checkout identity had insufficient visible points",
+    "domain": "sales",
+    "required_points": 500
+  },
+  "status": "error",
+  "timestamp": "2026-09-14T09:40:04+00:00"
+}
+{
+  "action_id": "CRM.CustomerIdentitiesMerged",
+  "actor_id": "crm.agent",
+  "causation_id": "evt-dcf5453c123776a3",
+  "correlation_id": "incident:customer_identity_normalization",
+  "event_id": "evt-afa6e0dff38f52b6",
+  "event_type": "CRM.CustomerIdentitiesMerged",
+  "execution_id": "commercial:customer_identity_normalization",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "duplicate identity merged using one canonical E.164 characteristic",
+    "domain": "crm",
+    "surviving_customer": "CUS-902A"
+  },
+  "status": "healed",
+  "timestamp": "2026-09-14T09:40:05+00:00"
+}
+{
+  "action_id": "Loyalty.BalanceRebuilt",
+  "actor_id": "loyalty.agent",
+  "causation_id": "evt-afa6e0dff38f52b6",
+  "correlation_id": "incident:customer_identity_normalization",
+  "event_id": "evt-02d5999765acbf1a",
+  "event_type": "Loyalty.BalanceRebuilt",
+  "execution_id": "commercial:customer_identity_normalization",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "available_points": 840,
+    "detail": "point ledger projected onto the surviving customer identity",
+    "domain": "loyalty"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:40:06+00:00"
+}
+{
+  "action_id": "Checkout.LoyaltyRedemptionAccepted",
+  "actor_id": "sales.agent",
+  "causation_id": "evt-02d5999765acbf1a",
+  "correlation_id": "incident:customer_identity_normalization",
+  "event_id": "evt-95c15bae825da09c",
+  "event_type": "Checkout.LoyaltyRedemptionAccepted",
+  "execution_id": "commercial:customer_identity_normalization",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "checkout redeemed points from the rebuilt balance",
+    "domain": "sales",
+    "redeemed_points": 500
+  },
+  "status": "completed",
+  "timestamp": "2026-09-14T09:40:07+00:00"
+}
+{
+  "action_id": "Knowledge.RunbookIndexed",
+  "actor_id": "knowledge.agent",
+  "causation_id": null,
+  "correlation_id": "knowledge:customer_identity_normalization",
+  "event_id": "evt-f44d669b10f17abe",
+  "event_type": "Knowledge.RunbookIndexed",
+  "execution_id": "noise:customer_identity_normalization:runbook",
+  "intent_id": "Knowledge.IndexDocument",
+  "payload": {
+    "detail": "Por que um cliente conhecido teve o resgate de pontos recusado no checkout? archived troubleshooting guide",
+    "domain": "sales"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:41:30+00:00"
+}
+{
+  "action_id": "Operations.RecoveryDrillCompleted",
+  "actor_id": "operations.agent",
+  "causation_id": null,
+  "correlation_id": "training:customer_identity_normalization",
+  "event_id": "evt-2ee0a1d79ed7c679",
+  "event_type": "Operations.RecoveryDrillCompleted",
+  "execution_id": "noise:customer_identity_normalization:drill",
+  "intent_id": "Operations.RunDrill",
+  "payload": {
+    "detail": "Qual correção reuniu o saldo de fidelidade e permitiu o resgate? simulated training record",
+    "domain": "sales"
+  },
+  "status": "completed",
+  "timestamp": "2026-09-14T09:41:30.001000+00:00"
+}
+{
+  "action_id": "Fulfillment.CapacityReservationRequested",
+  "actor_id": "fulfillment.agent",
+  "causation_id": null,
+  "correlation_id": "incident:delivery_capacity_race",
+  "event_id": "evt-97deacfac5b0478d",
+  "event_type": "Fulfillment.CapacityReservationRequested",
+  "execution_id": "commercial:delivery_capacity_race",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "two dispatch workers requested the final route slot",
+    "domain": "fulfillment",
+    "route": "R-7"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:50:00+00:00"
+}
+{
+  "action_id": "Fulfillment.CapacityVersionConflictIgnored",
+  "actor_id": "fulfillment.agent",
+  "causation_id": "evt-97deacfac5b0478d",
+  "correlation_id": "incident:delivery_capacity_race",
+  "event_id": "evt-ad0646f34743004c",
+  "event_type": "Fulfillment.CapacityVersionConflictIgnored",
+  "execution_id": "commercial:delivery_capacity_race",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "actual_version": 45,
+    "detail": "fulfillment accepted a stale expected version during concurrent allocation",
+    "domain": "fulfillment",
+    "expected_version": 44
+  },
+  "status": "warning",
+  "timestamp": "2026-09-14T09:50:01+00:00"
+}
+{
+  "action_id": "Delivery.RouteSlotAllocatedTwice",
+  "actor_id": "delivery.agent",
+  "causation_id": "evt-ad0646f34743004c",
+  "correlation_id": "incident:delivery_capacity_race",
+  "event_id": "evt-9ff3465ac484bcd6",
+  "event_type": "Delivery.RouteSlotAllocatedTwice",
+  "execution_id": "commercial:delivery_capacity_race",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "same route capacity was allocated to two orders",
+    "domain": "delivery",
+    "route": "R-7",
+    "slot": "14:00"
+  },
+  "status": "error",
+  "timestamp": "2026-09-14T09:50:02+00:00"
+}
+{
+  "action_id": "Delivery.RouteOverbooked",
+  "actor_id": "delivery.agent",
+  "causation_id": "evt-9ff3465ac484bcd6",
+  "correlation_id": "incident:delivery_capacity_race",
+  "event_id": "evt-d5739b0d9ed71937",
+  "event_type": "Delivery.RouteOverbooked",
+  "execution_id": "commercial:delivery_capacity_race",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "assigned": 13,
+    "capacity": 12,
+    "detail": "route load exceeded vehicle capacity",
+    "domain": "delivery"
+  },
+  "status": "error",
+  "timestamp": "2026-09-14T09:50:03+00:00"
+}
+{
+  "action_id": "Sales.DispatchPromiseMissed",
+  "actor_id": "sales.agent",
+  "causation_id": "evt-d5739b0d9ed71937",
+  "correlation_id": "incident:delivery_capacity_race",
+  "event_id": "evt-ac63e44df64c1122",
+  "event_type": "Sales.DispatchPromiseMissed",
+  "execution_id": "commercial:delivery_capacity_race",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "delay_minutes": 95,
+    "detail": "customer dispatch promise was missed",
+    "domain": "sales",
+    "order": "ORD-5502"
+  },
+  "status": "error",
+  "timestamp": "2026-09-14T09:50:04+00:00"
+}
+{
+  "action_id": "Delivery.RouteReplanned",
+  "actor_id": "delivery.agent",
+  "causation_id": "evt-ac63e44df64c1122",
+  "correlation_id": "incident:delivery_capacity_race",
+  "event_id": "evt-9d4453633b34a69a",
+  "event_type": "Delivery.RouteReplanned",
+  "execution_id": "commercial:delivery_capacity_race",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "overflow order moved to an available nearby route",
+    "domain": "delivery",
+    "from_route": "R-7",
+    "to_route": "R-8"
+  },
+  "status": "healed",
+  "timestamp": "2026-09-14T09:50:05+00:00"
+}
+{
+  "action_id": "Fulfillment.OptimisticLockEnforced",
+  "actor_id": "fulfillment.agent",
+  "causation_id": "evt-9d4453633b34a69a",
+  "correlation_id": "incident:delivery_capacity_race",
+  "event_id": "evt-3844c66a67b207f8",
+  "event_type": "Fulfillment.OptimisticLockEnforced",
+  "execution_id": "commercial:delivery_capacity_race",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "aggregate": "route-capacity",
+    "detail": "stale capacity versions are rejected before allocation",
+    "domain": "fulfillment"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:50:06+00:00"
+}
+{
+  "action_id": "Sales.DispatchPromiseRecovered",
+  "actor_id": "sales.agent",
+  "causation_id": "evt-3844c66a67b207f8",
+  "correlation_id": "incident:delivery_capacity_race",
+  "event_id": "evt-4e93d23da085fe2d",
+  "event_type": "Sales.DispatchPromiseRecovered",
+  "execution_id": "commercial:delivery_capacity_race",
+  "intent_id": "Commerce.IncidentObserved",
+  "payload": {
+    "detail": "customer received a corrected dispatch estimate",
+    "domain": "sales",
+    "order": "ORD-5502"
+  },
+  "status": "completed",
+  "timestamp": "2026-09-14T09:50:07+00:00"
+}
+{
+  "action_id": "Knowledge.RunbookIndexed",
+  "actor_id": "knowledge.agent",
+  "causation_id": null,
+  "correlation_id": "knowledge:delivery_capacity_race",
+  "event_id": "evt-10c114b195d73cb5",
+  "event_type": "Knowledge.RunbookIndexed",
+  "execution_id": "noise:delivery_capacity_race:runbook",
+  "intent_id": "Knowledge.IndexDocument",
+  "payload": {
+    "detail": "Por que dois pedidos ocuparam a mesma capacidade e atrasaram a expedição? archived troubleshooting guide",
+    "domain": "sales"
+  },
+  "status": "ok",
+  "timestamp": "2026-09-14T09:51:30+00:00"
+}
+{
+  "action_id": "Operations.RecoveryDrillCompleted",
+  "actor_id": "operations.agent",
+  "causation_id": null,
+  "correlation_id": "training:delivery_capacity_race",
+  "event_id": "evt-17fd224d5b603c53",
+  "event_type": "Operations.RecoveryDrillCompleted",
+  "execution_id": "noise:delivery_capacity_race:drill",
+  "intent_id": "Operations.RunDrill",
+  "payload": {
+    "detail": "Qual correção refez a rota e protegeu a capacidade contra concorrência? simulated training record",
+    "domain": "sales"
+  },
+  "status": "completed",
+  "timestamp": "2026-09-14T09:51:30.001000+00:00"
+}

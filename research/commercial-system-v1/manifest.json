@@ -1,0 +1,30 @@
+{
+  "files": {
+    "REPORT.md": {
+      "bytes": 3399,
+      "sha256": "25262ca86cac1f098dadc08024aa3185197ec52dea8a57bbed9786335f0b9121"
+    },
+    "explorer.html": {
+      "bytes": 83215,
+      "sha256": "2a4749e53b9c12e16ad5695fed348e5942ef53f94873626d6b9cd56de28a5e3b"
+    },
+    "graph.json": {
+      "bytes": 43728,
+      "sha256": "2af985eb1f2b5ab2c283671a61fa861d0c63ce7c0d702e6355f8d823d31fa337"
+    },
+    "observations.ndjson": {
+      "bytes": 36013,
+      "sha256": "40ff0d59f0a28ee8ea2599fe4aa5fd43d1af160598fb5064d86d811c39d617a1"
+    },
+    "oracle.json": {
+      "bytes": 2728,
+      "sha256": "acdd175dce270bb9a9870c08712283a46a45e85592c1b3ec41942502f535b476"
+    },
+    "results.json": {
+      "bytes": 73229,
+      "sha256": "3204d13e8a9e422acfc43c2727c487ab2032ac0f1554fce8e40b044c01d9f18b"
+    }
+  },
+  "generator": "ctrag-commercial-system-v1",
+  "schema_version": 1
+}

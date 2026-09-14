@@ -1,0 +1,1488 @@
+{
+  "edges": [
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-4aed5f3408ecab65",
+      "target": "evt-9a5917d9670355b1"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-4aed5f3408ecab65",
+      "target": "evt-9a5917d9670355b1"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-4aed5f3408ecab65",
+      "target": "evt-9a5917d9670355b1"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-9a5917d9670355b1",
+      "target": "evt-6a18eb8b1b1a180b"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-9a5917d9670355b1",
+      "target": "evt-6a18eb8b1b1a180b"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-9a5917d9670355b1",
+      "target": "evt-6a18eb8b1b1a180b"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-6a18eb8b1b1a180b",
+      "target": "evt-e967c32758fe15c2"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-6a18eb8b1b1a180b",
+      "target": "evt-e967c32758fe15c2"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-6a18eb8b1b1a180b",
+      "target": "evt-e967c32758fe15c2"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-e967c32758fe15c2",
+      "target": "evt-1fdd992b4a19ac21"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-e967c32758fe15c2",
+      "target": "evt-1fdd992b4a19ac21"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-e967c32758fe15c2",
+      "target": "evt-1fdd992b4a19ac21"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-1fdd992b4a19ac21",
+      "target": "evt-203f3f13a6dfee43"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-1fdd992b4a19ac21",
+      "target": "evt-203f3f13a6dfee43"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-1fdd992b4a19ac21",
+      "target": "evt-203f3f13a6dfee43"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-203f3f13a6dfee43",
+      "target": "evt-72c0a36095410881"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-203f3f13a6dfee43",
+      "target": "evt-72c0a36095410881"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-203f3f13a6dfee43",
+      "target": "evt-72c0a36095410881"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-72c0a36095410881",
+      "target": "evt-eca774228375dd15"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-72c0a36095410881",
+      "target": "evt-eca774228375dd15"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-72c0a36095410881",
+      "target": "evt-eca774228375dd15"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-eca774228375dd15",
+      "target": "evt-29f96bb2d7ddefc6"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-eca774228375dd15",
+      "target": "evt-29f96bb2d7ddefc6"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-eca774228375dd15",
+      "target": "evt-29f96bb2d7ddefc6"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-7f2171f036927dc9",
+      "target": "evt-1068461ee444ccbd"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-7f2171f036927dc9",
+      "target": "evt-1068461ee444ccbd"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-7f2171f036927dc9",
+      "target": "evt-1068461ee444ccbd"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-1068461ee444ccbd",
+      "target": "evt-b5e22f9a6dd1b33d"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-1068461ee444ccbd",
+      "target": "evt-b5e22f9a6dd1b33d"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-1068461ee444ccbd",
+      "target": "evt-b5e22f9a6dd1b33d"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-b5e22f9a6dd1b33d",
+      "target": "evt-461e4a68769f5e4d"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-b5e22f9a6dd1b33d",
+      "target": "evt-461e4a68769f5e4d"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-b5e22f9a6dd1b33d",
+      "target": "evt-461e4a68769f5e4d"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-461e4a68769f5e4d",
+      "target": "evt-1a99e61e0b380e76"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-461e4a68769f5e4d",
+      "target": "evt-1a99e61e0b380e76"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-461e4a68769f5e4d",
+      "target": "evt-1a99e61e0b380e76"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-1a99e61e0b380e76",
+      "target": "evt-a58604816bdf04fa"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-1a99e61e0b380e76",
+      "target": "evt-a58604816bdf04fa"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-1a99e61e0b380e76",
+      "target": "evt-a58604816bdf04fa"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-a58604816bdf04fa",
+      "target": "evt-1841ab60a27d11bc"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-a58604816bdf04fa",
+      "target": "evt-1841ab60a27d11bc"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-a58604816bdf04fa",
+      "target": "evt-1841ab60a27d11bc"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-1841ab60a27d11bc",
+      "target": "evt-5aeef9dfd9932dc0"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-1841ab60a27d11bc",
+      "target": "evt-5aeef9dfd9932dc0"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-1841ab60a27d11bc",
+      "target": "evt-5aeef9dfd9932dc0"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-a84b89c3e7309d92",
+      "target": "evt-d23b4277b4129733"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-a84b89c3e7309d92",
+      "target": "evt-d23b4277b4129733"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-a84b89c3e7309d92",
+      "target": "evt-d23b4277b4129733"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-d23b4277b4129733",
+      "target": "evt-49eada8334ac0178"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-d23b4277b4129733",
+      "target": "evt-49eada8334ac0178"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-d23b4277b4129733",
+      "target": "evt-49eada8334ac0178"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-49eada8334ac0178",
+      "target": "evt-ba3996fbc52f7f4a"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-49eada8334ac0178",
+      "target": "evt-ba3996fbc52f7f4a"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-49eada8334ac0178",
+      "target": "evt-ba3996fbc52f7f4a"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-ba3996fbc52f7f4a",
+      "target": "evt-86d32776aaa73df7"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-ba3996fbc52f7f4a",
+      "target": "evt-86d32776aaa73df7"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-ba3996fbc52f7f4a",
+      "target": "evt-86d32776aaa73df7"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-86d32776aaa73df7",
+      "target": "evt-96d9355c612bbfa1"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-86d32776aaa73df7",
+      "target": "evt-96d9355c612bbfa1"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-86d32776aaa73df7",
+      "target": "evt-96d9355c612bbfa1"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-96d9355c612bbfa1",
+      "target": "evt-d80a3aa8e38fa674"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-96d9355c612bbfa1",
+      "target": "evt-d80a3aa8e38fa674"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-96d9355c612bbfa1",
+      "target": "evt-d80a3aa8e38fa674"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-d80a3aa8e38fa674",
+      "target": "evt-be2dbc941f57f3cd"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-d80a3aa8e38fa674",
+      "target": "evt-be2dbc941f57f3cd"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-d80a3aa8e38fa674",
+      "target": "evt-be2dbc941f57f3cd"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-4058c7e1af83730a",
+      "target": "evt-341f1ea2c468faa4"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-4058c7e1af83730a",
+      "target": "evt-341f1ea2c468faa4"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-4058c7e1af83730a",
+      "target": "evt-341f1ea2c468faa4"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-341f1ea2c468faa4",
+      "target": "evt-b4d4619d6b9a2c71"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-341f1ea2c468faa4",
+      "target": "evt-b4d4619d6b9a2c71"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-341f1ea2c468faa4",
+      "target": "evt-b4d4619d6b9a2c71"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-b4d4619d6b9a2c71",
+      "target": "evt-8591048025dfe04f"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-b4d4619d6b9a2c71",
+      "target": "evt-8591048025dfe04f"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-b4d4619d6b9a2c71",
+      "target": "evt-8591048025dfe04f"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-8591048025dfe04f",
+      "target": "evt-6b3c9b132aa72f05"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-8591048025dfe04f",
+      "target": "evt-6b3c9b132aa72f05"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-8591048025dfe04f",
+      "target": "evt-6b3c9b132aa72f05"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-6b3c9b132aa72f05",
+      "target": "evt-4474e0ef13bb5ef1"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-6b3c9b132aa72f05",
+      "target": "evt-4474e0ef13bb5ef1"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-6b3c9b132aa72f05",
+      "target": "evt-4474e0ef13bb5ef1"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-4474e0ef13bb5ef1",
+      "target": "evt-456795d9cfa1fe8a"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-4474e0ef13bb5ef1",
+      "target": "evt-456795d9cfa1fe8a"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-4474e0ef13bb5ef1",
+      "target": "evt-456795d9cfa1fe8a"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-456795d9cfa1fe8a",
+      "target": "evt-9e1da60b3fa39897"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-456795d9cfa1fe8a",
+      "target": "evt-9e1da60b3fa39897"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-456795d9cfa1fe8a",
+      "target": "evt-9e1da60b3fa39897"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-9e1da60b3fa39897",
+      "target": "evt-da0277ffa348c541"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-9e1da60b3fa39897",
+      "target": "evt-da0277ffa348c541"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-9e1da60b3fa39897",
+      "target": "evt-da0277ffa348c541"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-bf077ea45faa8691",
+      "target": "evt-e6ef10dcf54233de"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-bf077ea45faa8691",
+      "target": "evt-e6ef10dcf54233de"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-bf077ea45faa8691",
+      "target": "evt-e6ef10dcf54233de"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-e6ef10dcf54233de",
+      "target": "evt-4cfbffe879ffcc2d"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-e6ef10dcf54233de",
+      "target": "evt-4cfbffe879ffcc2d"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-e6ef10dcf54233de",
+      "target": "evt-4cfbffe879ffcc2d"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-4cfbffe879ffcc2d",
+      "target": "evt-4b1c69b47996a3d7"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-4cfbffe879ffcc2d",
+      "target": "evt-4b1c69b47996a3d7"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-4cfbffe879ffcc2d",
+      "target": "evt-4b1c69b47996a3d7"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-4b1c69b47996a3d7",
+      "target": "evt-dcf5453c123776a3"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-4b1c69b47996a3d7",
+      "target": "evt-dcf5453c123776a3"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-4b1c69b47996a3d7",
+      "target": "evt-dcf5453c123776a3"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-dcf5453c123776a3",
+      "target": "evt-afa6e0dff38f52b6"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-dcf5453c123776a3",
+      "target": "evt-afa6e0dff38f52b6"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-dcf5453c123776a3",
+      "target": "evt-afa6e0dff38f52b6"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-afa6e0dff38f52b6",
+      "target": "evt-02d5999765acbf1a"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-afa6e0dff38f52b6",
+      "target": "evt-02d5999765acbf1a"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-afa6e0dff38f52b6",
+      "target": "evt-02d5999765acbf1a"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-02d5999765acbf1a",
+      "target": "evt-95c15bae825da09c"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-02d5999765acbf1a",
+      "target": "evt-95c15bae825da09c"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-02d5999765acbf1a",
+      "target": "evt-95c15bae825da09c"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-97deacfac5b0478d",
+      "target": "evt-ad0646f34743004c"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-97deacfac5b0478d",
+      "target": "evt-ad0646f34743004c"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-97deacfac5b0478d",
+      "target": "evt-ad0646f34743004c"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-ad0646f34743004c",
+      "target": "evt-9ff3465ac484bcd6"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-ad0646f34743004c",
+      "target": "evt-9ff3465ac484bcd6"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-ad0646f34743004c",
+      "target": "evt-9ff3465ac484bcd6"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-9ff3465ac484bcd6",
+      "target": "evt-d5739b0d9ed71937"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-9ff3465ac484bcd6",
+      "target": "evt-d5739b0d9ed71937"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-9ff3465ac484bcd6",
+      "target": "evt-d5739b0d9ed71937"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-d5739b0d9ed71937",
+      "target": "evt-ac63e44df64c1122"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-d5739b0d9ed71937",
+      "target": "evt-ac63e44df64c1122"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-d5739b0d9ed71937",
+      "target": "evt-ac63e44df64c1122"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-ac63e44df64c1122",
+      "target": "evt-9d4453633b34a69a"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-ac63e44df64c1122",
+      "target": "evt-9d4453633b34a69a"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-ac63e44df64c1122",
+      "target": "evt-9d4453633b34a69a"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-9d4453633b34a69a",
+      "target": "evt-3844c66a67b207f8"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-9d4453633b34a69a",
+      "target": "evt-3844c66a67b207f8"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-9d4453633b34a69a",
+      "target": "evt-3844c66a67b207f8"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-3844c66a67b207f8",
+      "target": "evt-4e93d23da085fe2d"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-3844c66a67b207f8",
+      "target": "evt-4e93d23da085fe2d"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-3844c66a67b207f8",
+      "target": "evt-4e93d23da085fe2d"
+    }
+  ],
+  "nodes": [
+    {
+      "correlation_id": "incident:inventory_projection_lag",
+      "detail": "checkout opened for a catalog item",
+      "domain": "sales",
+      "event_type": "Sales.CheckoutStarted",
+      "id": "evt-4aed5f3408ecab65",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:00:00+00:00"
+    },
+    {
+      "correlation_id": "incident:inventory_projection_lag",
+      "detail": "read projection checkpoint stopped advancing",
+      "domain": "inventory",
+      "event_type": "Inventory.ProjectionCheckpointStalled",
+      "id": "evt-9a5917d9670355b1",
+      "status": "warning",
+      "timestamp": "2026-09-14T09:00:01+00:00"
+    },
+    {
+      "correlation_id": "incident:inventory_projection_lag",
+      "detail": "checkout read an outdated available quantity",
+      "domain": "sales",
+      "event_type": "Sales.AvailabilityRead",
+      "id": "evt-6a18eb8b1b1a180b",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:00:02+00:00"
+    },
+    {
+      "correlation_id": "incident:inventory_projection_lag",
+      "detail": "order accepted from the stale availability view",
+      "domain": "sales",
+      "event_type": "Sales.OrderAccepted",
+      "id": "evt-e967c32758fe15c2",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:00:03+00:00"
+    },
+    {
+      "correlation_id": "incident:inventory_projection_lag",
+      "detail": "authoritative stock rejected requested reservation",
+      "domain": "inventory",
+      "event_type": "Inventory.ReservationRejected",
+      "id": "evt-1fdd992b4a19ac21",
+      "status": "error",
+      "timestamp": "2026-09-14T09:00:04+00:00"
+    },
+    {
+      "correlation_id": "incident:inventory_projection_lag",
+      "detail": "accepted order cancelled after inventory reservation failure",
+      "domain": "sales",
+      "event_type": "Sales.OrderCancelled",
+      "id": "evt-203f3f13a6dfee43",
+      "status": "error",
+      "timestamp": "2026-09-14T09:00:05+00:00"
+    },
+    {
+      "correlation_id": "incident:inventory_projection_lag",
+      "detail": "projection replayed from the authoritative stock ledger",
+      "domain": "inventory",
+      "event_type": "Inventory.ProjectionRebuilt",
+      "id": "evt-72c0a36095410881",
+      "status": "healed",
+      "timestamp": "2026-09-14T09:00:06+00:00"
+    },
+    {
+      "correlation_id": "incident:inventory_projection_lag",
+      "detail": "reservation retry used the rebuilt projection",
+      "domain": "inventory",
+      "event_type": "Inventory.ReservationAccepted",
+      "id": "evt-eca774228375dd15",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:00:07+00:00"
+    },
+    {
+      "correlation_id": "incident:inventory_projection_lag",
+      "detail": "corrected order completed after customer confirmation",
+      "domain": "sales",
+      "event_type": "Sales.OrderCompleted",
+      "id": "evt-29f96bb2d7ddefc6",
+      "status": "completed",
+      "timestamp": "2026-09-14T09:00:08+00:00"
+    },
+    {
+      "correlation_id": "knowledge:inventory_projection_lag",
+      "detail": "Por que uma venda aceita foi cancelada quando a reserva de estoque falhou? archived troubleshooting guide",
+      "domain": "sales",
+      "event_type": "Knowledge.RunbookIndexed",
+      "id": "evt-a36b91a46bd38ba2",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:01:30+00:00"
+    },
+    {
+      "correlation_id": "training:inventory_projection_lag",
+      "detail": "Qual correção permitiu reservar o estoque e concluir a venda? simulated training record",
+      "domain": "sales",
+      "event_type": "Operations.RecoveryDrillCompleted",
+      "id": "evt-9ef697d32f3c536c",
+      "status": "completed",
+      "timestamp": "2026-09-14T09:01:30.001000+00:00"
+    },
+    {
+      "correlation_id": "incident:payment_webhook_replay",
+      "detail": "gateway capture notification received",
+      "domain": "payments",
+      "event_type": "Payments.WebhookReceived",
+      "id": "evt-7f2171f036927dc9",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:10:00+00:00"
+    },
+    {
+      "correlation_id": "incident:payment_webhook_replay",
+      "detail": "legacy webhook route skipped the idempotency lookup",
+      "domain": "payments",
+      "event_type": "Payments.IdempotencyLookupBypassed",
+      "id": "evt-1068461ee444ccbd",
+      "status": "warning",
+      "timestamp": "2026-09-14T09:10:01+00:00"
+    },
+    {
+      "correlation_id": "incident:payment_webhook_replay",
+      "detail": "capture notification applied again to the sale",
+      "domain": "payments",
+      "event_type": "Payments.CaptureApplied",
+      "id": "evt-b5e22f9a6dd1b33d",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:10:02+00:00"
+    },
+    {
+      "correlation_id": "incident:payment_webhook_replay",
+      "detail": "second receivable posting created for one payment",
+      "domain": "finance",
+      "event_type": "Finance.LedgerPostingDuplicated",
+      "id": "evt-461e4a68769f5e4d",
+      "status": "error",
+      "timestamp": "2026-09-14T09:10:03+00:00"
+    },
+    {
+      "correlation_id": "incident:payment_webhook_replay",
+      "detail": "gateway total did not match duplicated internal receivable",
+      "domain": "finance",
+      "event_type": "Finance.ReconciliationFailed",
+      "id": "evt-1a99e61e0b380e76",
+      "status": "error",
+      "timestamp": "2026-09-14T09:10:04+00:00"
+    },
+    {
+      "correlation_id": "incident:payment_webhook_replay",
+      "detail": "webhook route now rejects previously consumed gateway keys",
+      "domain": "payments",
+      "event_type": "Payments.IdempotencyGuardRestored",
+      "id": "evt-a58604816bdf04fa",
+      "status": "healed",
+      "timestamp": "2026-09-14T09:10:05+00:00"
+    },
+    {
+      "correlation_id": "incident:payment_webhook_replay",
+      "detail": "duplicate receivable was reversed with an audit reference",
+      "domain": "finance",
+      "event_type": "Finance.DuplicatePostingReversed",
+      "id": "evt-1841ab60a27d11bc",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:10:06+00:00"
+    },
+    {
+      "correlation_id": "incident:payment_webhook_replay",
+      "detail": "gateway and internal receivable totals matched",
+      "domain": "finance",
+      "event_type": "Finance.ReconciliationCompleted",
+      "id": "evt-5aeef9dfd9932dc0",
+      "status": "completed",
+      "timestamp": "2026-09-14T09:10:07+00:00"
+    },
+    {
+      "correlation_id": "knowledge:payment_webhook_replay",
+      "detail": "Por que a conciliação financeira encontrou duas capturas para a mesma venda? archived troubleshooting guide",
+      "domain": "finance",
+      "event_type": "Knowledge.RunbookIndexed",
+      "id": "evt-fb82fe29cbacef12",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:11:30+00:00"
+    },
+    {
+      "correlation_id": "training:payment_webhook_replay",
+      "detail": "Qual ação removeu o lançamento duplicado e impediu novo replay? simulated training record",
+      "domain": "finance",
+      "event_type": "Operations.RecoveryDrillCompleted",
+      "id": "evt-f7bd84fda86344ff",
+      "status": "completed",
+      "timestamp": "2026-09-14T09:11:30.001000+00:00"
+    },
+    {
+      "correlation_id": "incident:fiscal_certificate_expiry",
+      "detail": "invoice requested for a paid order",
+      "domain": "fiscal",
+      "event_type": "Fiscal.InvoiceRequested",
+      "id": "evt-a84b89c3e7309d92",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:20:00+00:00"
+    },
+    {
+      "correlation_id": "incident:fiscal_certificate_expiry",
+      "detail": "signing certificate was outside its validity interval",
+      "domain": "fiscal",
+      "event_type": "Fiscal.CertificateValidationFailed",
+      "id": "evt-d23b4277b4129733",
+      "status": "error",
+      "timestamp": "2026-09-14T09:20:01+00:00"
+    },
+    {
+      "correlation_id": "incident:fiscal_certificate_expiry",
+      "detail": "tax authority rejected the unsigned invoice",
+      "domain": "fiscal",
+      "event_type": "Fiscal.InvoiceAuthorizationRejected",
+      "id": "evt-49eada8334ac0178",
+      "status": "error",
+      "timestamp": "2026-09-14T09:20:02+00:00"
+    },
+    {
+      "correlation_id": "incident:fiscal_certificate_expiry",
+      "detail": "warehouse release requires an authorized invoice",
+      "domain": "fulfillment",
+      "event_type": "Fulfillment.ReleaseBlocked",
+      "id": "evt-ba3996fbc52f7f4a",
+      "status": "error",
+      "timestamp": "2026-09-14T09:20:03+00:00"
+    },
+    {
+      "correlation_id": "incident:fiscal_certificate_expiry",
+      "detail": "paid order remained incomplete while fulfillment was blocked",
+      "domain": "sales",
+      "event_type": "Sales.CompletionTimedOut",
+      "id": "evt-86d32776aaa73df7",
+      "status": "error",
+      "timestamp": "2026-09-14T09:20:04+00:00"
+    },
+    {
+      "correlation_id": "incident:fiscal_certificate_expiry",
+      "detail": "valid signing certificate activated and verified",
+      "domain": "fiscal",
+      "event_type": "Fiscal.SigningCertificateRotated",
+      "id": "evt-96d9355c612bbfa1",
+      "status": "healed",
+      "timestamp": "2026-09-14T09:20:05+00:00"
+    },
+    {
+      "correlation_id": "incident:fiscal_certificate_expiry",
+      "detail": "invoice retry authorized by the tax authority",
+      "domain": "fiscal",
+      "event_type": "Fiscal.InvoiceAuthorized",
+      "id": "evt-d80a3aa8e38fa674",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:20:06+00:00"
+    },
+    {
+      "correlation_id": "incident:fiscal_certificate_expiry",
+      "detail": "warehouse received the authorized invoice and released the order",
+      "domain": "fulfillment",
+      "event_type": "Fulfillment.OrderReleased",
+      "id": "evt-be2dbc941f57f3cd",
+      "status": "completed",
+      "timestamp": "2026-09-14T09:20:07+00:00"
+    },
+    {
+      "correlation_id": "knowledge:fiscal_certificate_expiry",
+      "detail": "Por que o pedido pago não pôde ser expedido após a rejeição da nota fiscal? archived troubleshooting guide",
+      "domain": "sales",
+      "event_type": "Knowledge.RunbookIndexed",
+      "id": "evt-e7939c8f3ea5ed88",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:21:30+00:00"
+    },
+    {
+      "correlation_id": "training:fiscal_certificate_expiry",
+      "detail": "Qual correção liberou a autorização fiscal e a expedição? simulated training record",
+      "domain": "sales",
+      "event_type": "Operations.RecoveryDrillCompleted",
+      "id": "evt-bbb6c081dd25cd31",
+      "status": "completed",
+      "timestamp": "2026-09-14T09:21:30.001000+00:00"
+    },
+    {
+      "correlation_id": "incident:procurement_cost_feed_lag",
+      "detail": "supplier published a higher acquisition cost",
+      "domain": "procurement",
+      "event_type": "Procurement.SupplierCostChanged",
+      "id": "evt-4058c7e1af83730a",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:30:00+00:00"
+    },
+    {
+      "correlation_id": "incident:procurement_cost_feed_lag",
+      "detail": "pricing consumer did not ingest the latest supplier cost",
+      "domain": "pricing",
+      "event_type": "Pricing.CostFeedCheckpointStalled",
+      "id": "evt-341f1ea2c468faa4",
+      "status": "warning",
+      "timestamp": "2026-09-14T09:30:01+00:00"
+    },
+    {
+      "correlation_id": "incident:procurement_cost_feed_lag",
+      "detail": "promotion margin calculated from the previous acquisition cost",
+      "domain": "pricing",
+      "event_type": "Pricing.MarginCalculated",
+      "id": "evt-b4d4619d6b9a2c71",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:30:02+00:00"
+    },
+    {
+      "correlation_id": "incident:procurement_cost_feed_lag",
+      "detail": "campaign activated using the stale positive margin",
+      "domain": "marketing",
+      "event_type": "Marketing.PromotionApproved",
+      "id": "evt-8591048025dfe04f",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:30:03+00:00"
+    },
+    {
+      "correlation_id": "incident:procurement_cost_feed_lag",
+      "detail": "promotional order completed below current acquisition cost",
+      "domain": "sales",
+      "event_type": "Sales.PromotionalOrderCompleted",
+      "id": "evt-6b3c9b132aa72f05",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:30:04+00:00"
+    },
+    {
+      "correlation_id": "incident:procurement_cost_feed_lag",
+      "detail": "realized contribution margin became negative",
+      "domain": "finance",
+      "event_type": "Finance.NegativeMarginDetected",
+      "id": "evt-4474e0ef13bb5ef1",
+      "status": "error",
+      "timestamp": "2026-09-14T09:30:05+00:00"
+    },
+    {
+      "correlation_id": "incident:procurement_cost_feed_lag",
+      "detail": "supplier cost events replayed into the pricing view",
+      "domain": "pricing",
+      "event_type": "Pricing.CostProjectionReplayed",
+      "id": "evt-456795d9cfa1fe8a",
+      "status": "healed",
+      "timestamp": "2026-09-14T09:30:06+00:00"
+    },
+    {
+      "correlation_id": "incident:procurement_cost_feed_lag",
+      "detail": "promotion recalculated against the current cost",
+      "domain": "pricing",
+      "event_type": "Pricing.PromotionPriceCorrected",
+      "id": "evt-9e1da60b3fa39897",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:30:07+00:00"
+    },
+    {
+      "correlation_id": "incident:procurement_cost_feed_lag",
+      "detail": "new promotional sale produced a positive margin",
+      "domain": "finance",
+      "event_type": "Finance.PositiveMarginVerified",
+      "id": "evt-da0277ffa348c541",
+      "status": "completed",
+      "timestamp": "2026-09-14T09:30:08+00:00"
+    },
+    {
+      "correlation_id": "knowledge:procurement_cost_feed_lag",
+      "detail": "Por que uma promoção aprovada vendeu produtos com margem negativa? archived troubleshooting guide",
+      "domain": "finance",
+      "event_type": "Knowledge.RunbookIndexed",
+      "id": "evt-da062bee8c193087",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:31:30+00:00"
+    },
+    {
+      "correlation_id": "training:procurement_cost_feed_lag",
+      "detail": "Qual correção restaurou o custo atual e recalculou o preço? simulated training record",
+      "domain": "finance",
+      "event_type": "Operations.RecoveryDrillCompleted",
+      "id": "evt-d2d606b46d61206e",
+      "status": "completed",
+      "timestamp": "2026-09-14T09:31:30.001000+00:00"
+    },
+    {
+      "correlation_id": "incident:customer_identity_normalization",
+      "detail": "customer returned through the WhatsApp checkout",
+      "domain": "crm",
+      "event_type": "CRM.CustomerContactReceived",
+      "id": "evt-bf077ea45faa8691",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:40:00+00:00"
+    },
+    {
+      "correlation_id": "incident:customer_identity_normalization",
+      "detail": "contact import and checkout produced different canonical phone forms",
+      "domain": "crm",
+      "event_type": "CRM.PhoneNormalizationRuleDiverged",
+      "id": "evt-e6ef10dcf54233de",
+      "status": "warning",
+      "timestamp": "2026-09-14T09:40:01+00:00"
+    },
+    {
+      "correlation_id": "incident:customer_identity_normalization",
+      "detail": "checkout resolved the contact to a second customer identity",
+      "domain": "crm",
+      "event_type": "CRM.DuplicateCustomerCreated",
+      "id": "evt-4cfbffe879ffcc2d",
+      "status": "error",
+      "timestamp": "2026-09-14T09:40:02+00:00"
+    },
+    {
+      "correlation_id": "incident:customer_identity_normalization",
+      "detail": "earned points remained attached to the original identity",
+      "domain": "loyalty",
+      "event_type": "Loyalty.BalanceSplit",
+      "id": "evt-4b1c69b47996a3d7",
+      "status": "error",
+      "timestamp": "2026-09-14T09:40:03+00:00"
+    },
+    {
+      "correlation_id": "incident:customer_identity_normalization",
+      "detail": "checkout identity had insufficient visible points",
+      "domain": "sales",
+      "event_type": "Checkout.LoyaltyRedemptionRejected",
+      "id": "evt-dcf5453c123776a3",
+      "status": "error",
+      "timestamp": "2026-09-14T09:40:04+00:00"
+    },
+    {
+      "correlation_id": "incident:customer_identity_normalization",
+      "detail": "duplicate identity merged using one canonical E.164 characteristic",
+      "domain": "crm",
+      "event_type": "CRM.CustomerIdentitiesMerged",
+      "id": "evt-afa6e0dff38f52b6",
+      "status": "healed",
+      "timestamp": "2026-09-14T09:40:05+00:00"
+    },
+    {
+      "correlation_id": "incident:customer_identity_normalization",
+      "detail": "point ledger projected onto the surviving customer identity",
+      "domain": "loyalty",
+      "event_type": "Loyalty.BalanceRebuilt",
+      "id": "evt-02d5999765acbf1a",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:40:06+00:00"
+    },
+    {
+      "correlation_id": "incident:customer_identity_normalization",
+      "detail": "checkout redeemed points from the rebuilt balance",
+      "domain": "sales",
+      "event_type": "Checkout.LoyaltyRedemptionAccepted",
+      "id": "evt-95c15bae825da09c",
+      "status": "completed",
+      "timestamp": "2026-09-14T09:40:07+00:00"
+    },
+    {
+      "correlation_id": "knowledge:customer_identity_normalization",
+      "detail": "Por que um cliente conhecido teve o resgate de pontos recusado no checkout? archived troubleshooting guide",
+      "domain": "sales",
+      "event_type": "Knowledge.RunbookIndexed",
+      "id": "evt-f44d669b10f17abe",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:41:30+00:00"
+    },
+    {
+      "correlation_id": "training:customer_identity_normalization",
+      "detail": "Qual correção reuniu o saldo de fidelidade e permitiu o resgate? simulated training record",
+      "domain": "sales",
+      "event_type": "Operations.RecoveryDrillCompleted",
+      "id": "evt-2ee0a1d79ed7c679",
+      "status": "completed",
+      "timestamp": "2026-09-14T09:41:30.001000+00:00"
+    },
+    {
+      "correlation_id": "incident:delivery_capacity_race",
+      "detail": "two dispatch workers requested the final route slot",
+      "domain": "fulfillment",
+      "event_type": "Fulfillment.CapacityReservationRequested",
+      "id": "evt-97deacfac5b0478d",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:50:00+00:00"
+    },
+    {
+      "correlation_id": "incident:delivery_capacity_race",
+      "detail": "fulfillment accepted a stale expected version during concurrent allocation",
+      "domain": "fulfillment",
+      "event_type": "Fulfillment.CapacityVersionConflictIgnored",
+      "id": "evt-ad0646f34743004c",
+      "status": "warning",
+      "timestamp": "2026-09-14T09:50:01+00:00"
+    },
+    {
+      "correlation_id": "incident:delivery_capacity_race",
+      "detail": "same route capacity was allocated to two orders",
+      "domain": "delivery",
+      "event_type": "Delivery.RouteSlotAllocatedTwice",
+      "id": "evt-9ff3465ac484bcd6",
+      "status": "error",
+      "timestamp": "2026-09-14T09:50:02+00:00"
+    },
+    {
+      "correlation_id": "incident:delivery_capacity_race",
+      "detail": "route load exceeded vehicle capacity",
+      "domain": "delivery",
+      "event_type": "Delivery.RouteOverbooked",
+      "id": "evt-d5739b0d9ed71937",
+      "status": "error",
+      "timestamp": "2026-09-14T09:50:03+00:00"
+    },
+    {
+      "correlation_id": "incident:delivery_capacity_race",
+      "detail": "customer dispatch promise was missed",
+      "domain": "sales",
+      "event_type": "Sales.DispatchPromiseMissed",
+      "id": "evt-ac63e44df64c1122",
+      "status": "error",
+      "timestamp": "2026-09-14T09:50:04+00:00"
+    },
+    {
+      "correlation_id": "incident:delivery_capacity_race",
+      "detail": "overflow order moved to an available nearby route",
+      "domain": "delivery",
+      "event_type": "Delivery.RouteReplanned",
+      "id": "evt-9d4453633b34a69a",
+      "status": "healed",
+      "timestamp": "2026-09-14T09:50:05+00:00"
+    },
+    {
+      "correlation_id": "incident:delivery_capacity_race",
+      "detail": "stale capacity versions are rejected before allocation",
+      "domain": "fulfillment",
+      "event_type": "Fulfillment.OptimisticLockEnforced",
+      "id": "evt-3844c66a67b207f8",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:50:06+00:00"
+    },
+    {
+      "correlation_id": "incident:delivery_capacity_race",
+      "detail": "customer received a corrected dispatch estimate",
+      "domain": "sales",
+      "event_type": "Sales.DispatchPromiseRecovered",
+      "id": "evt-4e93d23da085fe2d",
+      "status": "completed",
+      "timestamp": "2026-09-14T09:50:07+00:00"
+    },
+    {
+      "correlation_id": "knowledge:delivery_capacity_race",
+      "detail": "Por que dois pedidos ocuparam a mesma capacidade e atrasaram a expedição? archived troubleshooting guide",
+      "domain": "sales",
+      "event_type": "Knowledge.RunbookIndexed",
+      "id": "evt-10c114b195d73cb5",
+      "status": "ok",
+      "timestamp": "2026-09-14T09:51:30+00:00"
+    },
+    {
+      "correlation_id": "training:delivery_capacity_race",
+      "detail": "Qual correção refez a rota e protegeu a capacidade contra concorrência? simulated training record",
+      "domain": "sales",
+      "event_type": "Operations.RecoveryDrillCompleted",
+      "id": "evt-17fd224d5b603c53",
+      "status": "completed",
+      "timestamp": "2026-09-14T09:51:30.001000+00:00"
+    }
+  ]
+}
