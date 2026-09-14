@@ -143,6 +143,15 @@ See [`docs/retrieval-adapters.md`](docs/retrieval-adapters.md).
 
 `TerrainAwareRetriever` consumes this overlay without changing the historical baseline `CTRetriever.search()` implementation used by the published validation report.
 
+## MAPE-K observability mechanism
+
+`python -m ctrag.benchmarks.mape_k_observability` supplies a reproducible controlled
+fixture for linking event-sourced execution, metrics, logs and traces to a MAPE-K
+control loop. It preserves the sources as separate artifacts, projects only explicit
+event causation into the topology, and verifies a fallback after observed degradation.
+See [the benchmark protocol](docs/benchmarks.md#mape-k-observability-experiment) for
+its narrow claim and emitted evidence.
+
 ## Persistence
 
 `src/ctrag/storage.py` defines:

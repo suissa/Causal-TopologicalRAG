@@ -147,7 +147,26 @@ python -m ctrag.benchmarks.terrain_dynamics --output benchmark-results/terrain-d
 
 The experiment has an initial repeated path followed by a changed path. Every ranking
 is recorded **before** the transition at that row is ingested; therefore future events
-cannot change an earlier score. It reports the ranking-regime change, a decay floor for
-a rare-but-critical protected edge, and a reset recommendation. Reset clears only the
+cannot change an earlier score. The protected edge has one explicit pre-history
+observation and is then decayed until its floor is exercised. It reports the
+ranking-regime change, a decay floor for a rare-but-critical protected edge, and a reset recommendation. Reset clears only the
 navigational overlay: topology and observed transition counts remain intact. This is a
 controlled mechanism result, not evidence of generalization or broad superiority.
+
+## MAPE-K observability experiment
+
+```bash
+python -m ctrag.benchmarks.mape_k_observability --output benchmark-results/mape-k-observability
+```
+
+This deterministic system fixture simulates a payment dependency that moves from
+healthy operation to a timeout/error condition and then recovers after a selected
+fallback. It emits separate authoritative event, metric, log and trace artifacts.
+Explicit `causation_id` values — never adjacency alone — are projected into the
+CT-RAG causal topology. The controlled loop verifies the following order:
+
+`Monitor(degradation) -> Analyze(metric + log + trace evidence) -> Plan(fallback) -> Execute(fallback) -> Monitor(recovery) -> Knowledge(verified rule)`.
+
+The result asserts chronological ordering, evidence-bounded knowledge, the absence of
+authoritative-history mutation, and recovered latency below its threshold. It does not
+claim that an arbitrary production incident is diagnosable or recoverable by MAPE-K.

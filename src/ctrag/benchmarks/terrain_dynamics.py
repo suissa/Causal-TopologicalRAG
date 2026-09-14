@@ -60,8 +60,16 @@ def run(config: TerrainDynamicsConfig, output: Path) -> dict:
     """Run a trajectory sequentially; every row is evaluated before its update."""
     output.mkdir(parents=True, exist_ok=True)
     topology, routine, shifted, critical = _mechanism()
-    terrain = DynamicTerrain(topology, config=TerrainConfig(reinforcement_step=0.5, decay_rate=0.2))
+    terrain = DynamicTerrain(
+        topology,
+        config=TerrainConfig(reinforcement_step=0.5, decay_rate=0.2, protected_minimum_influence=0.8),
+    )
     terrain.protect_edge(critical)
+    # A rare path must have one documented historical observation before its
+    # decay floor can be tested.  This seed is explicit pre-history, not a
+    # label inferred from the subsequent trajectory.
+    terrain.reinforce(critical)
+    terrain.decay(config.decay_elapsed)
     rows: list[dict[str, object]] = []
 
     phases = (("initial", routine, config.initial_repetitions), ("drift", shifted, config.drift_repetitions))
@@ -99,7 +107,9 @@ def run(config: TerrainDynamicsConfig, output: Path) -> dict:
         "outcomes": {
             "initial_phase_final_top1": [row for row in rows if row["phase"] == "initial"][-1]["top1_before_observation"],
             "drift_phase_final_top1": final_top,
+            "critical_edge_observed_in_prehistory": terrain.transition_count(critical) == 1,
             "critical_floor_respected": min(float(row["critical_influence_before"]) for row in rows) >= terrain.config.protected_minimum_influence,
+            "critical_floor_exercised": before_reset.influences[critical.identity()] == terrain.config.protected_minimum_influence,
             "ranking_regime_drift": ranking_regime_drift,
             "reset_recommended": reset_recommended,
             "transition_history_preserved_after_reset": before_reset.transition_counts == after_reset.transition_counts,
@@ -107,7 +117,7 @@ def run(config: TerrainDynamicsConfig, output: Path) -> dict:
         },
         "protocol": {
             "chronological": "Each ranking is captured before observing the row transition.",
-            "rare_critical_protection": "The critical edge is decay-floored; it is never promoted by unobserved labels.",
+            "rare_critical_protection": "One explicit pre-history observation is decayed to the protected floor; no later unobserved label promotes it.",
             "reset": "Reset clears only navigational influence, never topology or transition history.",
         },
     }

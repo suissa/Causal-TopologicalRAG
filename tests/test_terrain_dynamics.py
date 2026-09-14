@@ -11,7 +11,9 @@ def test_dynamic_terrain_experiment_is_chronological_and_reproducible(tmp_path) 
 
     assert first == second
     assert all(row["future_free"] for row in first["rows"])
+    assert first["outcomes"]["critical_edge_observed_in_prehistory"]
     assert first["outcomes"]["critical_floor_respected"]
+    assert first["outcomes"]["critical_floor_exercised"]
     assert first["outcomes"]["transition_history_preserved_after_reset"]
     assert first["outcomes"]["overlay_cleared_after_reset"]
     assert first["outcomes"]["reset_recommended"]

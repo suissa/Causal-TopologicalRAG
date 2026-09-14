@@ -26,6 +26,8 @@ jobs:
         run: python -m ctrag.benchmarks --output benchmark-results/regression
       - name: Run chronological dynamic-terrain experiment
         run: python -m ctrag.benchmarks.terrain_dynamics --output benchmark-results/terrain-dynamics
+      - name: Run MAPE-K observability experiment
+        run: python -m ctrag.benchmarks.mape_k_observability --output benchmark-results/mape-k-observability
       - name: Run Phase 2 train split
         run: python -m ctrag.benchmarks.holdout run train --output benchmark-results/train
       - name: Run Phase 2 dev split
