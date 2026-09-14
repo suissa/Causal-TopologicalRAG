@@ -24,8 +24,8 @@ def test_generator_is_deterministic_and_oracle_is_separate():
 
     assert [event.to_dict() for event in observations] == [event.to_dict() for event in repeated]
     assert oracle == repeated_oracle
-    assert len(oracle) == len(SCENARIOS) == 7
-    assert len({case.root_cause_event_id for case in oracle}) == 7
+    assert len(oracle) == len(SCENARIOS) == 10
+    assert len({case.root_cause_event_id for case in oracle}) == 10
     assert all(case.root_cause_event_id.startswith("evt-") for case in oracle)
     assert all("cause" not in case.root_cause_event_id for case in oracle)
 
@@ -42,6 +42,8 @@ def test_projection_preserves_explicit_causation_and_blocks_oracle_fields():
             direction="in",
             max_hops=8,
         )
+        if next(item for item in SCENARIOS if item.id == case.scenario_id).inference_only:
+            continue
         assert path is not None
         assert path.nodes[0] == case.symptom_event_id
         assert path.nodes[-1] == case.root_cause_event_id
@@ -146,3 +148,4 @@ def test_artifacts_are_reproducible_and_explorer_defaults_to_blind(tmp_path):
 def test_invalid_config(kwargs):
     with pytest.raises(ValueError):
         CommercialExperimentConfig(**kwargs)
+
