@@ -923,6 +923,174 @@
       "provenance": null,
       "source": "evt-3844c66a67b207f8",
       "target": "evt-4e93d23da085fe2d"
+    },
+    {
+      "confidence": 0.45,
+      "kind": "causal",
+      "provenance": "inferred",
+      "source": "evt-f9c129e70fcd388f",
+      "target": "evt-5123bd608baabb88"
+    },
+    {
+      "confidence": 0.45,
+      "kind": "causal",
+      "provenance": "inferred",
+      "source": "evt-f9c129e70fcd388f",
+      "target": "evt-51a7db6445d85739"
+    },
+    {
+      "confidence": 0.45,
+      "kind": "causal",
+      "provenance": "inferred",
+      "source": "evt-f9c129e70fcd388f",
+      "target": "evt-6f62a9b6050a5da2"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-f9c129e70fcd388f",
+      "target": "evt-92617fdc98a25739"
+    },
+    {
+      "confidence": 0.45,
+      "kind": "causal",
+      "provenance": "inferred",
+      "source": "evt-f9c129e70fcd388f",
+      "target": "evt-92617fdc98a25739"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-f9c129e70fcd388f",
+      "target": "evt-92617fdc98a25739"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-92617fdc98a25739",
+      "target": "evt-5123bd608baabb88"
+    },
+    {
+      "confidence": 0.45,
+      "kind": "causal",
+      "provenance": "inferred",
+      "source": "evt-92617fdc98a25739",
+      "target": "evt-5123bd608baabb88"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-92617fdc98a25739",
+      "target": "evt-5123bd608baabb88"
+    },
+    {
+      "confidence": 0.45,
+      "kind": "causal",
+      "provenance": "inferred",
+      "source": "evt-92617fdc98a25739",
+      "target": "evt-51a7db6445d85739"
+    },
+    {
+      "confidence": 0.45,
+      "kind": "causal",
+      "provenance": "inferred",
+      "source": "evt-92617fdc98a25739",
+      "target": "evt-6f62a9b6050a5da2"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-5123bd608baabb88",
+      "target": "evt-51a7db6445d85739"
+    },
+    {
+      "confidence": 0.45,
+      "kind": "causal",
+      "provenance": "inferred",
+      "source": "evt-5123bd608baabb88",
+      "target": "evt-51a7db6445d85739"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-5123bd608baabb88",
+      "target": "evt-51a7db6445d85739"
+    },
+    {
+      "confidence": 0.45,
+      "kind": "causal",
+      "provenance": "inferred",
+      "source": "evt-5123bd608baabb88",
+      "target": "evt-6f62a9b6050a5da2"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-51a7db6445d85739",
+      "target": "evt-6f62a9b6050a5da2"
+    },
+    {
+      "confidence": 0.45,
+      "kind": "causal",
+      "provenance": "inferred",
+      "source": "evt-51a7db6445d85739",
+      "target": "evt-6f62a9b6050a5da2"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-51a7db6445d85739",
+      "target": "evt-6f62a9b6050a5da2"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-6f62a9b6050a5da2",
+      "target": "evt-d4df087b824197d7"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-6f62a9b6050a5da2",
+      "target": "evt-d4df087b824197d7"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-6f62a9b6050a5da2",
+      "target": "evt-d4df087b824197d7"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "behavioral",
+      "provenance": null,
+      "source": "evt-d4df087b824197d7",
+      "target": "evt-59fa815315e79d94"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "causal",
+      "provenance": "event",
+      "source": "evt-d4df087b824197d7",
+      "target": "evt-59fa815315e79d94"
+    },
+    {
+      "confidence": 1.0,
+      "kind": "temporal",
+      "provenance": null,
+      "source": "evt-d4df087b824197d7",
+      "target": "evt-59fa815315e79d94"
     }
   ],
   "nodes": [
@@ -1483,6 +1651,87 @@
       "id": "evt-17fd224d5b603c53",
       "status": "completed",
       "timestamp": "2026-09-14T09:51:30.001000+00:00"
+    },
+    {
+      "correlation_id": "incident:pricing_configuration_drift",
+      "detail": "checkout and pricing workers loaded different promotion rule versions",
+      "domain": "pricing",
+      "event_type": "Config.PricingRuleVersionDrift",
+      "id": "evt-f9c129e70fcd388f",
+      "status": "warning",
+      "timestamp": "2026-09-14T10:00:00+00:00"
+    },
+    {
+      "correlation_id": "incident:pricing_configuration_drift",
+      "detail": "conversion metric dropped after promotion traffic increased",
+      "domain": "observability",
+      "event_type": "Metrics.OrderConversionDrop",
+      "id": "evt-92617fdc98a25739",
+      "status": "warning",
+      "timestamp": "2026-09-14T10:00:01+00:00"
+    },
+    {
+      "correlation_id": "incident:pricing_configuration_drift",
+      "detail": "checkout trace shows discount decision rejected by pricing response",
+      "domain": "observability",
+      "event_type": "Trace.CheckoutDiscountMismatch",
+      "id": "evt-5123bd608baabb88",
+      "status": "warning",
+      "timestamp": "2026-09-14T10:00:02+00:00"
+    },
+    {
+      "correlation_id": "incident:pricing_configuration_drift",
+      "detail": "distributed logs report incompatible promotion versions",
+      "domain": "observability",
+      "event_type": "Logs.PromotionVersionMismatch",
+      "id": "evt-51a7db6445d85739",
+      "status": "error",
+      "timestamp": "2026-09-14T10:00:03+00:00"
+    },
+    {
+      "correlation_id": "incident:pricing_configuration_drift",
+      "detail": "commercial conversion fell below the operating threshold",
+      "domain": "sales",
+      "event_type": "Sales.OrderConversionDropped",
+      "id": "evt-6f62a9b6050a5da2",
+      "status": "error",
+      "timestamp": "2026-09-14T10:00:04+00:00"
+    },
+    {
+      "correlation_id": "incident:pricing_configuration_drift",
+      "detail": "all workers loaded the same promotion rule version",
+      "domain": "pricing",
+      "event_type": "Config.PromotionVersionAligned",
+      "id": "evt-d4df087b824197d7",
+      "status": "healed",
+      "timestamp": "2026-09-14T10:00:05+00:00"
+    },
+    {
+      "correlation_id": "incident:pricing_configuration_drift",
+      "detail": "conversion returned to the expected operating range",
+      "domain": "sales",
+      "event_type": "Sales.OrderConversionRecovered",
+      "id": "evt-59fa815315e79d94",
+      "status": "completed",
+      "timestamp": "2026-09-14T10:00:06+00:00"
+    },
+    {
+      "correlation_id": "knowledge:pricing_configuration_drift",
+      "detail": "Qual causa explica a queda de conversão quando não existe uma cadeia causal explícita entre os sinais? archived troubleshooting guide",
+      "domain": "sales",
+      "event_type": "Knowledge.RunbookIndexed",
+      "id": "evt-a8cfd75992eb94be",
+      "status": "ok",
+      "timestamp": "2026-09-14T10:01:30+00:00"
+    },
+    {
+      "correlation_id": "training:pricing_configuration_drift",
+      "detail": "Qual correção restaurou a configuração comercial e a conversão? simulated training record",
+      "domain": "sales",
+      "event_type": "Operations.RecoveryDrillCompleted",
+      "id": "evt-40977fefa612a20e",
+      "status": "completed",
+      "timestamp": "2026-09-14T10:01:30.001000+00:00"
     }
   ]
 }

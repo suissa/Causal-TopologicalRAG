@@ -52,5 +52,14 @@
     "solution_event_id": "evt-9d4453633b34a69a",
     "symptom_event_id": "evt-ac63e44df64c1122",
     "title": "Entrega atrasada por rota superlotada"
+  },
+  {
+    "diagnostic_query": "Qual causa explica a queda de conversão quando não existe uma cadeia causal explícita entre os sinais?",
+    "recovery_query": "Qual correção restaurou a configuração comercial e a conversão?",
+    "root_cause_event_id": "evt-f9c129e70fcd388f",
+    "scenario_id": "pricing_configuration_drift",
+    "solution_event_id": "evt-d4df087b824197d7",
+    "symptom_event_id": "evt-6f62a9b6050a5da2",
+    "title": "Conversão caiu após deriva de configuração"
   }
 ]

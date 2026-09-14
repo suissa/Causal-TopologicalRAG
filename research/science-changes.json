@@ -229,7 +229,7 @@
       "classification": "modeling_assumption",
       "code_changed": true,
       "date": "2026-09-14",
-      "description": "The commercial experiment operationalizes root cause as the earliest anomalous observation on an evidenced causal path to a symptom. Generic CT-RAG ranked nearby ancestors but no root cause in Top-3; the task-specific frontier operator found all six designed causes. Because the operator and scenarios were developed together, this is exploratory implementation evidence and requires frozen unseen validation.",
+      "description": "The commercial experiment operationalizes root cause as the earliest anomalous observation on an evidenced causal path to a symptom. Generic CT-RAG ranked nearby ancestors but no root cause in Top-3 for the explicit-chain scenarios; the task-specific frontier operator found all six designed explicit causes. Because the operator and scenarios were developed together, this is exploratory implementation evidence and requires frozen unseen validation.",
       "id": "SCI-008",
       "evidence": {
         "scope": "six synthetic commercial incidents with explicit causation_id telemetry",
@@ -244,6 +244,32 @@
       },
       "status": "exploratory_requires_frozen_validation",
       "title": "Operational root cause is an anomalous causal frontier rather than any nearby ancestor"
+    },
+    {
+      "affected_files": [
+        "src/ctrag/experiments/commercial_system.py",
+        "tests/test_commercial_system_experiment.py",
+        "research/commercial-system-v1/REPORT.md",
+        "research/commercial-system-v1/graph.json",
+        "research/commercial-system-v1/results.json"
+      ],
+      "classification": "modeling_assumption",
+      "code_changed": true,
+      "date": "2026-09-14",
+      "description": "A seventh commercial incident removes step.parent from configuration, metric, trace, log and symptom observations. The experiment derives lower-confidence INFERRED edges from shared evidence-group identity, signal diversity and ordering, then ranks the hypothesis by independent-signal support.",
+      "id": "SCI-009",
+      "evidence": {
+        "scope": "one synthetic incident with no runtime-declared parent for its diagnostic signals",
+        "independent_signal_types": ["config", "metric", "trace", "log", "symptom"],
+        "inferred_edge_provenance": "inferred",
+        "inferred_edge_confidence": 0.45,
+        "causal_frontier_top1": 1.0,
+        "all_scenario_frontier_recall_at_3": 1.0,
+        "causal_discovery_performed": false,
+        "final_test_status": "sealed"
+      },
+      "status": "exploratory_requires_authoritative_validation",
+      "title": "Infer a lower-confidence causal hypothesis from independent evidence signals"
     }
   ],
   "policy_version": 1,

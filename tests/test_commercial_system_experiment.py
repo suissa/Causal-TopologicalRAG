@@ -14,7 +14,7 @@ from ctrag.experiments.commercial_system import (
     project,
     run,
 )
-from ctrag.models import EdgeKind
+from ctrag.models import CausalProvenance, EdgeKind
 
 
 def test_generator_is_deterministic_and_oracle_is_separate():
@@ -24,8 +24,8 @@ def test_generator_is_deterministic_and_oracle_is_separate():
 
     assert [event.to_dict() for event in observations] == [event.to_dict() for event in repeated]
     assert oracle == repeated_oracle
-    assert len(oracle) == len(SCENARIOS) == 6
-    assert len({case.root_cause_event_id for case in oracle}) == 6
+    assert len(oracle) == len(SCENARIOS) == 7
+    assert len({case.root_cause_event_id for case in oracle}) == 7
     assert all(case.root_cause_event_id.startswith("evt-") for case in oracle)
     assert all("cause" not in case.root_cause_event_id for case in oracle)
 
@@ -71,6 +71,35 @@ def test_frontier_api_cannot_receive_oracle_answer():
     parameters = inspect.signature(causal_frontier_diagnosis).parameters
     assert "root_cause_event_id" not in parameters
     assert "oracle" not in parameters
+
+
+def test_inferred_scenario_has_no_parent_causation_for_signals():
+    observations, oracle = generate(CommercialExperimentConfig())
+    case = next(item for item in oracle if item.scenario_id == "pricing_configuration_drift")
+    signals = [event for event in observations if event.correlation_id == f"incident:{case.scenario_id}"]
+    independent = {
+        "Config.PricingRuleVersionDrift", "Metrics.OrderConversionDrop",
+        "Trace.CheckoutDiscountMismatch", "Logs.PromotionVersionMismatch",
+        "Sales.OrderConversionDropped",
+    }
+    assert all(event.causation_id is None for event in signals if event.event_type in independent)
+
+    topology = project(observations)
+    inferred = [
+        edge for edge in topology.outgoing(case.root_cause_event_id, {EdgeKind.CAUSAL})
+        if edge.provenance is CausalProvenance.INFERRED
+    ]
+    assert len(inferred) >= 3
+    assert all(edge.confidence < 1.0 for edge in inferred)
+
+    result = evaluate(topology, oracle, CommercialExperimentConfig())
+    frontier = next(
+        row for row in result["rows"]
+        if row["scenario_id"] == case.scenario_id
+        and row["task"] == "diagnosis"
+        and row["arm"] == "ctrag_causal_frontier"
+    )
+    assert frontier["top1"] == 1
 
 
 def test_all_known_causes_and_solutions_are_recovered():

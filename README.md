@@ -176,7 +176,7 @@ Results in `benchmark-results/` include generated datasets/labels, seeds/configu
 
 ## Commercial-system root-cause experiment
 
-The first domain-shaped end-to-end experiment simulates six failures across sales, inventory, payments, finance, fiscal, procurement/pricing, CRM/loyalty and fulfillment/delivery. Each trace has a known cause and observed remediation defined in a separate oracle, opaque event IDs, explicit `causation_id` edges and unconnected lexical distractors.
+The first domain-shaped end-to-end experiment simulates seven failures across sales, inventory, payments, finance, fiscal, procurement/pricing, CRM/loyalty and fulfillment/delivery. Six traces have runtime-declared `causation_id` chains; the seventh deliberately has no `step.parent` for its independent configuration, metric, trace and log signals. Its hypothesis is inferred from shared evidence-group identity, signal diversity and temporal ordering, and is marked `INFERRED` with lower confidence.
 
 Run it with:
 

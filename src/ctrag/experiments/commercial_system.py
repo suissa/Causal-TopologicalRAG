@@ -21,7 +21,7 @@ from typing import Any, Iterable
 from ctrag.benchmarks.runner import BASELINES
 from ctrag.embedding import HashingEmbedder
 from ctrag.events import EventProjector, EventRecord
-from ctrag.models import EdgeKind, QueryMode, RetrievalHit
+from ctrag.models import CausalProvenance, Edge, EdgeEvidence, EdgeKind, QueryMode, RetrievalHit
 from ctrag.retriever import CTRetriever
 from ctrag.topology import CausalTopology
 
@@ -71,6 +71,7 @@ class Scenario:
     symptom_key: str
     solution_key: str
     steps: tuple[Step, ...]
+    inference_only: bool = False
 
 
 @dataclass(frozen=True)
@@ -201,6 +202,26 @@ SCENARIOS: tuple[Scenario, ...] = (
             _step("recovered", "Sales.DispatchPromiseRecovered", "completed", "sales", "customer received a corrected dispatch estimate", "guard", order="ORD-5502"),
         ),
     ),
+    Scenario(
+        "pricing_configuration_drift",
+        "Conversão caiu após deriva de configuração",
+        "Qual causa explica a queda de conversão quando não existe uma cadeia causal explícita entre os sinais?",
+        "Qual correção restaurou a configuração comercial e a conversão?",
+        "config", "symptom", "solution",
+        (
+            # These observations deliberately have no step.parent.  The
+            # diagnosis must combine independent config, metric, trace and log
+            # signals sharing an evidence group.
+            _step("config", "Config.PricingRuleVersionDrift", "warning", "pricing", "checkout and pricing workers loaded different promotion rule versions", None, signal_kind="config", evidence_group="pricing-drift-01", expected_version="promo-v18", loaded_version="promo-v17"),
+            _step("metric", "Metrics.OrderConversionDrop", "warning", "observability", "conversion metric dropped after promotion traffic increased", None, signal_kind="metric", evidence_group="pricing-drift-01", baseline=0.084, observed=0.031),
+            _step("trace", "Trace.CheckoutDiscountMismatch", "warning", "observability", "checkout trace shows discount decision rejected by pricing response", None, signal_kind="trace", evidence_group="pricing-drift-01", mismatch_count=41),
+            _step("log", "Logs.PromotionVersionMismatch", "error", "observability", "distributed logs report incompatible promotion versions", None, signal_kind="log", evidence_group="pricing-drift-01", mismatch_count=41),
+            _step("symptom", "Sales.OrderConversionDropped", "error", "sales", "commercial conversion fell below the operating threshold", None, signal_kind="symptom", evidence_group="pricing-drift-01", observed=0.031),
+            _step("solution", "Config.PromotionVersionAligned", "healed", "pricing", "all workers loaded the same promotion rule version", "symptom", signal_kind="remediation", evidence_group="pricing-drift-01", loaded_version="promo-v18"),
+            _step("recovered", "Sales.OrderConversionRecovered", "completed", "sales", "conversion returned to the expected operating range", "solution", signal_kind="recovery", evidence_group="pricing-drift-01", observed=0.081),
+        ),
+        inference_only=True,
+    ),
 )
 
 
@@ -299,8 +320,55 @@ def assert_no_oracle_leakage(topology: CausalTopology) -> None:
 def project(observations: list[EventRecord]) -> CausalTopology:
     topology = CausalTopology()
     EventProjector(topology).ingest_many(observations)
+    infer_shared_evidence_edges(topology)
     assert_no_oracle_leakage(topology)
     return topology
+
+
+def infer_shared_evidence_edges(topology: CausalTopology) -> None:
+    """Add explicitly non-authoritative hypotheses from independent signals.
+
+    This is intentionally separate from ``EventProjector``: no event declares
+    the relation through ``causation_id``.  The inference is based on shared
+    evidence-group identity, signal type, status and ordering.  Edges carry
+    ``INFERRED`` provenance and lower confidence so they cannot be confused
+    with runtime-confirmed causality.
+    """
+    groups: dict[str, list[Any]] = {}
+    for node in topology.nodes.values():
+        group = node.metadata.get("evidence_group")
+        if isinstance(group, str) and group:
+            groups.setdefault(group, []).append(node)
+    for group, nodes in groups.items():
+        ordered = sorted(nodes, key=lambda node: (node.timestamp, node.id))
+        sources = [
+            node for node in ordered
+            if node.metadata.get("signal_kind") in {"config", "metric", "trace", "log"}
+            and str(node.metadata.get("status", "")).casefold() in {"warning", "error"}
+        ]
+        targets = [
+            node for node in ordered
+            if node.metadata.get("signal_kind") in {"metric", "trace", "log", "symptom"}
+        ]
+        for source in sources:
+            for target in targets:
+                if source.id == target.id or source.timestamp >= target.timestamp:
+                    continue
+                edge = Edge(
+                    source=source.id,
+                    target=target.id,
+                    kind=EdgeKind.CAUSAL,
+                    provenance=CausalProvenance.INFERRED,
+                    confidence=0.45,
+                    evidence=(EdgeEvidence(
+                        id=f"inferred:{group}:{source.id}:{target.id}",
+                        source="shared-evidence-group",
+                        metadata={"group": group, "signal_kind": source.metadata.get("signal_kind")},
+                    ),),
+                    provenance_metadata={"method": "shared_evidence_group", "authoritative": False},
+                )
+                if not topology.has_edge(edge):
+                    topology.add_edge(edge)
 
 
 def _status_anomaly(node_status: Any) -> float:
@@ -367,7 +435,18 @@ def causal_frontier_diagnosis(
         hit = by_id[node_id]
         path_confidence = hit.causal_path.aggregate_confidence if hit.causal_path else 0.0
         text_signal = 0.5 * hit.components["semantic"] + 0.5 * hit.components["lexical"]
-        score = 0.50 * boundary + 0.25 * anomaly + 0.20 * path_confidence + 0.05 * text_signal
+        inferred_support = sum(
+            1 for edge in topology.outgoing(node_id, {EdgeKind.CAUSAL})
+            if edge.provenance is CausalProvenance.INFERRED
+        )
+        support = min(1.0, inferred_support / 3.0)
+        score = (
+            0.35 * boundary
+            + 0.20 * anomaly
+            + 0.20 * path_confidence
+            + 0.20 * support
+            + 0.05 * text_signal
+        )
         rows.append({
             "event_id": node_id,
             "score": score,
@@ -377,6 +456,7 @@ def causal_frontier_diagnosis(
                 "frontier": boundary,
                 "anomaly": anomaly,
                 "causal_path_confidence": path_confidence,
+                "independent_signal_support": support,
                 "text_signal": text_signal,
             },
             "path": list(hit.causal_path.nodes) if hit.causal_path else [],
@@ -560,11 +640,11 @@ Um CT-RAG instrumentado com causalidade explícita entre eventos consegue locali
 
 ## Protocolo
 
-- seis incidentes atravessam vendas, estoque, pagamentos, fiscal, financeiro, compras, pricing, marketing, CRM, loyalty, fulfillment e delivery;
+- sete incidentes atravessam vendas, estoque, pagamentos, fiscal, financeiro, compras, pricing, marketing, CRM, loyalty, fulfillment e delivery; seis usam causalidade declarada e um usa sinais independentes;
 - o simulador define causa, sintoma e solução antes da recuperação;
 - os eventos usam IDs opacos; papéis do gabarito não entram no texto nem nos metadados indexados;
 - cada incidente contém distratores sem ligação causal que repetem a linguagem da pergunta;
-- o diagnóstico recebe apenas o ID do sintoma, a pergunta pública, estados operacionais e arestas provenientes de `causation_id`;
+- o diagnóstico recebe apenas o ID do sintoma, a pergunta pública, estados operacionais e arestas provenientes de `causation_id` ou hipóteses `INFERRED` de sinais independentes;
 - a `ctrag_causal_frontier` procura a primeira observação anômala em caminhos causais evidenciados;
 - a solução é consultada no sentido causal futuro com o modo `RECOVERY`;
 - configuração: seed `{config.seed}`, dimensão `{config.dimensions}`, máximo `{config.max_hops}` hops.
@@ -575,17 +655,17 @@ Um CT-RAG instrumentado com causalidade explícita entre eventos consegue locali
 
 Os resultados completos por cenário, ranking e componentes de score estão em `results.json`. O arquivo `explorer.html` permite selecionar incidentes, inspecionar nós, executar as duas consultas predefinidas e revelar o gabarito somente depois do diagnóstico.
 
-Há também um resultado negativo importante: o `full_ctrag` genérico não colocou a causa-raiz no Top-3 de nenhum dos seis cenários (MRR 0,228). Ele favorece ancestrais causalmente próximos, que respondem bem a “o que causou imediatamente?”, mas não necessariamente à pergunta operacional “onde começou a anomalia?”. A operação `ctrag_causal_frontier` explicita essa segunda semântica e foi desenhada e avaliada neste mesmo ensaio exploratório; sua generalização precisa de casos novos e congelados.
+Há também um resultado negativo importante: o `full_ctrag` genérico não colocou a causa-raiz no Top-3 dos cenários de cadeia explícita e só recuperou a hipótese inferida por proximidade parcial. Ele favorece ancestrais causalmente próximos, que respondem bem a “o que causou imediatamente?”, mas não necessariamente à pergunta operacional “onde começou a anomalia?”. A operação `ctrag_causal_frontier` explicita essa segunda semântica e foi desenhada e avaliada neste mesmo ensaio exploratório; sua generalização precisa de casos novos e congelados.
 
 ## Interpretação permitida
 
 Este experimento testa **localização de causa-raiz dentro de telemetria causal instrumentada**. Ele mostra se o grafo preserva e torna navegável a cadeia que liga uma primeira anomalia ao sintoma e à recuperação.
 
-Ele não demonstra descoberta causal a partir de logs correlacionais, não prova validade externa em empresas reais e não autoriza chamar toda precedência temporal de causa. As arestas causais deste ensaio vêm exclusivamente de `causation_id`; arestas temporais e comportamentais permanecem distintas.
+Ele não demonstra descoberta causal a partir de logs correlacionais, não prova validade externa em empresas reais e não autoriza chamar toda precedência temporal de causa. As arestas autoritativas deste ensaio vêm de `causation_id`; a única exceção são hipóteses explicitamente marcadas `INFERRED`, com confiança menor e método registrado. Arestas temporais e comportamentais permanecem distintas.
 
 ## Critério inicial de sucesso
 
-O marco é atingido quando `ctrag_causal_frontier` encontra a causa correta em Top-1 nos seis incidentes e o modo `full_ctrag` encontra a solução observada em Recall@3, sem vazamento do oracle. Esses resultados devem ser tratados como prova de execução do mecanismo, não como conclusão científica final.
+O marco é atingido quando `ctrag_causal_frontier` encontra a causa correta em Top-1 nos sete incidentes e o modo `full_ctrag` encontra a solução observada em Recall@3, sem vazamento do oracle. Esses resultados devem ser tratados como prova de execução do mecanismo, não como conclusão científica final.
 """
 
 

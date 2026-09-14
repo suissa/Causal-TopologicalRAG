@@ -17,7 +17,8 @@
               "anomaly": 0.85,
               "causal_path_confidence": 0.7290000000000001,
               "frontier": 1.0,
-              "text_signal": 0.05896510342527248
+              "independent_signal_support": 0.0,
+              "text_signal": 0.05761844102534612
             },
             "event_id": "evt-e6ef10dcf54233de",
             "frontier": true,
@@ -27,7 +28,7 @@
               "evt-4cfbffe879ffcc2d",
               "evt-e6ef10dcf54233de"
             ],
-            "score": 0.8612482551712637
+            "score": 0.6686809220512674
           },
           {
             "causal_hops": 1,
@@ -35,6 +36,7 @@
               "anomaly": 1.0,
               "causal_path_confidence": 0.9,
               "frontier": 0.0,
+              "independent_signal_support": 0.0,
               "text_signal": 0.0
             },
             "event_id": "evt-4b1c69b47996a3d7",
@@ -43,7 +45,7 @@
               "evt-dcf5453c123776a3",
               "evt-4b1c69b47996a3d7"
             ],
-            "score": 0.43000000000000005
+            "score": 0.38
           },
           {
             "causal_hops": 2,
@@ -51,7 +53,8 @@
               "anomaly": 1.0,
               "causal_path_confidence": 0.81,
               "frontier": 0.0,
-              "text_signal": 0.05982462875258655
+              "independent_signal_support": 0.0,
+              "text_signal": 0.0584779663526602
             },
             "event_id": "evt-4cfbffe879ffcc2d",
             "frontier": false,
@@ -60,7 +63,7 @@
               "evt-4b1c69b47996a3d7",
               "evt-4cfbffe879ffcc2d"
             ],
-            "score": 0.41499123143762934
+            "score": 0.36492389831763306
           }
         ],
         "dense_lexical": [
@@ -71,7 +74,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7867957924694432,
-              "temporal": 0.8235137618689784,
+              "temporal": 0.7223803813092471,
               "topological": 0.0
             },
             "event_id": "evt-f44d669b10f17abe",
@@ -83,28 +86,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.2136110118983861,
+              "lexical": 0.21166356467507927,
               "semantic": 0.21904474853490125,
-              "temporal": 0.8235140283782433,
+              "temporal": 0.7223805770762616,
               "topological": 0.0
             },
             "event_id": "evt-2ee0a1d79ed7c679",
             "path": [],
-            "score": 0.21632788021664368
+            "score": 0.21535415660499024
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.19715506650486084,
+              "lexical": 0.19561654645980933,
               "semantic": 0.18156825980064073,
-              "temporal": 0.37875194160050796,
+              "temporal": 0.3769624258402442,
               "topological": 0.0
             },
             "event_id": "evt-a36b91a46bd38ba2",
             "path": [],
-            "score": 0.18936166315275077
+            "score": 0.18859240313022502
           }
         ],
         "dense_only": [
@@ -115,7 +118,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7867957924694432,
-              "temporal": 0.8235137618689784,
+              "temporal": 0.7223803813092471,
               "topological": 0.0
             },
             "event_id": "evt-f44d669b10f17abe",
@@ -127,7 +130,7 @@
             "components": {
               "behavioral": 0.5,
               "causal": 0.0,
-              "lexical": 0.057214515477393674,
+              "lexical": 0.05452119067754096,
               "semantic": 0.26246147596740826,
               "temporal": 0.36787944117144233,
               "topological": 0.0
@@ -141,9 +144,9 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.2136110118983861,
+              "lexical": 0.21166356467507927,
               "semantic": 0.21904474853490125,
-              "temporal": 0.8235140283782433,
+              "temporal": 0.7223805770762616,
               "topological": 0.0
             },
             "event_id": "evt-2ee0a1d79ed7c679",
@@ -159,7 +162,7 @@
               "causal": 0.9,
               "lexical": 0.0,
               "semantic": 0.0,
-              "temporal": 0.8006508266341185,
+              "temporal": 0.7055478651438907,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-4b1c69b47996a3d7",
@@ -167,16 +170,16 @@
               "evt-dcf5453c123776a3",
               "evt-4b1c69b47996a3d7"
             ],
-            "score": 0.5293496020899878
+            "score": 0.5245944540154764
           },
           {
             "causal_hops": 2,
             "components": {
               "behavioral": 0.5,
               "causal": 0.40223409607104177,
-              "lexical": 0.057214515477393674,
+              "lexical": 0.05452119067754096,
               "semantic": 0.06243474202777944,
-              "temporal": 0.8003917583407747,
+              "temporal": 0.7053566857184342,
               "topological": 0.2465969639416065
             },
             "event_id": "evt-4cfbffe879ffcc2d",
@@ -185,7 +188,7 @@
               "evt-4b1c69b47996a3d7",
               "evt-4cfbffe879ffcc2d"
             ],
-            "score": 0.32020757718213094
+            "score": 0.31518649107102864
           },
           {
             "causal_hops": null,
@@ -194,12 +197,12 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7867957924694432,
-              "temporal": 0.8235137618689784,
+              "temporal": 0.7223803813092471,
               "topological": 0.0
             },
             "event_id": "evt-f44d669b10f17abe",
             "path": [],
-            "score": 0.2591950569638654
+            "score": 0.25413838793587884
           }
         ],
         "lexical_only": [
@@ -210,7 +213,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7867957924694432,
-              "temporal": 0.8235137618689784,
+              "temporal": 0.7223803813092471,
               "topological": 0.0
             },
             "event_id": "evt-f44d669b10f17abe",
@@ -222,28 +225,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.2136110118983861,
+              "lexical": 0.21166356467507927,
               "semantic": 0.21904474853490125,
-              "temporal": 0.8235140283782433,
+              "temporal": 0.7223805770762616,
               "topological": 0.0
             },
             "event_id": "evt-2ee0a1d79ed7c679",
             "path": [],
-            "score": 0.2136110118983861
+            "score": 0.21166356467507927
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.19715506650486084,
+              "lexical": 0.19561654645980933,
               "semantic": 0.18156825980064073,
-              "temporal": 0.37875194160050796,
+              "temporal": 0.3769624258402442,
               "topological": 0.0
             },
             "event_id": "evt-a36b91a46bd38ba2",
             "path": [],
-            "score": 0.19715506650486084
+            "score": 0.19561654645980933
           }
         ]
       },
@@ -256,7 +259,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7366713071303131,
-              "temporal": 0.8235140283782433,
+              "temporal": 0.7223805770762616,
               "topological": 0.0
             },
             "event_id": "evt-2ee0a1d79ed7c679",
@@ -268,28 +271,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.44173462441195116,
+              "lexical": 0.4389077475311409,
               "semantic": 0.3695486032115678,
-              "temporal": 0.378752064173932,
+              "temporal": 0.3769625279980694,
               "topological": 0.0
             },
             "event_id": "evt-9ef697d32f3c536c",
             "path": [],
-            "score": 0.40564161381175945
+            "score": 0.40422817537135436
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.3349840170269575,
+              "lexical": 0.3303556486458228,
               "semantic": 0.37282425617181664,
-              "temporal": 0.6781753549357621,
+              "temporal": 0.6139727420643928,
               "topological": 0.0
             },
             "event_id": "evt-d2d606b46d61206e",
             "path": [],
-            "score": 0.3539041365993871
+            "score": 0.35158995240881974
           }
         ],
         "full_ctrag": [
@@ -298,10 +301,10 @@
             "components": {
               "behavioral": 0.5,
               "causal": 0.9,
-              "lexical": 0.07775397529758417,
+              "lexical": 0.07727108140270263,
               "mode_prior": 0.9,
               "semantic": 0.06683218103676782,
-              "temporal": 0.8011692148111852,
+              "temporal": 0.705930379460296,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-afa6e0dff38f52b6",
@@ -309,7 +312,7 @@
               "evt-dcf5453c123776a3",
               "evt-afa6e0dff38f52b6"
             ],
-            "score": 0.7323464809945442
+            "score": 0.7275362498375116
           },
           {
             "causal_hops": 1,
@@ -319,7 +322,7 @@
               "lexical": 0.0,
               "mode_prior": 0.0,
               "semantic": 0.06867701381778289,
-              "temporal": 0.8006508266341185,
+              "temporal": 0.7055478651438907,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-4b1c69b47996a3d7",
@@ -327,7 +330,7 @@
               "evt-dcf5453c123776a3",
               "evt-4b1c69b47996a3d7"
             ],
-            "score": 0.49982188897308477
+            "score": 0.4950667408985734
           },
           {
             "causal_hops": 2,
@@ -337,7 +340,7 @@
               "lexical": 0.0,
               "mode_prior": 0.40223409607104177,
               "semantic": 0.06867701381778289,
-              "temporal": 0.8014285347492003,
+              "temporal": 0.7061217143793377,
               "topological": 0.2465969639416065
             },
             "event_id": "evt-02d5999765acbf1a",
@@ -346,7 +349,7 @@
               "evt-afa6e0dff38f52b6",
               "evt-02d5999765acbf1a"
             ],
-            "score": 0.4384795714368893
+            "score": 0.4337142304183962
           }
         ]
       }
@@ -360,7 +363,8 @@
               "anomaly": 0.85,
               "causal_path_confidence": 0.7290000000000001,
               "frontier": 1.0,
-              "text_signal": 0.08020441029904614
+              "independent_signal_support": 0.0,
+              "text_signal": 0.07946014442826914
             },
             "event_id": "evt-ad0646f34743004c",
             "frontier": true,
@@ -370,7 +374,7 @@
               "evt-9ff3465ac484bcd6",
               "evt-ad0646f34743004c"
             ],
-            "score": 0.8623102205149523
+            "score": 0.6697730072214135
           },
           {
             "causal_hops": 1,
@@ -378,6 +382,7 @@
               "anomaly": 1.0,
               "causal_path_confidence": 0.9,
               "frontier": 0.0,
+              "independent_signal_support": 0.0,
               "text_signal": 0.03310079708305147
             },
             "event_id": "evt-d5739b0d9ed71937",
@@ -386,7 +391,7 @@
               "evt-ac63e44df64c1122",
               "evt-d5739b0d9ed71937"
             ],
-            "score": 0.4316550398541526
+            "score": 0.38165503985415256
           },
           {
             "causal_hops": 2,
@@ -394,6 +399,7 @@
               "anomaly": 1.0,
               "causal_path_confidence": 0.81,
               "frontier": 0.0,
+              "independent_signal_support": 0.0,
               "text_signal": 0.0
             },
             "event_id": "evt-9ff3465ac484bcd6",
@@ -403,7 +409,7 @@
               "evt-d5739b0d9ed71937",
               "evt-9ff3465ac484bcd6"
             ],
-            "score": 0.41200000000000003
+            "score": 0.36200000000000004
           }
         ],
         "dense_lexical": [
@@ -414,7 +420,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.8084218063455898,
-              "temporal": 0.9999996763755616,
+              "temporal": 0.8499295179850419,
               "topological": 0.0
             },
             "event_id": "evt-10c114b195d73cb5",
@@ -426,28 +432,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.3086640306674342,
+              "lexical": 0.30928658629301226,
               "semantic": 0.35804335790121133,
-              "temporal": 0.45992166320030875,
+              "temporal": 0.44352186352596007,
               "topological": 0.0
             },
             "event_id": "evt-fb82fe29cbacef12",
             "path": [],
-            "score": 0.33335369428432277
+            "score": 0.33366497209711177
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.22598302169424675,
+              "lexical": 0.22342711725230213,
               "semantic": 0.3043974651620499,
-              "temporal": 0.5584869184899944,
+              "temporal": 0.5218336981370327,
               "topological": 0.0
             },
             "event_id": "evt-bbb6c081dd25cd31",
             "path": [],
-            "score": 0.26519024342814834
+            "score": 0.263912291207176
           }
         ],
         "dense_only": [
@@ -458,7 +464,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.8084218063455898,
-              "temporal": 0.9999996763755616,
+              "temporal": 0.8499295179850419,
               "topological": 0.0
             },
             "event_id": "evt-10c114b195d73cb5",
@@ -470,9 +476,9 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.3086640306674342,
+              "lexical": 0.30928658629301226,
               "semantic": 0.35804335790121133,
-              "temporal": 0.45992166320030875,
+              "temporal": 0.44352186352596007,
               "topological": 0.0
             },
             "event_id": "evt-fb82fe29cbacef12",
@@ -484,9 +490,9 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.22598302169424675,
+              "lexical": 0.22342711725230213,
               "semantic": 0.3043974651620499,
-              "temporal": 0.5584869184899944,
+              "temporal": 0.5218336981370327,
               "topological": 0.0
             },
             "event_id": "evt-bbb6c081dd25cd31",
@@ -502,7 +508,7 @@
               "causal": 0.9,
               "lexical": 0.0,
               "semantic": 0.06620159416610294,
-              "temporal": 0.9722370221316695,
+              "temporal": 0.8301249209596248,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-d5739b0d9ed71937",
@@ -510,7 +516,7 @@
               "evt-ac63e44df64c1122",
               "evt-d5739b0d9ed71937"
             ],
-            "score": 0.5478591509897808
+            "score": 0.5407535459311785
           },
           {
             "causal_hops": 2,
@@ -519,7 +525,7 @@
               "causal": 0.40223409607104177,
               "lexical": 0.0,
               "semantic": 0.0,
-              "temporal": 0.9719224333275734,
+              "temporal": 0.8298999853977919,
               "topological": 0.2465969639416065
             },
             "event_id": "evt-9ff3465ac484bcd6",
@@ -528,7 +534,7 @@
               "evt-d5739b0d9ed71937",
               "evt-9ff3465ac484bcd6"
             ],
-            "score": 0.31369744807956457
+            "score": 0.3065963256830755
           },
           {
             "causal_hops": null,
@@ -537,12 +543,12 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.8084218063455898,
-              "temporal": 0.9999996763755616,
+              "temporal": 0.8499295179850419,
               "topological": 0.0
             },
             "event_id": "evt-10c114b195d73cb5",
             "path": [],
-            "score": 0.2712632547706165
+            "score": 0.26375974685109055
           }
         ],
         "lexical_only": [
@@ -553,7 +559,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.8084218063455898,
-              "temporal": 0.9999996763755616,
+              "temporal": 0.8499295179850419,
               "topological": 0.0
             },
             "event_id": "evt-10c114b195d73cb5",
@@ -565,28 +571,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.3086640306674342,
+              "lexical": 0.30928658629301226,
               "semantic": 0.35804335790121133,
-              "temporal": 0.45992166320030875,
+              "temporal": 0.44352186352596007,
               "topological": 0.0
             },
             "event_id": "evt-fb82fe29cbacef12",
             "path": [],
-            "score": 0.3086640306674342
+            "score": 0.30928658629301226
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.22598302169424675,
+              "lexical": 0.22342711725230213,
               "semantic": 0.290143150462092,
-              "temporal": 1.0,
+              "temporal": 0.8499297483182134,
               "topological": 0.0
             },
             "event_id": "evt-17fd224d5b603c53",
             "path": [],
-            "score": 0.22598302169424675
+            "score": 0.22342711725230213
           }
         ]
       },
@@ -599,7 +605,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7366713071303131,
-              "temporal": 1.0,
+              "temporal": 0.8499297483182134,
               "topological": 0.0
             },
             "event_id": "evt-17fd224d5b603c53",
@@ -611,28 +617,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.3120965216811565,
-              "semantic": 0.38209218451252835,
-              "temporal": 0.5584869184899944,
+              "lexical": 0.3038721550565517,
+              "semantic": 0.4029106905409326,
+              "temporal": 1.0,
               "topological": 0.0
             },
-            "event_id": "evt-bbb6c081dd25cd31",
+            "event_id": "evt-40977fefa612a20e",
             "path": [],
-            "score": 0.34709435309684245
+            "score": 0.35339142279874214
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.3120965216811565,
-              "semantic": 0.30463747558896853,
-              "temporal": 0.378752064173932,
+              "lexical": 0.3038721550565517,
+              "semantic": 0.38209218451252835,
+              "temporal": 0.5218336981370327,
               "topological": 0.0
             },
-            "event_id": "evt-9ef697d32f3c536c",
+            "event_id": "evt-bbb6c081dd25cd31",
             "path": [],
-            "score": 0.3083669986350625
+            "score": 0.34298216978454
           }
         ],
         "full_ctrag": [
@@ -644,7 +650,7 @@
               "lexical": 0.0,
               "mode_prior": 0.9,
               "semantic": 0.0728769515811211,
-              "temporal": 0.9728665052481715,
+              "temporal": 0.8305749749989877,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-9d4453633b34a69a",
@@ -652,7 +658,7 @@
               "evt-ac63e44df64c1122",
               "evt-9d4453633b34a69a"
             ],
-            "score": 0.7340626635682882
+            "score": 0.7269480870558289
           },
           {
             "causal_hops": 1,
@@ -662,7 +668,7 @@
               "lexical": 0.0,
               "mode_prior": 0.0,
               "semantic": 0.0,
-              "temporal": 0.9722370221316695,
+              "temporal": 0.8301249209596248,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-d5739b0d9ed71937",
@@ -670,7 +676,7 @@
               "evt-ac63e44df64c1122",
               "evt-d5739b0d9ed71937"
             ],
-            "score": 0.49809964667529494
+            "score": 0.4909940416166927
           },
           {
             "causal_hops": 2,
@@ -680,7 +686,7 @@
               "lexical": 0.0,
               "mode_prior": 0.40223409607104177,
               "semantic": 0.0,
-              "temporal": 0.9731813996265052,
+              "temporal": 0.8308000935095708,
               "topological": 0.2465969639416065
             },
             "event_id": "evt-3844c66a67b207f8",
@@ -689,7 +695,7 @@
               "evt-9d4453633b34a69a",
               "evt-3844c66a67b207f8"
             ],
-            "score": 0.43676566260808714
+            "score": 0.4296465973022404
           }
         ]
       }
@@ -703,7 +709,8 @@
               "anomaly": 1.0,
               "causal_path_confidence": 0.7290000000000001,
               "frontier": 1.0,
-              "text_signal": 0.025706296173171012
+              "independent_signal_support": 0.0,
+              "text_signal": 0.02617986243881378
             },
             "event_id": "evt-d23b4277b4129733",
             "frontier": true,
@@ -713,7 +720,7 @@
               "evt-49eada8334ac0178",
               "evt-d23b4277b4129733"
             ],
-            "score": 0.8970853148086586
+            "score": 0.6971089931219407
           },
           {
             "causal_hops": 1,
@@ -721,6 +728,7 @@
               "anomaly": 1.0,
               "causal_path_confidence": 0.9,
               "frontier": 0.0,
+              "independent_signal_support": 0.0,
               "text_signal": 0.0
             },
             "event_id": "evt-ba3996fbc52f7f4a",
@@ -729,7 +737,7 @@
               "evt-86d32776aaa73df7",
               "evt-ba3996fbc52f7f4a"
             ],
-            "score": 0.43000000000000005
+            "score": 0.38
           },
           {
             "causal_hops": 2,
@@ -737,7 +745,8 @@
               "anomaly": 1.0,
               "causal_path_confidence": 0.81,
               "frontier": 0.0,
-              "text_signal": 0.025706296173171012
+              "independent_signal_support": 0.0,
+              "text_signal": 0.02617986243881378
             },
             "event_id": "evt-49eada8334ac0178",
             "frontier": false,
@@ -746,7 +755,7 @@
               "evt-ba3996fbc52f7f4a",
               "evt-49eada8334ac0178"
             ],
-            "score": 0.4132853148086586
+            "score": 0.36330899312194076
           }
         ],
         "dense_lexical": [
@@ -757,7 +766,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7888106377466155,
-              "temporal": 0.5584867377499791,
+              "temporal": 0.5218335567187438,
               "topological": 0.0
             },
             "event_id": "evt-e7939c8f3ea5ed88",
@@ -769,28 +778,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.14817058638947533,
+              "lexical": 0.1491085270866037,
               "semantic": 0.15222538446938813,
-              "temporal": 0.45992166320030875,
+              "temporal": 0.44352186352596007,
               "topological": 0.0
             },
             "event_id": "evt-fb82fe29cbacef12",
             "path": [],
-            "score": 0.15019798542943175
+            "score": 0.1506669557779959
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.14817058638947533,
+              "lexical": 0.1491085270866037,
               "semantic": 0.14541602263817666,
-              "temporal": 0.9999996763755616,
+              "temporal": 0.8499295179850419,
               "topological": 0.0
             },
             "event_id": "evt-10c114b195d73cb5",
             "path": [],
-            "score": 0.146793304513826
+            "score": 0.14726227486239019
           }
         ],
         "dense_only": [
@@ -801,7 +810,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7888106377466155,
-              "temporal": 0.5584867377499791,
+              "temporal": 0.5218335567187438,
               "topological": 0.0
             },
             "event_id": "evt-e7939c8f3ea5ed88",
@@ -813,7 +822,7 @@
             "components": {
               "behavioral": 0.5,
               "causal": 0.0,
-              "lexical": 0.040863755108482544,
+              "lexical": 0.0400154921725784,
               "semantic": 0.18325375263253907,
               "temporal": 0.36787944117144233,
               "topological": 0.0
@@ -827,9 +836,9 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.14817058638947533,
+              "lexical": 0.1491085270866037,
               "semantic": 0.15222538446938813,
-              "temporal": 0.45992166320030875,
+              "temporal": 0.44352186352596007,
               "topological": 0.0
             },
             "event_id": "evt-fb82fe29cbacef12",
@@ -845,7 +854,7 @@
               "causal": 0.9,
               "lexical": 0.0,
               "semantic": 0.0,
-              "temporal": 0.5429816585322046,
+              "temporal": 0.5096740739775681,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-ba3996fbc52f7f4a",
@@ -853,16 +862,16 @@
               "evt-86d32776aaa73df7",
               "evt-ba3996fbc52f7f4a"
             ],
-            "score": 0.5164661436848921
+            "score": 0.5148007644571603
           },
           {
             "causal_hops": 2,
             "components": {
               "behavioral": 0.5,
               "causal": 0.40223409607104177,
-              "lexical": 0.051412592346342025,
+              "lexical": 0.05235972487762756,
               "semantic": 0.0,
-              "temporal": 0.5428059648004135,
+              "temporal": 0.5095359696738818,
               "topological": 0.2465969639416065
             },
             "event_id": "evt-49eada8334ac0178",
@@ -871,7 +880,7 @@
               "evt-ba3996fbc52f7f4a",
               "evt-49eada8334ac0178"
             ],
-            "score": 0.2973828838878408
+            "score": 0.29581409738464276
           },
           {
             "causal_hops": null,
@@ -880,12 +889,12 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7888106377466155,
-              "temporal": 0.5584867377499791,
+              "temporal": 0.5218335567187438,
               "topological": 0.0
             },
             "event_id": "evt-e7939c8f3ea5ed88",
             "path": [],
-            "score": 0.2462459325494913
+            "score": 0.24441327349792952
           }
         ],
         "lexical_only": [
@@ -896,7 +905,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7888106377466155,
-              "temporal": 0.5584867377499791,
+              "temporal": 0.5218335567187438,
               "topological": 0.0
             },
             "event_id": "evt-e7939c8f3ea5ed88",
@@ -908,28 +917,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.16096024692148916,
+              "lexical": 0.16363955237103794,
               "semantic": 0.11268723396380222,
-              "temporal": 0.8235137618689784,
+              "temporal": 0.7223803813092471,
               "topological": 0.0
             },
             "event_id": "evt-f44d669b10f17abe",
             "path": [],
-            "score": 0.16096024692148916
+            "score": 0.16363955237103794
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.14817058638947533,
+              "lexical": 0.1491085270866037,
               "semantic": 0.14541602263817666,
-              "temporal": 0.9999996763755616,
+              "temporal": 0.8499295179850419,
               "topological": 0.0
             },
             "event_id": "evt-10c114b195d73cb5",
             "path": [],
-            "score": 0.14817058638947533
+            "score": 0.1491085270866037
           }
         ]
       },
@@ -942,7 +951,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7047313957652389,
-              "temporal": 0.5584869184899944,
+              "temporal": 0.5218336981370327,
               "topological": 0.0
             },
             "event_id": "evt-bbb6c081dd25cd31",
@@ -954,28 +963,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.42700573483712306,
-              "semantic": 0.39940940718765267,
+              "lexical": 0.41690911064181396,
+              "semantic": 0.44186299801033846,
               "temporal": 1.0,
               "topological": 0.0
             },
-            "event_id": "evt-17fd224d5b603c53",
+            "event_id": "evt-40977fefa612a20e",
             "path": [],
-            "score": 0.41320757101238786
+            "score": 0.42938605432607624
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.42700573483712306,
-              "semantic": 0.33408899647046675,
-              "temporal": 0.378752064173932,
+              "lexical": 0.41690911064181396,
+              "semantic": 0.39940940718765267,
+              "temporal": 0.8499297483182134,
               "topological": 0.0
             },
-            "event_id": "evt-9ef697d32f3c536c",
+            "event_id": "evt-17fd224d5b603c53",
             "path": [],
-            "score": 0.3805473656537949
+            "score": 0.4081592589147333
           }
         ],
         "full_ctrag": [
@@ -984,10 +993,10 @@
             "components": {
               "behavioral": 0.5,
               "causal": 0.9,
-              "lexical": 0.10966127630603227,
+              "lexical": 0.11269718763706452,
               "mode_prior": 0.9,
               "semantic": 0.13176934327281334,
-              "temporal": 0.5433332166181813,
+              "temporal": 0.5099503948901929,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-96d9355c612bbfa1",
@@ -995,7 +1004,7 @@
               "evt-86d32776aaa73df7",
               "evt-96d9355c612bbfa1"
             ],
-            "score": 0.7323859855211458
+            "score": 0.7310204355678495
           },
           {
             "causal_hops": 1,
@@ -1005,7 +1014,7 @@
               "lexical": 0.0,
               "mode_prior": 0.0,
               "semantic": 0.0,
-              "temporal": 0.5429816585322046,
+              "temporal": 0.5096740739775681,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-ba3996fbc52f7f4a",
@@ -1013,17 +1022,17 @@
               "evt-86d32776aaa73df7",
               "evt-ba3996fbc52f7f4a"
             ],
-            "score": 0.47663687849532166
+            "score": 0.47497149926758986
           },
           {
             "causal_hops": 2,
             "components": {
               "behavioral": 0.5,
               "causal": 0.40223409607104177,
-              "lexical": 0.10966127630603227,
+              "lexical": 0.11269718763706452,
               "mode_prior": 0.40223409607104177,
               "semantic": 0.20876486728390475,
-              "temporal": 0.5435090810091867,
+              "temporal": 0.5100886115194251,
               "topological": 0.2465969639416065
             },
             "event_id": "evt-d80a3aa8e38fa674",
@@ -1032,7 +1041,7 @@
               "evt-96d9355c612bbfa1",
               "evt-d80a3aa8e38fa674"
             ],
-            "score": 0.45756290440041014
+            "score": 0.4561954720590253
           }
         ]
       }
@@ -1046,6 +1055,7 @@
               "anomaly": 0.85,
               "causal_path_confidence": 0.6561000000000001,
               "frontier": 1.0,
+              "independent_signal_support": 0.0,
               "text_signal": 0.0
             },
             "event_id": "evt-9a5917d9670355b1",
@@ -1057,7 +1067,7 @@
               "evt-6a18eb8b1b1a180b",
               "evt-9a5917d9670355b1"
             ],
-            "score": 0.84372
+            "score": 0.65122
           },
           {
             "causal_hops": 1,
@@ -1065,6 +1075,7 @@
               "anomaly": 1.0,
               "causal_path_confidence": 0.9,
               "frontier": 0.0,
+              "independent_signal_support": 0.0,
               "text_signal": 0.06586143038014723
             },
             "event_id": "evt-1fdd992b4a19ac21",
@@ -1073,7 +1084,7 @@
               "evt-203f3f13a6dfee43",
               "evt-1fdd992b4a19ac21"
             ],
-            "score": 0.4332930715190074
+            "score": 0.3832930715190074
           },
           {
             "causal_hops": 2,
@@ -1081,6 +1092,7 @@
               "anomaly": 0.0,
               "causal_path_confidence": 0.81,
               "frontier": 0.0,
+              "independent_signal_support": 0.0,
               "text_signal": 0.0
             },
             "event_id": "evt-e967c32758fe15c2",
@@ -1101,7 +1113,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7867957924694432,
-              "temporal": 0.37875194160050796,
+              "temporal": 0.3769624258402442,
               "topological": 0.0
             },
             "event_id": "evt-a36b91a46bd38ba2",
@@ -1113,28 +1125,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.2461536535806025,
+              "lexical": 0.2507462721126103,
               "semantic": 0.28494767578365277,
-              "temporal": 0.45992166320030875,
+              "temporal": 0.44352186352596007,
               "topological": 0.0
             },
             "event_id": "evt-fb82fe29cbacef12",
             "path": [],
-            "score": 0.2655506646821276
+            "score": 0.2678469739481315
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.2041565734386778,
-              "semantic": 0.19611613513818404,
-              "temporal": 0.6781751354616438,
+              "lexical": 0.27358723044293376,
+              "semantic": 0.2313259727864961,
+              "temporal": 0.9999997289974001,
               "topological": 0.0
             },
-            "event_id": "evt-da062bee8c193087",
+            "event_id": "evt-a8cfd75992eb94be",
             "path": [],
-            "score": 0.2001363542884309
+            "score": 0.25245660161471495
           }
         ],
         "dense_only": [
@@ -1145,7 +1157,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7867957924694432,
-              "temporal": 0.37875194160050796,
+              "temporal": 0.3769624258402442,
               "topological": 0.0
             },
             "event_id": "evt-a36b91a46bd38ba2",
@@ -1157,9 +1169,9 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.2461536535806025,
+              "lexical": 0.2507462721126103,
               "semantic": 0.28494767578365277,
-              "temporal": 0.45992166320030875,
+              "temporal": 0.44352186352596007,
               "topological": 0.0
             },
             "event_id": "evt-fb82fe29cbacef12",
@@ -1171,14 +1183,14 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.17268054857774298,
-              "semantic": 0.2142016158139372,
-              "temporal": 0.9999996763755616,
+              "lexical": 0.27358723044293376,
+              "semantic": 0.2313259727864961,
+              "temporal": 0.9999997289974001,
               "topological": 0.0
             },
-            "event_id": "evt-10c114b195d73cb5",
+            "event_id": "evt-a8cfd75992eb94be",
             "path": [],
-            "score": 0.2142016158139372
+            "score": 0.2313259727864961
           }
         ],
         "full_ctrag": [
@@ -1189,7 +1201,7 @@
               "causal": 0.9,
               "lexical": 0.0,
               "semantic": 0.13172286076029446,
-              "temporal": 0.36835596872407733,
+              "temporal": 0.3682784425872532,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-1fdd992b4a19ac21",
@@ -1197,7 +1209,7 @@
               "evt-203f3f13a6dfee43",
               "evt-1fdd992b4a19ac21"
             ],
-            "score": 0.5274932883085299
+            "score": 0.5274894120016888
           },
           {
             "causal_hops": 2,
@@ -1206,7 +1218,7 @@
               "causal": 0.40223409607104177,
               "lexical": 0.0,
               "semantic": 0.0,
-              "temporal": 0.3682367789986866,
+              "temporal": 0.36817865168072483,
               "topological": 0.2465969639416065
             },
             "event_id": "evt-e967c32758fe15c2",
@@ -1215,7 +1227,7 @@
               "evt-1fdd992b4a19ac21",
               "evt-e967c32758fe15c2"
             ],
-            "score": 0.3210131653631202
+            "score": 0.32101025899722213
           },
           {
             "causal_hops": null,
@@ -1224,12 +1236,12 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7867957924694432,
-              "temporal": 0.37875194160050796,
+              "temporal": 0.3769624258402442,
               "topological": 0.0
             },
             "event_id": "evt-a36b91a46bd38ba2",
             "path": [],
-            "score": 0.23695696595044188
+            "score": 0.2368674901624287
           }
         ],
         "lexical_only": [
@@ -1240,7 +1252,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7867957924694432,
-              "temporal": 0.37875194160050796,
+              "temporal": 0.3769624258402442,
               "topological": 0.0
             },
             "event_id": "evt-a36b91a46bd38ba2",
@@ -1252,28 +1264,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.2461536535806025,
-              "semantic": 0.28494767578365277,
-              "temporal": 0.45992166320030875,
+              "lexical": 0.27358723044293376,
+              "semantic": 0.2313259727864961,
+              "temporal": 0.9999997289974001,
               "topological": 0.0
             },
-            "event_id": "evt-fb82fe29cbacef12",
+            "event_id": "evt-a8cfd75992eb94be",
             "path": [],
-            "score": 0.2461536535806025
+            "score": 0.27358723044293376
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.2041565734386778,
-              "semantic": 0.19611613513818404,
-              "temporal": 0.6781751354616438,
+              "lexical": 0.2507462721126103,
+              "semantic": 0.28494767578365277,
+              "temporal": 0.44352186352596007,
               "topological": 0.0
             },
-            "event_id": "evt-da062bee8c193087",
+            "event_id": "evt-fb82fe29cbacef12",
             "path": [],
-            "score": 0.2041565734386778
+            "score": 0.2507462721126103
           }
         ]
       },
@@ -1286,7 +1298,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7071067811865476,
-              "temporal": 0.378752064173932,
+              "temporal": 0.3769625279980694,
               "topological": 0.0
             },
             "event_id": "evt-9ef697d32f3c536c",
@@ -1298,28 +1310,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.4665460531491418,
+              "lexical": 0.46191310902583044,
               "semantic": 0.3849996348772482,
-              "temporal": 0.8235140283782433,
+              "temporal": 0.7223805770762616,
               "topological": 0.0
             },
             "event_id": "evt-2ee0a1d79ed7c679",
             "path": [],
-            "score": 0.42577284401319504
+            "score": 0.4234563719515393
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.3537994587135281,
+              "lexical": 0.34767124893235124,
               "semantic": 0.39411687658920846,
-              "temporal": 0.6781753549357621,
+              "temporal": 0.6139727420643928,
               "topological": 0.0
             },
             "event_id": "evt-d2d606b46d61206e",
             "path": [],
-            "score": 0.37395816765136825
+            "score": 0.37089406276077985
           }
         ],
         "full_ctrag": [
@@ -1331,7 +1343,7 @@
               "lexical": 0.0,
               "mode_prior": 0.9,
               "semantic": 0.0769988661282046,
-              "temporal": 0.368594463924215,
+              "temporal": 0.36847810554943133,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-72c0a36095410881",
@@ -1339,7 +1351,7 @@
               "evt-203f3f13a6dfee43",
               "evt-72c0a36095410881"
             ],
-            "score": 0.7044673486841528
+            "score": 0.7044615307654136
           },
           {
             "causal_hops": 1,
@@ -1349,7 +1361,7 @@
               "lexical": 0.0,
               "mode_prior": 0.0,
               "semantic": 0.0,
-              "temporal": 0.36835596872407733,
+              "temporal": 0.3682784425872532,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-1fdd992b4a19ac21",
@@ -1357,7 +1369,7 @@
               "evt-203f3f13a6dfee43",
               "evt-1fdd992b4a19ac21"
             ],
-            "score": 0.46790559400491527
+            "score": 0.4679017176980741
           },
           {
             "causal_hops": 2,
@@ -1367,7 +1379,7 @@
               "lexical": 0.0,
               "mode_prior": 0.40223409607104177,
               "semantic": 0.07481303123332173,
-              "temporal": 0.3687137694239403,
+              "temporal": 0.36857797761974487,
               "topological": 0.2465969639416065
             },
             "event_id": "evt-eca774228375dd15",
@@ -1376,7 +1388,7 @@
               "evt-72c0a36095410881",
               "evt-eca774228375dd15"
             ],
-            "score": 0.4177642357829571
+            "score": 0.41775744619274735
           }
         ]
       }
@@ -1390,6 +1402,7 @@
               "anomaly": 0.85,
               "causal_path_confidence": 0.7290000000000001,
               "frontier": 1.0,
+              "independent_signal_support": 0.0,
               "text_signal": 0.0
             },
             "event_id": "evt-1068461ee444ccbd",
@@ -1400,7 +1413,7 @@
               "evt-b5e22f9a6dd1b33d",
               "evt-1068461ee444ccbd"
             ],
-            "score": 0.8583000000000001
+            "score": 0.6658000000000001
           },
           {
             "causal_hops": 1,
@@ -1408,6 +1421,7 @@
               "anomaly": 1.0,
               "causal_path_confidence": 0.9,
               "frontier": 0.0,
+              "independent_signal_support": 0.0,
               "text_signal": 0.0
             },
             "event_id": "evt-461e4a68769f5e4d",
@@ -1416,7 +1430,7 @@
               "evt-1a99e61e0b380e76",
               "evt-461e4a68769f5e4d"
             ],
-            "score": 0.43000000000000005
+            "score": 0.38
           },
           {
             "causal_hops": 2,
@@ -1424,6 +1438,7 @@
               "anomaly": 0.0,
               "causal_path_confidence": 0.81,
               "frontier": 0.0,
+              "independent_signal_support": 0.0,
               "text_signal": 0.0
             },
             "event_id": "evt-b5e22f9a6dd1b33d",
@@ -1444,7 +1459,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7852483055647719,
-              "temporal": 0.45992166320030875,
+              "temporal": 0.44352186352596007,
               "topological": 0.0
             },
             "event_id": "evt-fb82fe29cbacef12",
@@ -1456,28 +1471,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.2971108230903615,
+              "lexical": 0.29732884252937597,
               "semantic": 0.2837280147641793,
-              "temporal": 0.9999996763755616,
+              "temporal": 0.8499295179850419,
               "topological": 0.0
             },
             "event_id": "evt-10c114b195d73cb5",
             "path": [],
-            "score": 0.2904194189272704
+            "score": 0.29052842864677764
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.29047162122941306,
+              "lexical": 0.2908893290010853,
               "semantic": 0.28550922146756813,
-              "temporal": 0.37875194160050796,
+              "temporal": 0.3769624258402442,
               "topological": 0.0
             },
             "event_id": "evt-a36b91a46bd38ba2",
             "path": [],
-            "score": 0.2879904213484906
+            "score": 0.2881992752343267
           }
         ],
         "dense_only": [
@@ -1488,7 +1503,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7852483055647719,
-              "temporal": 0.45992166320030875,
+              "temporal": 0.44352186352596007,
               "topological": 0.0
             },
             "event_id": "evt-fb82fe29cbacef12",
@@ -1500,9 +1515,9 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.29047162122941306,
+              "lexical": 0.2908893290010853,
               "semantic": 0.28550922146756813,
-              "temporal": 0.37875194160050796,
+              "temporal": 0.3769624258402442,
               "topological": 0.0
             },
             "event_id": "evt-a36b91a46bd38ba2",
@@ -1514,9 +1529,9 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.2971108230903615,
+              "lexical": 0.29732884252937597,
               "semantic": 0.2837280147641793,
-              "temporal": 0.9999996763755616,
+              "temporal": 0.8499295179850419,
               "topological": 0.0
             },
             "event_id": "evt-10c114b195d73cb5",
@@ -1532,7 +1547,7 @@
               "causal": 0.9,
               "lexical": 0.0,
               "semantic": 0.0,
-              "temporal": 0.4471530129533555,
+              "temporal": 0.4331871574200729,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-461e4a68769f5e4d",
@@ -1540,7 +1555,7 @@
               "evt-1a99e61e0b380e76",
               "evt-461e4a68769f5e4d"
             ],
-            "score": 0.5491747114059496
+            "score": 0.5484764186292855
           },
           {
             "causal_hops": 2,
@@ -1549,7 +1564,7 @@
               "causal": 0.40223409607104177,
               "lexical": 0.0,
               "semantic": 0.0,
-              "temporal": 0.4470083267005275,
+              "temporal": 0.43306977846399913,
               "topological": 0.2465969639416065
             },
             "event_id": "evt-b5e22f9a6dd1b33d",
@@ -1558,7 +1573,7 @@
               "evt-461e4a68769f5e4d",
               "evt-b5e22f9a6dd1b33d"
             ],
-            "score": 0.2874517427482123
+            "score": 0.28675481533638586
           },
           {
             "causal_hops": null,
@@ -1567,12 +1582,12 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7852483055647719,
-              "temporal": 0.45992166320030875,
+              "temporal": 0.44352186352596007,
               "topological": 0.0
             },
             "event_id": "evt-fb82fe29cbacef12",
             "path": [],
-            "score": 0.24078332899473123
+            "score": 0.2399633390110138
           }
         ],
         "lexical_only": [
@@ -1583,7 +1598,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7852483055647719,
-              "temporal": 0.45992166320030875,
+              "temporal": 0.44352186352596007,
               "topological": 0.0
             },
             "event_id": "evt-fb82fe29cbacef12",
@@ -1595,28 +1610,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.2971108230903615,
+              "lexical": 0.29732884252937597,
               "semantic": 0.2837280147641793,
-              "temporal": 0.9999996763755616,
+              "temporal": 0.8499295179850419,
               "topological": 0.0
             },
             "event_id": "evt-10c114b195d73cb5",
             "path": [],
-            "score": 0.2971108230903615
+            "score": 0.29732884252937597
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.29047162122941306,
+              "lexical": 0.2908893290010853,
               "semantic": 0.28550922146756813,
-              "temporal": 0.37875194160050796,
+              "temporal": 0.3769624258402442,
               "topological": 0.0
             },
             "event_id": "evt-a36b91a46bd38ba2",
             "path": [],
-            "score": 0.29047162122941306
+            "score": 0.2908893290010853
           }
         ]
       },
@@ -1629,7 +1644,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.6666666666666667,
-              "temporal": 0.4599218120422469,
+              "temporal": 0.44352198372157076,
               "topological": 0.0
             },
             "event_id": "evt-f7bd84fda86344ff",
@@ -1641,28 +1656,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.23068156408029625,
+              "lexical": 0.22629671932985096,
               "semantic": 0.28584081602019507,
-              "temporal": 0.6781753549357621,
+              "temporal": 0.6139727420643928,
               "topological": 0.0
             },
             "event_id": "evt-d2d606b46d61206e",
             "path": [],
-            "score": 0.25826119005024567
+            "score": 0.256068767675023
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.23068156408029625,
+              "lexical": 0.22629671932985096,
               "semantic": 0.2036212039490258,
-              "temporal": 0.8235140283782433,
+              "temporal": 0.7223805770762616,
               "topological": 0.0
             },
             "event_id": "evt-2ee0a1d79ed7c679",
             "path": [],
-            "score": 0.21715138401466103
+            "score": 0.2149589616394384
           }
         ],
         "full_ctrag": [
@@ -1674,7 +1689,7 @@
               "lexical": 0.0,
               "mode_prior": 0.9,
               "semantic": 0.0,
-              "temporal": 0.4474425259689472,
+              "temporal": 0.4334220107837952,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-a58604816bdf04fa",
@@ -1682,7 +1697,7 @@
               "evt-1a99e61e0b380e76",
               "evt-a58604816bdf04fa"
             ],
-            "score": 0.6968599218671587
+            "score": 0.6961588961079012
           },
           {
             "causal_hops": 1,
@@ -1692,7 +1707,7 @@
               "lexical": 0.0,
               "mode_prior": 0.0,
               "semantic": 0.0,
-              "temporal": 0.4471530129533555,
+              "temporal": 0.4331871574200729,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-461e4a68769f5e4d",
@@ -1700,7 +1715,7 @@
               "evt-1a99e61e0b380e76",
               "evt-461e4a68769f5e4d"
             ],
-            "score": 0.5468454462163792
+            "score": 0.5461471534397151
           },
           {
             "causal_hops": 2,
@@ -1710,7 +1725,7 @@
               "lexical": 0.0,
               "mode_prior": 0.40223409607104177,
               "semantic": 0.0,
-              "temporal": 0.44758735276203226,
+              "temporal": 0.4335394852086919,
               "topological": 0.2465969639416065
             },
             "event_id": "evt-1841ab60a27d11bc",
@@ -1719,7 +1734,355 @@
               "evt-a58604816bdf04fa",
               "evt-1841ab60a27d11bc"
             ],
-            "score": 0.48548596026486346
+            "score": 0.4847835668871965
+          }
+        ]
+      }
+    },
+    "pricing_configuration_drift": {
+      "diagnosis": {
+        "ctrag_causal_frontier": [
+          {
+            "causal_hops": 1,
+            "components": {
+              "anomaly": 0.85,
+              "causal_path_confidence": 0.45488512698789085,
+              "frontier": 1.0,
+              "independent_signal_support": 1.0,
+              "text_signal": 0.0
+            },
+            "event_id": "evt-f9c129e70fcd388f",
+            "frontier": true,
+            "path": [
+              "evt-6f62a9b6050a5da2",
+              "evt-f9c129e70fcd388f"
+            ],
+            "score": 0.8109770253975781
+          },
+          {
+            "causal_hops": 1,
+            "components": {
+              "anomaly": 0.85,
+              "causal_path_confidence": 0.3849044908563819,
+              "frontier": 0.0,
+              "independent_signal_support": 1.0,
+              "text_signal": 0.11534139581500293
+            },
+            "event_id": "evt-92617fdc98a25739",
+            "frontier": false,
+            "path": [
+              "evt-6f62a9b6050a5da2",
+              "evt-92617fdc98a25739"
+            ],
+            "score": 0.45274796796202654
+          },
+          {
+            "causal_hops": 1,
+            "components": {
+              "anomaly": 0.85,
+              "causal_path_confidence": 0.323217,
+              "frontier": 0.0,
+              "independent_signal_support": 0.6666666666666666,
+              "text_signal": 0.0
+            },
+            "event_id": "evt-5123bd608baabb88",
+            "frontier": false,
+            "path": [
+              "evt-6f62a9b6050a5da2",
+              "evt-5123bd608baabb88"
+            ],
+            "score": 0.36797673333333336
+          }
+        ],
+        "dense_lexical": [
+          {
+            "causal_hops": null,
+            "components": {
+              "behavioral": 0.0,
+              "causal": 0.0,
+              "lexical": 1.0,
+              "semantic": 0.8091547798786778,
+              "temporal": 0.9999997289974001,
+              "topological": 0.0
+            },
+            "event_id": "evt-a8cfd75992eb94be",
+            "path": [],
+            "score": 0.9045773899393389
+          },
+          {
+            "causal_hops": null,
+            "components": {
+              "behavioral": 0.0,
+              "causal": 0.0,
+              "lexical": 0.19844838765828718,
+              "semantic": 0.15877683720748895,
+              "temporal": 0.3769624258402442,
+              "topological": 0.0
+            },
+            "event_id": "evt-a36b91a46bd38ba2",
+            "path": [],
+            "score": 0.17861261243288806
+          },
+          {
+            "causal_hops": null,
+            "components": {
+              "behavioral": 0.0,
+              "causal": 0.0,
+              "lexical": 0.13577283653601951,
+              "semantic": 0.15453002653696596,
+              "temporal": 1.0,
+              "topological": 0.0
+            },
+            "event_id": "evt-40977fefa612a20e",
+            "path": [],
+            "score": 0.14515143153649274
+          }
+        ],
+        "dense_only": [
+          {
+            "causal_hops": null,
+            "components": {
+              "behavioral": 0.0,
+              "causal": 0.0,
+              "lexical": 1.0,
+              "semantic": 0.8091547798786778,
+              "temporal": 0.9999997289974001,
+              "topological": 0.0
+            },
+            "event_id": "evt-a8cfd75992eb94be",
+            "path": [],
+            "score": 0.8091547798786778
+          },
+          {
+            "causal_hops": 1,
+            "components": {
+              "behavioral": 0.5,
+              "causal": 0.3849044908563819,
+              "lexical": 0.0,
+              "semantic": 0.23068279163000585,
+              "temporal": 0.9761690450622985,
+              "topological": 0.4965853037914095
+            },
+            "event_id": "evt-92617fdc98a25739",
+            "path": [
+              "evt-6f62a9b6050a5da2",
+              "evt-92617fdc98a25739"
+            ],
+            "score": 0.23068279163000585
+          },
+          {
+            "causal_hops": null,
+            "components": {
+              "behavioral": 0.0,
+              "causal": 0.0,
+              "lexical": 0.19844838765828718,
+              "semantic": 0.15877683720748895,
+              "temporal": 0.3769624258402442,
+              "topological": 0.0
+            },
+            "event_id": "evt-a36b91a46bd38ba2",
+            "path": [],
+            "score": 0.15877683720748895
+          }
+        ],
+        "full_ctrag": [
+          {
+            "causal_hops": 1,
+            "components": {
+              "behavioral": 0.5,
+              "causal": 0.3849044908563819,
+              "lexical": 0.0,
+              "semantic": 0.23068279163000585,
+              "temporal": 0.9761690450622985,
+              "topological": 0.4965853037914095
+            },
+            "event_id": "evt-92617fdc98a25739",
+            "path": [
+              "evt-6f62a9b6050a5da2",
+              "evt-92617fdc98a25739"
+            ],
+            "score": 0.3924445035556314
+          },
+          {
+            "causal_hops": 1,
+            "components": {
+              "behavioral": 0.5,
+              "causal": 0.45488512698789085,
+              "lexical": 0.0,
+              "semantic": 0.0,
+              "temporal": 0.9759045365202094,
+              "topological": 0.4965853037914095
+            },
+            "event_id": "evt-f9c129e70fcd388f",
+            "path": [
+              "evt-6f62a9b6050a5da2",
+              "evt-f9c129e70fcd388f"
+            ],
+            "score": 0.38232208203005413
+          },
+          {
+            "causal_hops": 1,
+            "components": {
+              "behavioral": 0.5,
+              "causal": 0.323217,
+              "lexical": 0.0,
+              "semantic": 0.0,
+              "temporal": 0.976433625296614,
+              "topological": 0.4965853037914095
+            },
+            "event_id": "evt-5123bd608baabb88",
+            "path": [
+              "evt-6f62a9b6050a5da2",
+              "evt-5123bd608baabb88"
+            ],
+            "score": 0.3362646920231126
+          }
+        ],
+        "lexical_only": [
+          {
+            "causal_hops": null,
+            "components": {
+              "behavioral": 0.0,
+              "causal": 0.0,
+              "lexical": 1.0,
+              "semantic": 0.8091547798786778,
+              "temporal": 0.9999997289974001,
+              "topological": 0.0
+            },
+            "event_id": "evt-a8cfd75992eb94be",
+            "path": [],
+            "score": 1.0
+          },
+          {
+            "causal_hops": null,
+            "components": {
+              "behavioral": 0.0,
+              "causal": 0.0,
+              "lexical": 0.19844838765828718,
+              "semantic": 0.15877683720748895,
+              "temporal": 0.3769624258402442,
+              "topological": 0.0
+            },
+            "event_id": "evt-a36b91a46bd38ba2",
+            "path": [],
+            "score": 0.19844838765828718
+          },
+          {
+            "causal_hops": null,
+            "components": {
+              "behavioral": 0.0,
+              "causal": 0.0,
+              "lexical": 0.13577283653601951,
+              "semantic": 0.15453002653696596,
+              "temporal": 1.0,
+              "topological": 0.0
+            },
+            "event_id": "evt-40977fefa612a20e",
+            "path": [],
+            "score": 0.13577283653601951
+          }
+        ]
+      },
+      "recovery": {
+        "dense_lexical": [
+          {
+            "causal_hops": null,
+            "components": {
+              "behavioral": 0.0,
+              "causal": 0.0,
+              "lexical": 1.0,
+              "semantic": 0.6678125590347568,
+              "temporal": 1.0,
+              "topological": 0.0
+            },
+            "event_id": "evt-40977fefa612a20e",
+            "path": [],
+            "score": 0.8339062795173784
+          },
+          {
+            "causal_hops": null,
+            "components": {
+              "behavioral": 0.0,
+              "causal": 0.0,
+              "lexical": 0.40297710262545444,
+              "semantic": 0.34760692050597536,
+              "temporal": 0.5218336981370327,
+              "topological": 0.0
+            },
+            "event_id": "evt-bbb6c081dd25cd31",
+            "path": [],
+            "score": 0.3752920115657149
+          },
+          {
+            "causal_hops": null,
+            "components": {
+              "behavioral": 0.0,
+              "causal": 0.0,
+              "lexical": 0.40297710262545444,
+              "semantic": 0.3313291948220982,
+              "temporal": 0.8499297483182134,
+              "topological": 0.0
+            },
+            "event_id": "evt-17fd224d5b603c53",
+            "path": [],
+            "score": 0.36715314872377636
+          }
+        ],
+        "full_ctrag": [
+          {
+            "causal_hops": 1,
+            "components": {
+              "behavioral": 0.5,
+              "causal": 0.9,
+              "lexical": 0.0,
+              "mode_prior": 0.9,
+              "semantic": 0.0,
+              "temporal": 0.9772277963472584,
+              "topological": 0.4965853037914095
+            },
+            "event_id": "evt-d4df087b824197d7",
+            "path": [
+              "evt-6f62a9b6050a5da2",
+              "evt-d4df087b824197d7"
+            ],
+            "score": 0.7233491853860743
+          },
+          {
+            "causal_hops": 2,
+            "components": {
+              "behavioral": 0.75,
+              "causal": 0.40223409607104177,
+              "lexical": 0.0,
+              "mode_prior": 0.40223409607104177,
+              "semantic": 0.07531652034147278,
+              "temporal": 0.9774926635448458,
+              "topological": 0.2465969639416065
+            },
+            "event_id": "evt-59fa815315e79d94",
+            "path": [
+              "evt-6f62a9b6050a5da2",
+              "evt-d4df087b824197d7",
+              "evt-59fa815315e79d94"
+            ],
+            "score": 0.523278703855225
+          },
+          {
+            "causal_hops": 1,
+            "components": {
+              "behavioral": 0.5,
+              "causal": 0.3849044908563819,
+              "lexical": 0.0,
+              "mode_prior": 0.0,
+              "semantic": 0.15396162827625257,
+              "temporal": 0.9761690450622985,
+              "topological": 0.4965853037914095
+            },
+            "event_id": "evt-92617fdc98a25739",
+            "path": [
+              "evt-6f62a9b6050a5da2",
+              "evt-92617fdc98a25739"
+            ],
+            "score": 0.39261661477735965
           }
         ]
       }
@@ -1733,6 +2096,7 @@
               "anomaly": 0.85,
               "causal_path_confidence": 0.6561000000000001,
               "frontier": 1.0,
+              "independent_signal_support": 0.0,
               "text_signal": 0.0
             },
             "event_id": "evt-341f1ea2c468faa4",
@@ -1744,7 +2108,7 @@
               "evt-b4d4619d6b9a2c71",
               "evt-341f1ea2c468faa4"
             ],
-            "score": 0.84372
+            "score": 0.65122
           },
           {
             "causal_hops": 1,
@@ -1752,6 +2116,7 @@
               "anomaly": 0.0,
               "causal_path_confidence": 0.9,
               "frontier": 0.0,
+              "independent_signal_support": 0.0,
               "text_signal": 0.0
             },
             "event_id": "evt-6b3c9b132aa72f05",
@@ -1768,6 +2133,7 @@
               "anomaly": 0.0,
               "causal_path_confidence": 0.81,
               "frontier": 0.0,
+              "independent_signal_support": 0.0,
               "text_signal": 0.0
             },
             "event_id": "evt-8591048025dfe04f",
@@ -1788,7 +2154,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.74535599249993,
-              "temporal": 0.6781751354616438,
+              "temporal": 0.6139725756761835,
               "topological": 0.0
             },
             "event_id": "evt-da062bee8c193087",
@@ -1800,28 +2166,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.25100388576612914,
+              "lexical": 0.24748465920003088,
               "semantic": 0.20701966780270625,
-              "temporal": 0.37875194160050796,
+              "temporal": 0.3769624258402442,
               "topological": 0.0
             },
             "event_id": "evt-a36b91a46bd38ba2",
             "path": [],
-            "score": 0.2290117767844177
+            "score": 0.22725216350136856
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.15375380332732078,
+              "lexical": 0.15623959279890234,
               "semantic": 0.13845307844314167,
-              "temporal": 0.45992166320030875,
+              "temporal": 0.44352186352596007,
               "topological": 0.0
             },
             "event_id": "evt-fb82fe29cbacef12",
             "path": [],
-            "score": 0.14610344088523122
+            "score": 0.147346335621022
           }
         ],
         "dense_only": [
@@ -1832,7 +2198,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.74535599249993,
-              "temporal": 0.6781751354616438,
+              "temporal": 0.6139725756761835,
               "topological": 0.0
             },
             "event_id": "evt-da062bee8c193087",
@@ -1844,9 +2210,9 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.25100388576612914,
+              "lexical": 0.24748465920003088,
               "semantic": 0.20701966780270625,
-              "temporal": 0.37875194160050796,
+              "temporal": 0.3769624258402442,
               "topological": 0.0
             },
             "event_id": "evt-a36b91a46bd38ba2",
@@ -1860,7 +2226,7 @@
               "causal": 0.0,
               "lexical": 0.0,
               "semantic": 0.1501871687626433,
-              "temporal": 0.9722370221316695,
+              "temporal": 0.8301249209596248,
               "topological": 0.0
             },
             "event_id": "evt-d5739b0d9ed71937",
@@ -1876,7 +2242,7 @@
               "causal": 0.9,
               "lexical": 0.0,
               "semantic": 0.0,
-              "temporal": 0.6595606029949951,
+              "temporal": 0.5998286525700982,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-6b3c9b132aa72f05",
@@ -1884,7 +2250,7 @@
               "evt-4474e0ef13bb5ef1",
               "evt-6b3c9b132aa72f05"
             ],
-            "score": 0.5222950909080316
+            "score": 0.5193084933867868
           },
           {
             "causal_hops": 2,
@@ -1893,7 +2259,7 @@
               "causal": 0.40223409607104177,
               "lexical": 0.0,
               "semantic": 0.0,
-              "temporal": 0.6593471875658334,
+              "temporal": 0.5996661194481997,
               "topological": 0.2465969639416065
             },
             "event_id": "evt-8591048025dfe04f",
@@ -1902,7 +2268,7 @@
               "evt-6b3c9b132aa72f05",
               "evt-8591048025dfe04f"
             ],
-            "score": 0.29806868579147755
+            "score": 0.2950846323855959
           },
           {
             "causal_hops": null,
@@ -1911,12 +2277,12 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.74535599249993,
-              "temporal": 0.6781751354616438,
+              "temporal": 0.6139725756761835,
               "topological": 0.0
             },
             "event_id": "evt-da062bee8c193087",
             "path": [],
-            "score": 0.2457121556480717
+            "score": 0.2425020276587987
           }
         ],
         "lexical_only": [
@@ -1927,7 +2293,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.74535599249993,
-              "temporal": 0.6781751354616438,
+              "temporal": 0.6139725756761835,
               "topological": 0.0
             },
             "event_id": "evt-da062bee8c193087",
@@ -1939,28 +2305,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.25100388576612914,
+              "lexical": 0.24748465920003088,
               "semantic": 0.20701966780270625,
-              "temporal": 0.37875194160050796,
+              "temporal": 0.3769624258402442,
               "topological": 0.0
             },
             "event_id": "evt-a36b91a46bd38ba2",
             "path": [],
-            "score": 0.25100388576612914
+            "score": 0.24748465920003088
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.15375380332732078,
+              "lexical": 0.15623959279890234,
               "semantic": 0.13225978084661602,
-              "temporal": 0.9999996763755616,
+              "temporal": 0.8499295179850419,
               "topological": 0.0
             },
             "event_id": "evt-10c114b195d73cb5",
             "path": [],
-            "score": 0.15375380332732078
+            "score": 0.15623959279890234
           }
         ]
       },
@@ -1973,7 +2339,7 @@
               "causal": 0.0,
               "lexical": 1.0,
               "semantic": 0.7216430050519658,
-              "temporal": 0.6781753549357621,
+              "temporal": 0.6139727420643928,
               "topological": 0.0
             },
             "event_id": "evt-d2d606b46d61206e",
@@ -1985,28 +2351,28 @@
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.36322630627228547,
+              "lexical": 0.36094402815083876,
               "semantic": 0.38617808814792426,
-              "temporal": 0.378752064173932,
+              "temporal": 0.3769625279980694,
               "topological": 0.0
             },
             "event_id": "evt-9ef697d32f3c536c",
             "path": [],
-            "score": 0.3747021972101049
+            "score": 0.3735610581493815
           },
           {
             "causal_hops": null,
             "components": {
               "behavioral": 0.0,
               "causal": 0.0,
-              "lexical": 0.36322630627228547,
+              "lexical": 0.36094402815083876,
               "semantic": 0.3805883659943482,
-              "temporal": 0.8235140283782433,
+              "temporal": 0.7223805770762616,
               "topological": 0.0
             },
             "event_id": "evt-2ee0a1d79ed7c679",
             "path": [],
-            "score": 0.37190733613331683
+            "score": 0.3707661970725935
           }
         ],
         "full_ctrag": [
@@ -2018,7 +2384,7 @@
               "lexical": 0.0,
               "mode_prior": 0.9,
               "semantic": 0.06715691076441149,
-              "temporal": 0.6599876411085869,
+              "temporal": 0.6001538509844558,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-456795d9cfa1fe8a",
@@ -2026,7 +2392,7 @@
               "evt-4474e0ef13bb5ef1",
               "evt-456795d9cfa1fe8a"
             ],
-            "score": 0.7175607142388025
+            "score": 0.714569024732596
           },
           {
             "causal_hops": 1,
@@ -2036,7 +2402,7 @@
               "lexical": 0.0,
               "mode_prior": 0.0,
               "semantic": 0.0,
-              "temporal": 0.6595606029949951,
+              "temporal": 0.5998286525700982,
               "topological": 0.4965853037914095
             },
             "event_id": "evt-6b3c9b132aa72f05",
@@ -2044,7 +2410,7 @@
               "evt-4474e0ef13bb5ef1",
               "evt-6b3c9b132aa72f05"
             ],
-            "score": 0.4824658257184612
+            "score": 0.47947922819721633
           },
           {
             "causal_hops": 2,
@@ -2054,7 +2420,7 @@
               "lexical": 0.0,
               "mode_prior": 0.40223409607104177,
               "semantic": 0.0,
-              "temporal": 0.660201263837742,
+              "temporal": 0.6003165163007983,
               "topological": 0.2465969639416065
             },
             "event_id": "evt-9e1da60b3fa39897",
@@ -2063,7 +2429,7 @@
               "evt-456795d9cfa1fe8a",
               "evt-9e1da60b3fa39897"
             ],
-            "score": 0.421116655818649
+            "score": 0.41812241844180176
           }
         ]
       }
@@ -2090,8 +2456,8 @@
   "rows": [
     {
       "arm": "lexical_only",
-      "mrr": 0.024390243902439025,
-      "rank": 41,
+      "mrr": 0.020833333333333332,
+      "rank": 48,
       "recall_at_3": 0,
       "scenario_id": "inventory_projection_lag",
       "task": "diagnosis",
@@ -2099,8 +2465,8 @@
     },
     {
       "arm": "dense_only",
-      "mrr": 0.022222222222222223,
-      "rank": 45,
+      "mrr": 0.019230769230769232,
+      "rank": 52,
       "recall_at_3": 0,
       "scenario_id": "inventory_projection_lag",
       "task": "diagnosis",
@@ -2108,8 +2474,8 @@
     },
     {
       "arm": "dense_lexical",
-      "mrr": 0.022222222222222223,
-      "rank": 45,
+      "mrr": 0.019230769230769232,
+      "rank": 52,
       "recall_at_3": 0,
       "scenario_id": "inventory_projection_lag",
       "task": "diagnosis",
@@ -2117,8 +2483,8 @@
     },
     {
       "arm": "full_ctrag",
-      "mrr": 0.16666666666666666,
-      "rank": 6,
+      "mrr": 0.125,
+      "rank": 8,
       "recall_at_3": 0,
       "scenario_id": "inventory_projection_lag",
       "task": "diagnosis",
@@ -2135,8 +2501,8 @@
     },
     {
       "arm": "dense_lexical",
-      "mrr": 0.045454545454545456,
-      "rank": 22,
+      "mrr": 0.041666666666666664,
+      "rank": 24,
       "recall_at_3": 0,
       "scenario_id": "inventory_projection_lag",
       "task": "recovery",
@@ -2153,90 +2519,90 @@
     },
     {
       "arm": "lexical_only",
-      "mrr": 0.05555555555555555,
-      "rank": 18,
-      "recall_at_3": 0,
-      "scenario_id": "payment_webhook_replay",
-      "task": "diagnosis",
-      "top1": 0
-    },
-    {
-      "arm": "dense_only",
-      "mrr": 0.02702702702702703,
-      "rank": 37,
-      "recall_at_3": 0,
-      "scenario_id": "payment_webhook_replay",
-      "task": "diagnosis",
-      "top1": 0
-    },
-    {
-      "arm": "dense_lexical",
-      "mrr": 0.02702702702702703,
-      "rank": 37,
-      "recall_at_3": 0,
-      "scenario_id": "payment_webhook_replay",
-      "task": "diagnosis",
-      "top1": 0
-    },
-    {
-      "arm": "full_ctrag",
-      "mrr": 0.25,
-      "rank": 4,
-      "recall_at_3": 0,
-      "scenario_id": "payment_webhook_replay",
-      "task": "diagnosis",
-      "top1": 0
-    },
-    {
-      "arm": "ctrag_causal_frontier",
-      "mrr": 1.0,
-      "rank": 1,
-      "recall_at_3": 1,
-      "scenario_id": "payment_webhook_replay",
-      "task": "diagnosis",
-      "top1": 1
-    },
-    {
-      "arm": "dense_lexical",
-      "mrr": 0.023255813953488372,
-      "rank": 43,
-      "recall_at_3": 0,
-      "scenario_id": "payment_webhook_replay",
-      "task": "recovery",
-      "top1": 0
-    },
-    {
-      "arm": "full_ctrag",
-      "mrr": 1.0,
-      "rank": 1,
-      "recall_at_3": 1,
-      "scenario_id": "payment_webhook_replay",
-      "task": "recovery",
-      "top1": 1
-    },
-    {
-      "arm": "lexical_only",
-      "mrr": 0.06666666666666667,
-      "rank": 15,
-      "recall_at_3": 0,
-      "scenario_id": "fiscal_certificate_expiry",
-      "task": "diagnosis",
-      "top1": 0
-    },
-    {
-      "arm": "dense_only",
-      "mrr": 0.018867924528301886,
-      "rank": 53,
-      "recall_at_3": 0,
-      "scenario_id": "fiscal_certificate_expiry",
-      "task": "diagnosis",
-      "top1": 0
-    },
-    {
-      "arm": "dense_lexical",
       "mrr": 0.05,
       "rank": 20,
       "recall_at_3": 0,
+      "scenario_id": "payment_webhook_replay",
+      "task": "diagnosis",
+      "top1": 0
+    },
+    {
+      "arm": "dense_only",
+      "mrr": 0.025,
+      "rank": 40,
+      "recall_at_3": 0,
+      "scenario_id": "payment_webhook_replay",
+      "task": "diagnosis",
+      "top1": 0
+    },
+    {
+      "arm": "dense_lexical",
+      "mrr": 0.025,
+      "rank": 40,
+      "recall_at_3": 0,
+      "scenario_id": "payment_webhook_replay",
+      "task": "diagnosis",
+      "top1": 0
+    },
+    {
+      "arm": "full_ctrag",
+      "mrr": 0.25,
+      "rank": 4,
+      "recall_at_3": 0,
+      "scenario_id": "payment_webhook_replay",
+      "task": "diagnosis",
+      "top1": 0
+    },
+    {
+      "arm": "ctrag_causal_frontier",
+      "mrr": 1.0,
+      "rank": 1,
+      "recall_at_3": 1,
+      "scenario_id": "payment_webhook_replay",
+      "task": "diagnosis",
+      "top1": 1
+    },
+    {
+      "arm": "dense_lexical",
+      "mrr": 0.0196078431372549,
+      "rank": 51,
+      "recall_at_3": 0,
+      "scenario_id": "payment_webhook_replay",
+      "task": "recovery",
+      "top1": 0
+    },
+    {
+      "arm": "full_ctrag",
+      "mrr": 1.0,
+      "rank": 1,
+      "recall_at_3": 1,
+      "scenario_id": "payment_webhook_replay",
+      "task": "recovery",
+      "top1": 1
+    },
+    {
+      "arm": "lexical_only",
+      "mrr": 0.0625,
+      "rank": 16,
+      "recall_at_3": 0,
+      "scenario_id": "fiscal_certificate_expiry",
+      "task": "diagnosis",
+      "top1": 0
+    },
+    {
+      "arm": "dense_only",
+      "mrr": 0.016666666666666666,
+      "rank": 60,
+      "recall_at_3": 0,
+      "scenario_id": "fiscal_certificate_expiry",
+      "task": "diagnosis",
+      "top1": 0
+    },
+    {
+      "arm": "dense_lexical",
+      "mrr": 0.043478260869565216,
+      "rank": 23,
+      "recall_at_3": 0,
       "scenario_id": "fiscal_certificate_expiry",
       "task": "diagnosis",
       "top1": 0
@@ -2261,8 +2627,8 @@
     },
     {
       "arm": "dense_lexical",
-      "mrr": 0.0625,
-      "rank": 16,
+      "mrr": 0.058823529411764705,
+      "rank": 17,
       "recall_at_3": 0,
       "scenario_id": "fiscal_certificate_expiry",
       "task": "recovery",
@@ -2279,8 +2645,8 @@
     },
     {
       "arm": "lexical_only",
-      "mrr": 0.0625,
-      "rank": 16,
+      "mrr": 0.058823529411764705,
+      "rank": 17,
       "recall_at_3": 0,
       "scenario_id": "procurement_cost_feed_lag",
       "task": "diagnosis",
@@ -2297,8 +2663,8 @@
     },
     {
       "arm": "dense_lexical",
-      "mrr": 0.045454545454545456,
-      "rank": 22,
+      "mrr": 0.043478260869565216,
+      "rank": 23,
       "recall_at_3": 0,
       "scenario_id": "procurement_cost_feed_lag",
       "task": "diagnosis",
@@ -2324,8 +2690,8 @@
     },
     {
       "arm": "dense_lexical",
-      "mrr": 0.05555555555555555,
-      "rank": 18,
+      "mrr": 0.047619047619047616,
+      "rank": 21,
       "recall_at_3": 0,
       "scenario_id": "procurement_cost_feed_lag",
       "task": "recovery",
@@ -2342,8 +2708,8 @@
     },
     {
       "arm": "lexical_only",
-      "mrr": 0.0625,
-      "rank": 16,
+      "mrr": 0.05555555555555555,
+      "rank": 18,
       "recall_at_3": 0,
       "scenario_id": "customer_identity_normalization",
       "task": "diagnosis",
@@ -2360,8 +2726,8 @@
     },
     {
       "arm": "dense_lexical",
-      "mrr": 0.05263157894736842,
-      "rank": 19,
+      "mrr": 0.05,
+      "rank": 20,
       "recall_at_3": 0,
       "scenario_id": "customer_identity_normalization",
       "task": "diagnosis",
@@ -2387,8 +2753,8 @@
     },
     {
       "arm": "dense_lexical",
-      "mrr": 0.1111111111111111,
-      "rank": 9,
+      "mrr": 0.09090909090909091,
+      "rank": 11,
       "recall_at_3": 0,
       "scenario_id": "customer_identity_normalization",
       "task": "recovery",
@@ -2405,8 +2771,8 @@
     },
     {
       "arm": "lexical_only",
-      "mrr": 0.05263157894736842,
-      "rank": 19,
+      "mrr": 0.047619047619047616,
+      "rank": 21,
       "recall_at_3": 0,
       "scenario_id": "delivery_capacity_race",
       "task": "diagnosis",
@@ -2414,8 +2780,8 @@
     },
     {
       "arm": "dense_only",
-      "mrr": 0.05263157894736842,
-      "rank": 19,
+      "mrr": 0.045454545454545456,
+      "rank": 22,
       "recall_at_3": 0,
       "scenario_id": "delivery_capacity_race",
       "task": "diagnosis",
@@ -2423,8 +2789,8 @@
     },
     {
       "arm": "dense_lexical",
-      "mrr": 0.0625,
-      "rank": 16,
+      "mrr": 0.05555555555555555,
+      "rank": 18,
       "recall_at_3": 0,
       "scenario_id": "delivery_capacity_race",
       "task": "diagnosis",
@@ -2450,8 +2816,8 @@
     },
     {
       "arm": "dense_lexical",
-      "mrr": 0.05,
-      "rank": 20,
+      "mrr": 0.043478260869565216,
+      "rank": 23,
       "recall_at_3": 0,
       "scenario_id": "delivery_capacity_race",
       "task": "recovery",
@@ -2463,6 +2829,69 @@
       "rank": 1,
       "recall_at_3": 1,
       "scenario_id": "delivery_capacity_race",
+      "task": "recovery",
+      "top1": 1
+    },
+    {
+      "arm": "lexical_only",
+      "mrr": 0.014285714285714285,
+      "rank": 70,
+      "recall_at_3": 0,
+      "scenario_id": "pricing_configuration_drift",
+      "task": "diagnosis",
+      "top1": 0
+    },
+    {
+      "arm": "dense_only",
+      "mrr": 0.014285714285714285,
+      "rank": 70,
+      "recall_at_3": 0,
+      "scenario_id": "pricing_configuration_drift",
+      "task": "diagnosis",
+      "top1": 0
+    },
+    {
+      "arm": "dense_lexical",
+      "mrr": 0.014285714285714285,
+      "rank": 70,
+      "recall_at_3": 0,
+      "scenario_id": "pricing_configuration_drift",
+      "task": "diagnosis",
+      "top1": 0
+    },
+    {
+      "arm": "full_ctrag",
+      "mrr": 0.5,
+      "rank": 2,
+      "recall_at_3": 1,
+      "scenario_id": "pricing_configuration_drift",
+      "task": "diagnosis",
+      "top1": 0
+    },
+    {
+      "arm": "ctrag_causal_frontier",
+      "mrr": 1.0,
+      "rank": 1,
+      "recall_at_3": 1,
+      "scenario_id": "pricing_configuration_drift",
+      "task": "diagnosis",
+      "top1": 1
+    },
+    {
+      "arm": "dense_lexical",
+      "mrr": 0.01639344262295082,
+      "rank": 61,
+      "recall_at_3": 0,
+      "scenario_id": "pricing_configuration_drift",
+      "task": "recovery",
+      "top1": 0
+    },
+    {
+      "arm": "full_ctrag",
+      "mrr": 1.0,
+      "rank": 1,
+      "recall_at_3": 1,
+      "scenario_id": "pricing_configuration_drift",
       "task": "recovery",
       "top1": 1
     }
@@ -2473,47 +2902,47 @@
     {
       "arm": "ctrag_causal_frontier",
       "mrr": 1.0,
-      "n": 6,
+      "n": 7,
       "recall_at_3": 1,
       "task": "diagnosis",
       "top1_accuracy": 1
     },
     {
       "arm": "dense_lexical",
-      "mrr": 0.04330589560852719,
-      "n": 6,
+      "mrr": 0.035861222973024215,
+      "n": 7,
       "recall_at_3": 0,
       "task": "diagnosis",
       "top1_accuracy": 0
     },
     {
       "arm": "dense_only",
-      "mrr": 0.03464499414102194,
-      "n": 6,
+      "mrr": 0.029679843965558252,
+      "n": 7,
       "recall_at_3": 0,
       "task": "diagnosis",
       "top1_accuracy": 0
     },
     {
       "arm": "full_ctrag",
-      "mrr": 0.22777777777777777,
-      "n": 6,
-      "recall_at_3": 0,
+      "mrr": 0.26071428571428573,
+      "n": 7,
+      "recall_at_3": 0.14285714285714285,
       "task": "diagnosis",
       "top1_accuracy": 0
     },
     {
       "arm": "lexical_only",
-      "mrr": 0.05404067417867161,
-      "n": 6,
+      "mrr": 0.04423102574363078,
+      "n": 7,
       "recall_at_3": 0,
       "task": "diagnosis",
       "top1_accuracy": 0
     },
     {
       "arm": "dense_lexical",
-      "mrr": 0.05797950434578342,
-      "n": 6,
+      "mrr": 0.04549969731947726,
+      "n": 7,
       "recall_at_3": 0,
       "task": "recovery",
       "top1_accuracy": 0
@@ -2521,7 +2950,7 @@
     {
       "arm": "full_ctrag",
       "mrr": 1.0,
-      "n": 6,
+      "n": 7,
       "recall_at_3": 1,
       "task": "recovery",
       "top1_accuracy": 1
