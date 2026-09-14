@@ -292,6 +292,38 @@ No weights, labels or mechanisms were changed after observing the result. The fr
 
 ---
 
+## SCI-008 — Root cause is an anomalous causal frontier, not merely a nearby ancestor
+
+**Date:** 2026-09-14
+**Classification:** `modeling_assumption`
+**Status:** exploratory; requires a new frozen validation set
+**Final holdout:** sealed
+
+The first commercial-system experiment defines operational root cause as the earliest anomalous observation on an evidenced path to a selected symptom: the candidate is anomalous and has no anomalous causal ancestor. This definition is computed from public event status and `causation_id` topology; oracle role labels and answer IDs remain outside retrieval.
+
+Across six designed incidents, generic `full_ctrag` did not rank the root cause in Top-3 (MRR 0.228). It correctly favors nearby causal ancestors but does not by itself distinguish an immediate cause from the first anomaly. The task-specific `ctrag_causal_frontier` operator achieved Top-1 1.000, and `full_ctrag` RECOVERY retrieved each observed solution at Top-1.
+
+The frontier operator was designed and evaluated during this same exploratory experiment, so 6/6 is implementation evidence rather than an unbiased generalization estimate. A future preregistered/frozen incident set must test unseen topologies, missing/incorrect causal edges, multiple simultaneous root causes, warning-status noise and unobserved causes. No final-holdout data was loaded.
+
+Detailed evidence: `research/commercial-system-v1/REPORT.md`, `results.json`, `oracle.json` and the self-contained `explorer.html`.
+
+---
+
+## SCI-009 — Independent evidence signals can produce an inferred causal hypothesis
+
+**Date:** 2026-09-14
+**Classification:** `modeling_assumption`
+**Status:** exploratory; inferred edge requires later validation
+**Final holdout:** sealed
+
+The commercial experiment now includes a seventh incident in which the configuration drift, metric anomaly, trace mismatch, log evidence and sales symptom have no `step.parent` and therefore no runtime-declared causal edge. CT-RAG derives lower-confidence `INFERRED` edges only from a shared evidence group, signal diversity and ordering. The cause hypothesis is ranked using independent-signal support rather than direct parentage.
+
+The inferred scenario is recovered at Top-1 by `ctrag_causal_frontier`; all seven scenarios retain Recall@3 of 1.000 for frontier diagnosis and `full_ctrag` recovery. This is not causal proof: shared evidence groups can be confounded, and the inferred relation must be validated against unseen incidents, randomized perturbations or authoritative runtime evidence.
+
+Detailed evidence: `research/commercial-system-v1/REPORT.md`, `graph.json`, `results.json` and `oracle.json`.
+
+---
+
 ## How future entries must be recorded
 
 Each future scientific change must receive an ID (`SCI-006`, `SCI-007`, ...), an entry in `research/science-changes.json`, and one section in this file.

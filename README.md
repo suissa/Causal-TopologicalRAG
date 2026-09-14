@@ -9,6 +9,8 @@ The core question is not only **“what looks like this?”**, but also **“whe
 ## Research artifacts
 
 - [Experimental validation report](REPORT.md)
+- [Commercial-system root-cause experiment](research/commercial-system-v1/REPORT.md)
+- [Interactive commercial causal graph](research/commercial-system-v1/explorer.html)
 - [Formal research specification and related work](docs/RESEARCH.md)
 - [Reproducibility protocol](docs/REPRODUCIBILITY.md)
 - [Topology: construction, meaning and structural parts](docs/TOPOLOGY.md)
@@ -171,6 +173,19 @@ python -m ctrag.benchmarks
 The default controlled run evaluates lexical only, dense only, dense+lexical, graph/topology only, dense+causal, dense+topological and full CT-RAG on deterministic failure/recovery and branching traces, including `WHY`, `WHAT_NEXT` and `RECOVERY` queries.
 
 Results in `benchmark-results/` include generated datasets/labels, seeds/configuration, source fingerprints, per-query JSON/CSV, summaries and paper-table CSV.
+
+## Commercial-system root-cause experiment
+
+The first domain-shaped end-to-end experiment simulates seven failures across sales, inventory, payments, finance, fiscal, procurement/pricing, CRM/loyalty and fulfillment/delivery. Six traces have runtime-declared `causation_id` chains; the seventh deliberately has no `step.parent` for its independent configuration, metric, trace and log signals. Its hypothesis is inferred from shared evidence-group identity, signal diversity and temporal ordering, and is marked `INFERRED` with lower confidence.
+
+Run it with:
+
+```bash
+python -m ctrag.experiments.commercial_system \
+  --output research/commercial-system-v1
+```
+
+The generated self-contained `explorer.html` lets a reviewer select an incident, inspect public observations, run the predefined cause/recovery rankings and reveal the oracle only after diagnosis. The experiment evaluates root-cause localization over supplied causal telemetry; it is not presented as causal discovery from correlations.
 
 The historical `REPORT.md` benchmark uses the deterministic `HashingEmbedder` proxy and `IdfOverlapRetriever`, not a trained semantic embedding model or production BM25. Later adapters do not retroactively redefine those reported results.
 
