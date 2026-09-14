@@ -222,6 +222,47 @@ SCENARIOS: tuple[Scenario, ...] = (
         ),
         inference_only=True,
     ),
+    Scenario(
+        "code_serializer_regression",
+        "Falha de checkout após regressão de serialização",
+        "Qual hipótese explica o erro de checkout quando a mensagem não nomeia a regressão?",
+        "Qual correção restaurou a serialização do preço?", "code", "symptom", "solution",
+        (
+            _step("code", "Code.PriceSerializerRegression", "error", "checkout", "release r2026.09.14 changed decimal serialization from cents to float", None, signal_kind="code", evidence_group="serializer-01", artifact="price-serializer", version="r2026.09.14", used_by="checkout-api"),
+            _step("trace", "Trace.PricePayloadMalformed", "warning", "checkout", "trace shows price field rejected by cart contract", None, signal_kind="trace", evidence_group="serializer-01", artifact="checkout-api", uses="price-serializer"),
+            _step("log", "Logs.InvalidMoneyPayload", "error", "checkout", "cannot construct money from payload", None, signal_kind="log", evidence_group="serializer-01", artifact="checkout-api", uses="price-serializer"),
+            _step("symptom", "Sales.CheckoutFailed", "error", "sales", "checkout failed for valid catalog items", None, signal_kind="symptom", evidence_group="serializer-01", artifact="checkout-api"),
+            _step("solution", "Code.PriceSerializerRolledBack", "healed", "checkout", "rollback restored integer-cents contract", "symptom", signal_kind="remediation", evidence_group="serializer-01", artifact="price-serializer"),
+        ), inference_only=True,
+    ),
+    Scenario(
+        "config_timeout_mismatch",
+        "Pedidos expirando por timeout divergente",
+        "Qual hipótese explica os pedidos expirados sem uma cadeia causal explícita?",
+        "Qual correção alinhou o timeout operacional?", "config", "symptom", "solution",
+        (
+            _step("config", "Config.PaymentTimeoutDrift", "warning", "payments", "worker timeout is 5s while gateway SLA is 30s", None, signal_kind="config", evidence_group="timeout-01", artifact="payment-worker", configured="5s", expected="30s"),
+            _step("metric", "Metrics.PaymentTimeoutRate", "warning", "observability", "payment timeout rate rose after traffic increase", None, signal_kind="metric", evidence_group="timeout-01", artifact="payment-worker"),
+            _step("error", "Logs.PaymentExpired", "error", "payments", "payment expired before gateway response arrived", None, signal_kind="log", evidence_group="timeout-01", artifact="payment-worker"),
+            _step("symptom", "Sales.OrderPaymentExpired", "error", "sales", "orders remained unpaid despite successful gateway captures", None, signal_kind="symptom", evidence_group="timeout-01", artifact="order-service"),
+            _step("solution", "Config.PaymentTimeoutAligned", "healed", "payments", "worker timeout aligned to gateway SLA", "symptom", signal_kind="remediation", evidence_group="timeout-01", artifact="payment-worker"),
+        ), inference_only=True,
+    ),
+    Scenario(
+        "code_config_contract_break",
+        "Erro indireto por contrato de preço incompatível",
+        "Qual hipótese cruza código e configuração para explicar uma mensagem indireta de erro?",
+        "Qual correção coordenada eliminou o erro de preço?", "code", "symptom", "solution",
+        (
+            _step("code", "Code.TaxClientContractChanged", "error", "tax", "client v4 sends tax base as decimal string", None, signal_kind="code", evidence_group="tax-contract-01", artifact="tax-client", version="v4", used_by="pricing-worker"),
+            _step("config", "Config.TaxSchemaVersionStale", "warning", "pricing", "pricing worker still configured for tax schema v3", None, signal_kind="config", evidence_group="tax-contract-01", artifact="pricing-worker", configured="v3", expected="v4"),
+            _step("trace", "Trace.PriceCalculationFallback", "warning", "pricing", "trace falls back to zero tax when tax response cannot be decoded", None, signal_kind="trace", evidence_group="tax-contract-01", artifact="pricing-worker", uses="tax-client"),
+            _step("metric", "Metrics.ZeroTaxFallbackRate", "warning", "observability", "zero-tax fallback rate increased", None, signal_kind="metric", evidence_group="tax-contract-01", artifact="pricing-worker"),
+            _step("log", "Logs.InvalidTaxPayload", "error", "pricing", "unexpected tax payload shape", None, signal_kind="log", evidence_group="tax-contract-01", artifact="pricing-worker", uses="tax-client"),
+            _step("symptom", "Sales.WrongTotalDisplayed", "error", "sales", "customer saw an incorrect total", None, signal_kind="symptom", evidence_group="tax-contract-01", artifact="checkout-ui"),
+            _step("solution", "CodeConfig.TaxContractAligned", "healed", "pricing", "client and worker schema v4 deployed together", "symptom", signal_kind="remediation", evidence_group="tax-contract-01", artifact="tax-client+pricing-worker"),
+        ), inference_only=True,
+    ),
 )
 
 
@@ -336,19 +377,19 @@ def infer_shared_evidence_edges(topology: CausalTopology) -> None:
     """
     groups: dict[str, list[Any]] = {}
     for node in topology.nodes.values():
-        group = node.metadata.get("evidence_group")
+        group = node.metadata.get("evidence_group") or _fact(node, "evidence_group")
         if isinstance(group, str) and group:
             groups.setdefault(group, []).append(node)
     for group, nodes in groups.items():
         ordered = sorted(nodes, key=lambda node: (node.timestamp, node.id))
         sources = [
             node for node in ordered
-            if node.metadata.get("signal_kind") in {"config", "metric", "trace", "log"}
+            if (node.metadata.get("signal_kind") or _fact(node, "signal_kind")) in {"code", "config", "metric", "trace", "log"}
             and str(node.metadata.get("status", "")).casefold() in {"warning", "error"}
         ]
         targets = [
             node for node in ordered
-            if node.metadata.get("signal_kind") in {"metric", "trace", "log", "symptom"}
+            if (node.metadata.get("signal_kind") or _fact(node, "signal_kind")) in {"metric", "trace", "log", "symptom"}
         ]
         for source in sources:
             for target in targets:
@@ -363,12 +404,55 @@ def infer_shared_evidence_edges(topology: CausalTopology) -> None:
                     evidence=(EdgeEvidence(
                         id=f"inferred:{group}:{source.id}:{target.id}",
                         source="shared-evidence-group",
-                        metadata={"group": group, "signal_kind": source.metadata.get("signal_kind")},
+                        metadata={"group": group, "signal_kind": source.metadata.get("signal_kind") or _fact(source, "signal_kind")},
                     ),),
                     provenance_metadata={"method": "shared_evidence_group", "authoritative": False},
                 )
                 if not topology.has_edge(edge):
                     topology.add_edge(edge)
+
+
+def _fact(node: Any, key: str) -> str | None:
+    """Read a simulator fact from projected public text when metadata is flat."""
+    marker = f'"{key}": "'
+    text = getattr(node, "text", "")
+    if marker not in text:
+        return None
+    return text.split(marker, 1)[1].split('"', 1)[0]
+
+
+def codemanager_hypotheses(topology: CausalTopology) -> list[dict[str, Any]]:
+    """Generate CodeManager hypotheses by crossing artifact dependencies.
+
+    It deliberately does not inspect oracle roles or ``causation_id``.  A
+    candidate gains support when independent signals mention the same artifact
+    (or an artifact used by another), precede the symptom, and agree on a
+    contract/version mismatch.  This is an abductive heuristic: it proposes a
+    ranked explanation and preserves the evidence used, rather than asserting
+    that correlation proves causation.
+    """
+    candidates: list[dict[str, Any]] = []
+    for node in topology.nodes.values():
+        kind = node.metadata.get("signal_kind") or _fact(node, "signal_kind")
+        if kind not in {"code", "config"} or _status_anomaly(node.metadata.get("status")) == 0:
+            continue
+        artifact = node.metadata.get("artifact") or _fact(node, "artifact")
+        if not artifact:
+            continue
+        evidence = []
+        for other in topology.nodes.values():
+            if other.id == node.id or other.timestamp < node.timestamp:
+                continue
+            if (other.metadata.get("evidence_group") or _fact(other, "evidence_group")) != (node.metadata.get("evidence_group") or _fact(node, "evidence_group")):
+                continue
+            text = json.dumps(other.metadata, sort_keys=True)
+            linked = str(artifact) in text or str(node.metadata.get("used_by", "") or _fact(node, "used_by")) in text
+            other_kind = other.metadata.get("signal_kind") or _fact(other, "signal_kind")
+            if linked and other_kind in {"metric", "trace", "log", "symptom"}:
+                evidence.append(other.id)
+        score = min(1.0, 0.35 + 0.15 * len(evidence) + (0.15 if kind == "code" else 0.1))
+        candidates.append({"event_id": node.id, "artifact": artifact, "score": score, "evidence": evidence, "method": "artifact_contract_crossing"})
+    return sorted(candidates, key=lambda item: (-item["score"], item["event_id"]))
 
 
 def _status_anomaly(node_status: Any) -> float:
@@ -497,6 +581,7 @@ def evaluate(
     diagnostic_arms = ("lexical_only", "dense_only", "dense_lexical", "full_ctrag")
     for case in oracle:
         scenario_detail: dict[str, Any] = {"diagnosis": {}, "recovery": {}}
+        scenario_detail["codemanager_hypotheses"] = codemanager_hypotheses(topology)
         for arm in diagnostic_arms:
             hits = retriever.search(
                 case.diagnostic_query,
@@ -730,3 +815,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
