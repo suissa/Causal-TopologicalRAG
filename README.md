@@ -135,11 +135,11 @@ for hit in result.hits:
     print(hit.node.id, round(hit.score, 3), hit.components, hit.causal_path)
 ```
 
-### Known temporal-scope limitation
+### Temporal-scope traversal safety
 
-`TemporalScope` is now part of temporal-edge identity, but generic temporal/topological traversal does not yet require a scope filter. Until issue #55 is completed, a graph containing multiple temporal scopes can admit semantically invalid mixed-scope temporal-hop paths.
+`TemporalScope` is part of temporal-edge identity and `CausalTopology.distances()/neighborhood()` now accept explicit temporal-scope filters. Default CT-RAG topological retrieval is restricted to `EXECUTION` temporal edges, with legacy unscoped temporal edges interpreted as execution-local for compatibility.
 
-Therefore **temporal-hop benchmark numbers over mixed-scope graphs are not paper evidence yet**. Execution-local benchmarks remain valid because they contain a single temporal scope.
+Cross-execution temporal traversal (for example `DEPLOYMENT` or `INCIDENT_WINDOW`) must be requested explicitly by higher-level retrieval policies. The remaining work in issue #55 is exposing those policies cleanly at query/path level and combining them with Temporal Consistency Windows.
 
 ## Event-sourced ingestion
 
