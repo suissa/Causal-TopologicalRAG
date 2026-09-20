@@ -195,7 +195,23 @@ The implementation now also exposes **surprise-weighted reinforcement**:
 \frac{1}{\sqrt{1+n_e}}
 \]
 
-where `δ_e` is an externally supplied prediction-error/surprise signal, `c` bounds the contribution and `n_e` is the prior observation count. This supports TD-error-style or calibrated-residual signals without claiming that CT-RAG itself estimates a TD error.
+where `δ_e` is an explicit, provenance-bearing surprise signal, `c` bounds the contribution and `n_e` is the prior observation count.
+
+CT-RAG now defines three distinct sources:
+
+```text
+TRANSITION_RESIDUAL
+OUTCOME_RESIDUAL
+POLICY_TD_ERROR
+```
+
+The deterministic default is `TRANSITION_RESIDUAL`:
+
+[
+\delta_e = 1 - \hat P(e \mid source(e), kind(e))
+]
+
+with Laplace smoothing over outgoing alternatives of the same edge kind, computed **before** the new transition is observed. `OUTCOME_RESIDUAL` and `POLICY_TD_ERROR` must be supplied by external components with method/version provenance. LLM confidence is not used as prediction error by default.
 
 Rare-but-critical paths can be protected with a minimum retrieval-strength floor using the existing protected-edge mechanism. Protection changes accessibility, not stored history or causal authority.
 
@@ -214,7 +230,7 @@ historical/storage strength
 current retrieval/navigation strength
 ```
 
-This separation is analogous to Bjork & Bjork's storage-strength versus retrieval-strength distinction. The analogy motivates terminology; CT-RAG does not claim to be a cognitive model.
+This separation is analogous to Bjork & Bjork's storage-strength versus retrieval-strength distinction, but the mapping is deliberately limited. In the psychological model, storage strength and retrieval strength have specific learning-theoretic dynamics; CT-RAG instead keeps authoritative event/history semantics immutable while allowing a separate navigational overlay to increase or decrease. The analogy is terminological and conceptual, not an isomorphism or cognitive-model claim.
 
 ## 10. Basin drift: structural baseline and distributional target
 
@@ -409,3 +425,33 @@ The current evidence remains limited by:
 - absence of interventional causal ground truth.
 
 The next external-validity experiments should add learned dense retrieval, production BM25, real event-sourced traces, unknown-anchor evaluation and shared comparisons where the competing methods can be run under equivalent retrieval budgets.
+
+
+## 17. Paper scope discipline
+
+The first CT-RAG paper should focus on the **core retrieval/memory contribution**:
+
+- runtime/event causal provenance;
+- separation of causal, temporal and behavioral topology;
+- basins/attractors;
+- non-authoritative dynamic terrain;
+- staged retrieval over structured experiential memory;
+- root-cause/recovery retrieval and behavioral-drift experiments.
+
+Two adjacent research directions should remain secondary or future work unless independently validated:
+
+1. **Intervention-aware longitudinal causal analysis** — DiD, intervention contracts, inferred causal discovery and stronger counterfactual identification.
+2. **Structure-preserving evidence retrieval** — Evidence Shape Router plus table/config/trace/metric/code-specific adapters.
+
+This separation prevents one paper from requiring simultaneous validation of three distinct contributions.
+
+A future factorial ablation should evaluate:
+
+```text
+A: flattening + no CT-RAG
+B: structure-aware retrieval only
+C: CT-RAG experiential topology only
+D: structure-aware retrieval + CT-RAG
+```
+
+and report the interaction term rather than concluding from D alone that both mechanisms independently contribute.
