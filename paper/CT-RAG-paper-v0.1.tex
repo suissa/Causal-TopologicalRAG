@@ -466,6 +466,24 @@ behavioral edges according to execution sequence. Crucially, sequence
 alone never creates a causal edge. This prevents the common error of
 converting ``B happened after A'' into ``A caused B.''
 
+This invariant is defended by an adversarial property suite in
+\texttt{tests/test\_causal\_chaos.py}. Across multiple deterministic
+seeds, the fixture deliberately combines shuffled ingest order,
+randomized/inverted event time, repeated execution and correlation
+identifiers, trace/span parent relationships, and payload fields named
+\texttt{cause}, \texttt{causal\_parent}, \texttt{parent\_event\_id},
+and even \texttt{causation\_id} that point to real event identifiers.
+Two complementary oracles are used. With no canonical
+\texttt{EventRecord.causation\_id}, the expected causal edge set is
+exactly empty. With explicit runtime causation mixed among the false
+hints, the materialized causal edge set must be \textbf{exactly equal}
+to the canonical declarations, not merely a subset. The suite also
+verifies that an explicitly created temporal link cannot acquire causal
+authority. These are invariant/property tests rather than performance
+benchmarks; their role is to show that temporal, trace, correlation,
+lexical, and payload-level hints cannot silently manufacture or suppress
+authoritative causation.
+
 \subsection{4.2 Degraded mode without causal
 provenance}\label{degraded-mode-without-causal-provenance}
 
