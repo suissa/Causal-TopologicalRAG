@@ -154,8 +154,8 @@ class Edge:
         if len(evidence_ids) != len(set(evidence_ids)):
             raise ValueError("edge evidence ids must be unique")
 
-    def identity(self) -> tuple[str, str, EdgeKind, CausalProvenance | None]:
-        return self.source, self.target, self.kind, self.provenance
+    def identity(self) -> tuple[str, str, EdgeKind, CausalProvenance | None, TemporalScope | None]:
+        return self.source, self.target, self.kind, self.provenance, self.temporal_scope
 
     def to_dict(self) -> dict[str, Any]:
         return {
