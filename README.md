@@ -15,6 +15,7 @@ The core question is not only **“what looks like this?”**, but also **“whe
 - [Formalization review hardening](docs/FORMALIZATION_REVIEW_HARDENING.md)
 - [Temporal/causal novelty boundaries](docs/RELATED_WORK_TEMPORAL_CAUSAL.md)
 - [Intervention-aware CT-RAG](docs/INTERVENTIONS.md)
+- [Early behavioral degradation experiment](docs/EARLY_BEHAVIORAL_DEGRADATION.md)
 - [Reproducibility protocol](docs/REPRODUCIBILITY.md)
 - [Topology: construction, meaning and structural parts](docs/TOPOLOGY.md)
 - [Storage boundaries and adapter conformance](docs/STORAGE.md)
@@ -147,6 +148,14 @@ See [`docs/retrieval-adapters.md`](docs/retrieval-adapters.md).
 `DynamicTerrain` tracks observed transition frequency and navigational influence separately from the authoritative graph. Repeated trajectories can be reinforced; erosion decays influence without deleting historical evidence. The terrain can discover structural sink and recurrent-SCC attractors and measure basin drift between snapshots.
 
 `TerrainAwareRetriever` consumes this overlay without changing the historical baseline `CTRetriever.search()` implementation used by the published validation report.
+
+## Early behavioral degradation
+
+`python -m ctrag.benchmarks.early_behavioral_degradation` implements a deterministic early-warning mechanism test. It tracks the absorption distribution of execution trajectories between `Recovered` and `HumanIntervention` attractors and compares Total-Variation basin drift with an independent infrastructure alert threshold.
+
+In the committed synthetic fixture, sustained behavioral drift fires on day 8 while the infrastructure threshold fires on day 10, yielding a **2-day controlled lead time** with zero baseline false alerts. This is a mechanism result, not a production forecasting claim.
+
+See [the experiment protocol](docs/EARLY_BEHAVIORAL_DEGRADATION.md).
 
 ## MAPE-K observability mechanism
 
