@@ -158,7 +158,7 @@ class Edge:
         return self.source, self.target, self.kind, self.provenance, self.temporal_scope
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        result = {
             "source": self.source,
             "target": self.target,
             "kind": self.kind.value,
@@ -167,8 +167,12 @@ class Edge:
             "confidence": self.confidence,
             "evidence": [item.to_dict() for item in self.evidence],
             "provenance_metadata": dict(self.provenance_metadata),
-            "temporal_scope": None if self.temporal_scope is None else self.temporal_scope.value,
         }
+        # Preserve byte-level backward compatibility for pre-scope fixtures and
+        # frozen holdouts: absent scope stays absent rather than serializing null.
+        if self.temporal_scope is not None:
+            result["temporal_scope"] = self.temporal_scope.value
+        return result
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "Edge":
