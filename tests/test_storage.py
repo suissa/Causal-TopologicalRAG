@@ -12,6 +12,7 @@ from ctrag import (
     EdgeKind,
     MemoryNode,
     QueryMode,
+    TemporalScope,
 )
 from ctrag.embedding import HashingEmbedder
 from ctrag.storage import (
@@ -78,6 +79,7 @@ def build_topology() -> CausalTopology:
         source="cause",
         target="error",
         kind=EdgeKind.TEMPORAL,
+        temporal_scope=TemporalScope.EXECUTION,
     ))
     topology.register_attractor(
         "healed",
@@ -150,6 +152,8 @@ def test_sqlite_topology_round_trip_preserves_all_semantic_inputs(tmp_path) -> N
     assert causal.weight == 0.8
     assert causal.evidence[0].id == "ev-1"
     assert causal.provenance_metadata == {"source_system": "fixture"}
+    temporal = loaded.outgoing("cause", {EdgeKind.TEMPORAL})[0]
+    assert temporal.temporal_scope is TemporalScope.EXECUTION
     assert loaded.attractor("healed").to_dict() == original.attractor("healed").to_dict()
 
 
