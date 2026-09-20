@@ -14,6 +14,7 @@ The core question is not only **“what looks like this?”**, but also **“whe
 - [Formal research specification and related work](docs/RESEARCH.md)
 - [Reproducibility protocol](docs/REPRODUCIBILITY.md)
 - [Topology: construction, meaning and structural parts](docs/TOPOLOGY.md)
+- [Temporal topology: order, distance, evolution and invariants](docs/TEMPORAL_TOPOLOGY.md)
 - [Storage boundaries and adapter conformance](docs/STORAGE.md)
 - [Benchmark methodology and metrics](docs/benchmarks.md)
 - [Implementation roadmap](IMPLEMENTATION_PLAN.md)
