@@ -212,14 +212,74 @@ def bootstrap_mean_ci(
     }
 
 
+def temporal_drift_detection_accuracy(
+    alert_days: list[int | None],
+    onset_days: list[int | None],
+    *,
+    tolerance_days: int = 3,
+) -> dict[str, object]:
+    """Score labeled drift detection with explicit misses and false alarms."""
+    if len(alert_days) != len(onset_days):
+        raise ValueError("alert_days and onset_days must have equal length")
+    if tolerance_days < 0:
+        raise ValueError("tolerance_days must be non-negative")
+    correct = 0
+    delays: list[int] = []
+    false_positives = 0
+    false_negatives = 0
+    for alert, onset in zip(alert_days, onset_days):
+        if onset is None:
+            if alert is None:
+                correct += 1
+            else:
+                false_positives += 1
+            continue
+        if alert is None:
+            false_negatives += 1
+            continue
+        delay = alert - onset
+        delays.append(delay)
+        if abs(delay) <= tolerance_days:
+            correct += 1
+    n = len(alert_days)
+    return {
+        "n": n,
+        "tolerance_days": tolerance_days,
+        "accuracy": 0.0 if n == 0 else correct / n,
+        "false_positives": false_positives,
+        "false_negatives": false_negatives,
+        "detection_delays": delays,
+        "mean_detection_delay": None if not delays else mean(delays),
+    }
+
 def controlled_cohort_bootstrap() -> dict[str, object]:
     config = EarlyDegradationConfig()
-    detections = [detect(windows, config) for windows in controlled_incident_cohort()]
+    cohort = controlled_incident_cohort()
+    detections = [detect(windows, config) for windows in cohort]
     leads = [float(item.lead_time_days) for item in detections if item.lead_time_days is not None]
+    onset_days: list[int | None] = []
+    for windows in cohort:
+        baseline = aggregate_distribution(windows[: config.baseline_days])
+        baseline_human = baseline["HumanIntervention"]
+        onset = next(
+            (
+                window.day
+                for window in windows[config.baseline_days :]
+                if window.absorption_distribution()["HumanIntervention"] > baseline_human
+            ),
+            None,
+        )
+        onset_days.append(onset)
+    detection_metric = temporal_drift_detection_accuracy(
+        [item.behavioral_alert_day for item in detections],
+        onset_days,
+        tolerance_days=3,
+    )
     return {
         "scope": "synthetic controlled incident variants; not a production CI",
         "lead_times": leads,
         "bootstrap": bootstrap_mean_ci(leads, iterations=1000),
+        "temporal_drift_detection": detection_metric,
     }
 
 
