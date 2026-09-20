@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Iterable
 
 from .basins import AttractorDescriptor
@@ -10,6 +11,28 @@ from .topology import BASIN_EDGE_KINDS, CausalTopology
 
 
 EdgeIdentity = tuple[str, str, EdgeKind, CausalProvenance | None]
+
+class SurpriseSource(str, Enum):
+    """Operational source of a terrain surprise/prediction-error signal."""
+
+    TRANSITION_RESIDUAL = "transition_residual"
+    OUTCOME_RESIDUAL = "outcome_residual"
+    POLICY_TD_ERROR = "policy_td_error"
+
+
+@dataclass(slots=True, frozen=True)
+class SurpriseSignal:
+    """Versioned, provenance-bearing surprise supplied to terrain reinforcement."""
+
+    value: float
+    source: SurpriseSource
+    method_version: str = "v1"
+
+    def __post_init__(self) -> None:
+        if not math.isfinite(self.value):
+            raise ValueError("surprise value must be finite")
+        if not self.method_version.strip():
+            raise ValueError("method_version must be non-empty")
 
 
 @dataclass(slots=True, frozen=True)
