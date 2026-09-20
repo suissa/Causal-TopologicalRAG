@@ -473,7 +473,8 @@ def run(output: Path) -> dict[str, object]:
     report = {
         "schema_version": 1,
         "claim_scope": "synthetic robustness analysis only",
-        "sensitivity": {
+        "legacy_level_threshold_sensitivity": {
+            "status": "descriptive_only_not_primary_comparison",
             "rows": sensitivity,
             "positive_lead_configurations": positive,
             "total_configurations": len(sensitivity),
@@ -509,7 +510,8 @@ def run(output: Path) -> dict[str, object]:
         writer.writerows(paired)
     (output / "README.md").write_text(
         "# Early-degradation robustness\n\n"
-        f"- Sensitivity configurations with positive lead: {positive}/{len(sensitivity)}\n"
+        f"- Legacy fixed-level-threshold sensitivity (descriptive only): "
+        f"{positive}/{len(sensitivity)} positive lead\n"
         f"- Null scenario false-positive rate: {null['scenario_false_positive_rate']:.4f}\n"
         f"- FPR-matched configurations where behavioral drift leads: "
         f"{paired_positive}/{len(paired)}\n"
@@ -532,7 +534,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     report = run(args.output)
     print(json.dumps({
-        "positive_lead_fraction": report["sensitivity"]["positive_lead_fraction"],
+        "legacy_fixed_level_positive_lead_fraction": report["legacy_level_threshold_sensitivity"]["positive_lead_fraction"],
         "null_fpr": report["null_stress"]["scenario_false_positive_rate"],
         "paired_fpr_behavioral_precedes_fraction": report["paired_fpr_ablation"]["behavioral_precedes_fraction"],
         "bootstrap": report["bootstrap"]["bootstrap"],
