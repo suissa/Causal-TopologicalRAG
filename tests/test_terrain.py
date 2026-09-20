@@ -7,6 +7,8 @@ from ctrag import (
     Edge,
     EdgeKind,
     MemoryNode,
+    SurpriseSignal,
+    SurpriseSource,
     TerrainConfig,
 )
 
@@ -140,16 +142,43 @@ def test_protected_rare_edge_has_a_decay_floor_and_reset_preserves_history() -> 
     assert terrain.transition_counts == history
 
 
-def test_surprise_reinforcement_downweights_repeated_predictable_transitions() -> None:
-    topology, first, _ = simple_topology()
+def test_surprise_signal_distinguishes_high_low_and_repetition() -> None:
+    topology = CausalTopology()
+    for node_id in ("root", "common", "rare"):
+        topology.add_node(MemoryNode(id=node_id, text=node_id))
+    common = causal("root", "common")
+    rare = causal("root", "rare")
+    topology.add_edge(common)
+    topology.add_edge(rare)
     terrain = DynamicTerrain(topology, config=TerrainConfig(reinforcement_step=1.0))
 
-    first_update = terrain.reinforce_by_surprise(first, prediction_error=1.0)
-    second_update = terrain.reinforce_by_surprise(first, prediction_error=1.0)
-    predictable_update = terrain.reinforce_by_surprise(first, prediction_error=0.0)
+    # Initially both alternatives are equally uncertain.
+    initial = terrain.transition_surprise_signal(common)
+    assert initial.source is SurpriseSource.TRANSITION_RESIDUAL
+    assert initial.method_version == "laplace-outgoing-v1"
+    assert initial.value == 0.5
 
-    assert first_update == 2.0
-    assert second_update < 3.0
-    assert second_update > first_update
-    assert predictable_update == second_update
-    assert terrain.transition_count(first) == 3
+    # Repeatedly observing the common transition makes it predictable.
+    for _ in range(4):
+        terrain.reinforce(common)
+    common_signal = terrain.transition_surprise_signal(common)
+    rare_signal = terrain.transition_surprise_signal(rare)
+    assert common_signal.value < initial.value
+    assert rare_signal.value > initial.value
+
+    before = terrain.influence(rare)
+    updated, used_signal = terrain.reinforce_by_transition_surprise(rare)
+    assert used_signal.source is SurpriseSource.TRANSITION_RESIDUAL
+    assert updated > before
+
+
+def test_external_surprise_signal_requires_explicit_source() -> None:
+    topology, first, _ = simple_topology()
+    terrain = DynamicTerrain(topology, config=TerrainConfig(reinforcement_step=1.0))
+    low = SurpriseSignal(value=0.1, source=SurpriseSource.OUTCOME_RESIDUAL, method_version="fixture-v1")
+    high = SurpriseSignal(value=0.9, source=SurpriseSource.OUTCOME_RESIDUAL, method_version="fixture-v1")
+
+    low_update = terrain.reinforce_by_surprise(first, signal=low)
+    terrain.reset_navigation()
+    high_update = terrain.reinforce_by_surprise(first, signal=high)
+    assert high_update > low_update
