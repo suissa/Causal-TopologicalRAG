@@ -217,10 +217,17 @@ class EventRecord:
 class EventProjector:
     """Project authoritative event history into a CT-RAG retrieval topology.
 
+    Temporal topology is intentionally execution-scoped: TEMPORAL edges connect
+    consecutive projected events sharing the same ``execution_id``. They are not
+    global-stream adjacency, so unrelated system load cannot change temporal-hop
+    counts inside an execution.
+
     The projector never promotes order to causality. Explicit ``causation_id``
     becomes an EVENT-provenance causal edge. Sequential events in one execution
     receive temporal and behavioral relations only.
     """
+
+    TEMPORAL_SCOPE = "execution_id"
 
     def __init__(self, topology: CausalTopology) -> None:
         self.topology = topology
