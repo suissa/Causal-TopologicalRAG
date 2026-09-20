@@ -43,8 +43,7 @@ def test_out_of_order_causation_reconciles_across_large_clock_gap() -> None:
     assert result["ctrag_parent_recalled_at_10"] is True
     assert result["semantic_parent_rank"] > 10
     assert result["recency_parent_rank"] > 10
-    assert result["parent_rank"] is not None
-    assert result["parent_rank"] <= 10
+    assert result["parent_rank"] == 1
     assert result["parent_causal_component"] > 0.0
 
 
