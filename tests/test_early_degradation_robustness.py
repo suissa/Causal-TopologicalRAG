@@ -47,7 +47,8 @@ def test_controlled_cohort_bootstrap_is_explicitly_synthetic() -> None:
 
 def test_robustness_run_writes_reviewer_artifacts(tmp_path: Path) -> None:
     report = run(tmp_path)
-    assert 0.0 <= report["sensitivity"]["positive_lead_fraction"] <= 1.0
+    assert 0.0 <= report["legacy_level_threshold_sensitivity"]["positive_lead_fraction"] <= 1.0
+    assert report["legacy_level_threshold_sensitivity"]["status"] == "descriptive_only_not_primary_comparison"
     assert (tmp_path / "robustness.json").exists()
     assert (tmp_path / "sensitivity.csv").exists()
     assert (tmp_path / "paired-fpr-detector-ablation.csv").exists()
