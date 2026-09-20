@@ -4,7 +4,7 @@ import math
 
 from .adapters import EmbeddingProvider, IdfOverlapRetriever, LexicalRetriever, reciprocal_rank_fusion
 from .embedding import HashingEmbedder, cosine_similarity
-from .models import CausalPath, EdgeKind, QueryMode, RetrievalHit, RetrievalWeights
+from .models import CausalPath, EdgeKind, QueryMode, RetrievalHit, RetrievalWeights, TemporalScope
 from .query import RetrievalStage, StagedRetrievalResult
 from .topology import CausalTopology
 
