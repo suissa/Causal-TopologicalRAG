@@ -61,6 +61,182 @@ def detect(windows: tuple[DailyWindow, ...], config: EarlyDegradationConfig) -> 
         lead = infrastructure - behavioral
     return Detection(behavioral, infrastructure, lead)
 
+def behavioral_change_alert_day(
+    windows: tuple[DailyWindow, ...],
+    *,
+    baseline_days: int,
+    drift_threshold: float,
+    sustained_windows: int,
+) -> int | None:
+    baseline = aggregate_distribution(windows[:baseline_days])
+    sustained = 0
+    for window in windows:
+        if window.day <= baseline_days:
+            continue
+        drift = total_variation(baseline, window.absorption_distribution())
+        sustained = sustained + 1 if drift >= drift_threshold else 0
+        if sustained >= sustained_windows:
+            return window.day
+    return None
+
+
+def infrastructure_change_scores(
+    windows: tuple[DailyWindow, ...],
+    *,
+    baseline_days: int,
+) -> tuple[tuple[int, float], ...]:
+    """Absolute shift from the pre-degradation infrastructure baseline mean."""
+    baseline = mean(window.infrastructure_metric for window in windows[:baseline_days])
+    return tuple(
+        (window.day, abs(window.infrastructure_metric - baseline))
+        for window in windows
+        if window.day > baseline_days
+    )
+
+
+def infrastructure_change_alert_day(
+    windows: tuple[DailyWindow, ...],
+    *,
+    baseline_days: int,
+    change_threshold: float,
+    sustained_windows: int,
+) -> int | None:
+    sustained = 0
+    for day, score in infrastructure_change_scores(windows, baseline_days=baseline_days):
+        sustained = sustained + 1 if score >= change_threshold else 0
+        if sustained >= sustained_windows:
+            return day
+    return None
+
+
+def _sustained_trigger_strength(scores: tuple[float, ...], sustained_windows: int) -> float:
+    """Largest threshold that would still produce a sustained alert."""
+    if sustained_windows < 1:
+        raise ValueError("sustained_windows must be positive")
+    if len(scores) < sustained_windows:
+        return 0.0
+    return max(
+        min(scores[index : index + sustained_windows])
+        for index in range(len(scores) - sustained_windows + 1)
+    )
+
+
+def calibrate_infrastructure_change_threshold(
+    null_windows: tuple[tuple[DailyWindow, ...], ...],
+    *,
+    baseline_days: int,
+    sustained_windows: int,
+    target_fpr: float,
+) -> dict[str, float]:
+    """Calibrate infrastructure drift threshold to match a target scenario FPR.
+
+    The calibration uses only stationary null scenarios. For each null scenario,
+    compute the largest scalar-shift threshold that would still trigger an alert.
+    Candidate thresholds are evaluated against those trigger strengths, and the
+    conservative closest-FPR threshold is selected.
+    """
+    if not 0.0 <= target_fpr <= 1.0:
+        raise ValueError("target_fpr must be within [0, 1]")
+    strengths = []
+    for windows in null_windows:
+        scores = tuple(
+            score
+            for _, score in infrastructure_change_scores(
+                windows, baseline_days=baseline_days
+            )
+        )
+        strengths.append(_sustained_trigger_strength(scores, sustained_windows))
+
+    candidates = sorted({0.0, *strengths, *(math.nextafter(value, math.inf) for value in strengths)})
+    best_threshold = candidates[-1]
+    best_fpr = 0.0
+    best_error = math.inf
+    for threshold in candidates:
+        fpr = sum(1 for strength in strengths if strength >= threshold) / len(strengths)
+        error = abs(fpr - target_fpr)
+        # Prefer the more conservative threshold on ties.
+        if error < best_error or (error == best_error and threshold > best_threshold):
+            best_threshold = threshold
+            best_fpr = fpr
+            best_error = error
+    return {
+        "threshold": best_threshold,
+        "achieved_fpr": best_fpr,
+        "target_fpr": target_fpr,
+        "absolute_fpr_error": best_error,
+    }
+
+
+def paired_fpr_detector_ablation(
+    *,
+    simulations: int = 500,
+    days: int = 30,
+    seed: int = 20260920,
+) -> list[dict[str, object]]:
+    """Compare behavioral vs infrastructure change detection at matched null FPR."""
+    thresholds = (0.05, 0.075, 0.10, 0.125, 0.15, 0.175, 0.20)
+    sustained_values = (1, 2, 3, 4)
+    incident = default_windows()
+    null_windows = tuple(
+        stationary_null_windows(seed=seed + index, days=days, baseline_days=5)
+        for index in range(simulations)
+    )
+    rows: list[dict[str, object]] = []
+
+    for threshold in thresholds:
+        for sustained in sustained_values:
+            behavioral_false_alarms = sum(
+                behavioral_change_alert_day(
+                    windows,
+                    baseline_days=5,
+                    drift_threshold=threshold,
+                    sustained_windows=sustained,
+                )
+                is not None
+                for windows in null_windows
+            )
+            behavioral_fpr = behavioral_false_alarms / simulations
+            calibration = calibrate_infrastructure_change_threshold(
+                null_windows,
+                baseline_days=5,
+                sustained_windows=sustained,
+                target_fpr=behavioral_fpr,
+            )
+
+            behavioral_day = behavioral_change_alert_day(
+                incident,
+                baseline_days=5,
+                drift_threshold=threshold,
+                sustained_windows=sustained,
+            )
+            infrastructure_day = infrastructure_change_alert_day(
+                incident,
+                baseline_days=5,
+                change_threshold=float(calibration["threshold"]),
+                sustained_windows=sustained,
+            )
+            paired_lead = None
+            if behavioral_day is not None and infrastructure_day is not None:
+                paired_lead = infrastructure_day - behavioral_day
+
+            rows.append({
+                "behavioral_drift_threshold": threshold,
+                "sustained_windows": sustained,
+                "behavioral_null_fpr": behavioral_fpr,
+                "infrastructure_change_threshold": calibration["threshold"],
+                "infrastructure_null_fpr": calibration["achieved_fpr"],
+                "fpr_gap": abs(
+                    behavioral_fpr - float(calibration["achieved_fpr"])
+                ),
+                "behavioral_alert_day": behavioral_day,
+                "infrastructure_change_alert_day": infrastructure_day,
+                "paired_lead_time_days": paired_lead,
+                "behavioral_precedes_matched_infrastructure": (
+                    paired_lead is not None and paired_lead > 0
+                ),
+            })
+    return rows
+
 
 def sensitivity_grid() -> list[dict[str, object]]:
     thresholds = (0.05, 0.075, 0.10, 0.125, 0.15, 0.175, 0.20)
@@ -287,9 +463,13 @@ def run(output: Path) -> dict[str, object]:
     output.mkdir(parents=True, exist_ok=True)
     sensitivity = sensitivity_grid()
     null = null_stress()
+    paired = paired_fpr_detector_ablation()
     bootstrap = controlled_cohort_bootstrap()
 
     positive = sum(1 for row in sensitivity if row["positive_lead"])
+    paired_positive = sum(
+        1 for row in paired if row["behavioral_precedes_matched_infrastructure"]
+    )
     report = {
         "schema_version": 1,
         "claim_scope": "synthetic robustness analysis only",
@@ -300,6 +480,18 @@ def run(output: Path) -> dict[str, object]:
             "positive_lead_fraction": positive / len(sensitivity),
         },
         "null_stress": null,
+        "paired_fpr_ablation": {
+            "rows": paired,
+            "behavioral_precedes_configurations": paired_positive,
+            "total_configurations": len(paired),
+            "behavioral_precedes_fraction": paired_positive / len(paired),
+            "interpretation": (
+                "Primary detector comparison: behavioral basin drift versus the same "
+                "sustained change-detection pattern on infrastructure data, with the "
+                "infrastructure threshold calibrated on stationary null scenarios to "
+                "match each behavioral configuration's false-positive rate."
+            ),
+        },
         "bootstrap": bootstrap,
     }
     (output / "robustness.json").write_text(
@@ -309,10 +501,18 @@ def run(output: Path) -> dict[str, object]:
         writer = csv.DictWriter(stream, fieldnames=list(sensitivity[0]))
         writer.writeheader()
         writer.writerows(sensitivity)
+    with (output / "paired-fpr-detector-ablation.csv").open(
+        "w", encoding="utf-8", newline=""
+    ) as stream:
+        writer = csv.DictWriter(stream, fieldnames=list(paired[0]))
+        writer.writeheader()
+        writer.writerows(paired)
     (output / "README.md").write_text(
         "# Early-degradation robustness\n\n"
         f"- Sensitivity configurations with positive lead: {positive}/{len(sensitivity)}\n"
         f"- Null scenario false-positive rate: {null['scenario_false_positive_rate']:.4f}\n"
+        f"- FPR-matched configurations where behavioral drift leads: "
+        f"{paired_positive}/{len(paired)}\n"
         f"- Controlled-cohort bootstrap mean lead: {bootstrap['bootstrap']['mean']:.3f} days\n"
         f"- Controlled-cohort 95% bootstrap CI: "
         f"[{bootstrap['bootstrap']['ci_low']:.3f}, {bootstrap['bootstrap']['ci_high']:.3f}] days\n\n"
@@ -334,6 +534,7 @@ def main(argv: list[str] | None = None) -> int:
     print(json.dumps({
         "positive_lead_fraction": report["sensitivity"]["positive_lead_fraction"],
         "null_fpr": report["null_stress"]["scenario_false_positive_rate"],
+        "paired_fpr_behavioral_precedes_fraction": report["paired_fpr_ablation"]["behavioral_precedes_fraction"],
         "bootstrap": report["bootstrap"]["bootstrap"],
     }, sort_keys=True))
     return 0
