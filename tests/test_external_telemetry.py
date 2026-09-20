@@ -32,3 +32,23 @@ def test_external_dataset_capabilities_do_not_overclaim_causality() -> None:
     assert matrix["AIOps2020"]["supports_causal_ground_truth"] is False
     assert matrix["SMD"]["supports_execution_topology"] is False
     assert matrix["SMD"]["supports_causal_ground_truth"] is False
+
+def test_external_trace_adapter_leaves_unrelated_spans_disconnected(tmp_path: Path) -> None:
+    path = tmp_path / "trace-unrelated.csv"
+    path.write_text(
+        "timestamp,trace_id,span_id,parent_span_id,service,operation,status,duration_ms\n"
+        "2026-01-01T00:00:00Z,t1,s1,,checkout,request,ok,10\n"
+        "2026-01-01T00:00:00Z,t2,s9,,billing,heartbeat,ok,5\n",
+        encoding="utf-8",
+    )
+
+    topology = load_trace_csv(path, source_name="fixture")
+
+    left = "trace:t1:s1"
+    right = "trace:t2:s9"
+    assert topology.outgoing(left, {EdgeKind.CAUSAL}) == []
+    assert topology.outgoing(left, {EdgeKind.BEHAVIORAL}) == []
+    assert topology.outgoing(left, {EdgeKind.TEMPORAL}) == []
+    assert topology.incoming(right, {EdgeKind.CAUSAL}) == []
+    assert topology.incoming(right, {EdgeKind.BEHAVIORAL}) == []
+    assert topology.incoming(right, {EdgeKind.TEMPORAL}) == []
