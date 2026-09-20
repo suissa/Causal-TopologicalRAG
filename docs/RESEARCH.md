@@ -294,7 +294,19 @@ The first command produces machine-readable benchmark data. The second derives:
 
 No benchmark value in those generated files needs to be copied manually.
 
-## 14. Related work
+## 14. Exogenous interventions and quasi-experimental identification
+
+CT-RAG distinguishes ordinary observations from exogenous system changes such as deployments, configuration changes, feature-flag changes and rollbacks.
+
+These events may define intervention boundaries, but the intervention marker itself is not proof of effect. A causal estimate requires an explicit estimand and identification assumptions, for example a justified comparison/control series and parallel-trends diagnostics for difference-in-differences.
+
+A future intervention record should preserve intervention identity/kind, target scope, effective time, pre/post windows, comparison definition, assumptions, diagnostics, effect estimate, uncertainty and provenance back to raw evidence.
+
+This provides a path from descriptive basin drift to quasi-experimental analysis when real exogenous cuts exist, while preserving the distinction between association, intervention and counterfactual claims.
+
+See [`INTERVENTIONS.md`](INTERVENTIONS.md).
+
+## 15. Related work
 
 ### Retrieval-Augmented Generation
 
@@ -302,6 +314,17 @@ Lewis et al. introduced RAG as generation combining parametric model memory with
 
 Reference: Patrick Lewis et al., *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks*, 2020: <https://arxiv.org/abs/2005.11401>
 
+### Zep / Graphiti
+
+Rasmussen et al. introduced Zep/Graphiti as a temporally-aware knowledge-graph architecture for agent memory. CT-RAG therefore does not claim temporal/bitemporal graph memory itself as novel. Its intended distinction is execution-provenance causality, explicit causal/temporal/behavioral edge semantics, directional causal retrieval, basins/attractors and dynamic terrain.
+
+Reference: Rasmussen et al., *Zep: A Temporal Knowledge Graph Architecture for Agent Memory*, arXiv:2501.13956 (2025): <https://arxiv.org/abs/2501.13956>
+
+### HippoRAG
+
+HippoRAG already demonstrates graph-based memory retrieval using knowledge graphs and Personalized PageRank. CT-RAG therefore avoids treating the generic statement "retrieval becomes navigation" as a novelty claim.
+
+Reference: Jiménez Gutiérrez et al., *HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models*, NeurIPS 2024 / arXiv:2405.14831: <https://arxiv.org/abs/2405.14831>
 ### GraphRAG
 
 Edge et al. proposed graph-based indexing and community summarization to answer global questions over large text corpora. CT-RAG differs in its primary target: execution/event memory in which some graph edges can come from recorded causal structure rather than entity extraction alone.
@@ -319,13 +342,28 @@ References:
 
 CT-RAG takes the basin/topological intuition in a different direction: a stateful/event-driven system can possess explicit execution provenance and causal identifiers that do not need to be reconstructed solely from document adjacency or semantic similarity.
 
+### Temporal-order and streaming foundations
+
+Lamport's happens-before relation and later vector-clock work ground partial ordering in distributed systems. CT-RAG treats temporal order as necessary context but not sufficient evidence for an observed causal edge.
+
+Akidau et al.'s Dataflow Model provides established semantics for event time, processing time, watermarks and out-of-order streams. CT-RAG's ingestion model should reuse these semantics rather than invent an incompatible watermark model.
+
+Allen's interval algebra is the reference model for interval-valued state. Snodgrass/TSQL2 and temporal-database work ground valid-time versus transaction/system-time semantics. These are prior art, not CT-RAG novelty claims.
+
+Bjork & Bjork's storage-strength versus retrieval-strength distinction is a useful analogy for immutable historical evidence versus mutable navigational influence.
+
+Pearl's causal hierarchy grounds CT-RAG's separation between association, intervention and counterfactual claims. PCMCI/Granger-family methods are candidates for `provenance=inferred`, never automatic substitutes for runtime-declared causation.
+
+ADWIN/CUSUM and concept-drift literature ground automatic detection over transition/absorption drift statistics.
+
+Detailed novelty boundaries: [`RELATED_WORK_TEMPORAL_CAUSAL.md`](RELATED_WORK_TEMPORAL_CAUSAL.md).
 ### Event Sourcing
 
 Event Sourcing records application state changes as a sequence of events and allows state to be rebuilt from the event log. CT-RAG uses that event history as an authoritative source from which retrieval projections can be constructed; it does not make the retrieval graph the source of truth.
 
 Reference: Martin Fowler, *Event Sourcing*, 2005: <https://martinfowler.com/eaaDev/EventSourcing.html>
 
-## 15. Current research limits
+## 16. Current research limits
 
 The current evidence remains limited by:
 
