@@ -221,3 +221,34 @@ def test_cross_execution_temporal_scope_remains_non_causal() -> None:
 
     assert topology.outgoing("deploy", {EdgeKind.TEMPORAL})[0].temporal_scope is TemporalScope.DEPLOYMENT
     assert topology.outgoing("deploy", {EdgeKind.CAUSAL}) == []
+
+def test_temporal_scope_filter_blocks_cross_scope_hops() -> None:
+    from ctrag import Edge, MemoryNode
+
+    topology = CausalTopology()
+    for node_id in ("a", "b", "c"):
+        topology.add_node(MemoryNode(id=node_id, text=node_id))
+    topology.add_edge(Edge(
+        "a", "b", EdgeKind.TEMPORAL, temporal_scope=TemporalScope.EXECUTION
+    ))
+    topology.add_edge(Edge(
+        "b", "c", EdgeKind.TEMPORAL, temporal_scope=TemporalScope.DEPLOYMENT
+    ))
+
+    execution_only = topology.distances(
+        "a",
+        direction="out",
+        kinds={EdgeKind.TEMPORAL},
+        temporal_scopes={TemporalScope.EXECUTION},
+        max_hops=4,
+    )
+    deployment_only = topology.distances(
+        "b",
+        direction="out",
+        kinds={EdgeKind.TEMPORAL},
+        temporal_scopes={TemporalScope.DEPLOYMENT},
+        max_hops=4,
+    )
+
+    assert execution_only == {"a": 0, "b": 1}
+    assert deployment_only == {"b": 0, "c": 1}
