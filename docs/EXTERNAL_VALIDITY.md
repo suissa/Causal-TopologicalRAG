@@ -47,3 +47,16 @@ Results are reported per dataset. Synthetic and external results must never be p
 This benchmark tests whether CT-RAG's navigation model remains useful on real procedural traces when explicit causal metadata is absent. It does **not** test the central causal-edge hypothesis by itself. A negative result here would mean causal/topological advantages do not automatically transfer to generic workflow logs without causal provenance.
 
 The final preregistered synthetic holdout remains sealed throughout Gate C development.
+
+## Planned telemetry sources
+
+The existing GitHub Actions corpus is retained as a procedural-trace external-validity gate. It should not be treated as representative microservice telemetry.
+
+Two additional public-source adapters are now documented in `src/ctrag/benchmarks/external_telemetry.py`:
+
+- **AIOps Challenge 2020**: suitable for external trace plus business/infrastructure-metric evaluation. Its public description includes failure records, business metrics, infrastructure metrics and call-chain traces with span `id`/parent `pid`. Causal ground truth must not be invented from span hierarchy.
+- **SMD / OmniAnomaly**: suitable for multivariate telemetry anomaly/drift validation. It is not execution-topology or causal-path ground truth.
+
+`load_trace_csv()` provides a provenance-safe generic trace adapter: span parent/child becomes `BEHAVIORAL`; within-trace chronology becomes `TEMPORAL(scope=execution)`; neither relation becomes `CAUSAL` automatically.
+
+External benchmark inputs must be versioned or fingerprinted locally. CI must not silently pull mutable remote datasets and then report unreproducible results.
