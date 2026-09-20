@@ -86,36 +86,39 @@ The current implementation computes path confidence from edge confidence, edge w
 
 Temporal and behavioral edges can influence topological retrieval but never contribute to causal-path confidence.
 
-## 5. Distances
+## 5. Navigation signals are not a single metric space
 
-CT-RAG can reason over multiple non-equivalent distances:
+CT-RAG does **not** claim that causal, temporal-hop or behavioral relations form metrics in the mathematical sense. Causal reachability is directed and asymmetric; temporal sequence is directed; behavioral affinity need not satisfy symmetry or the triangle inequality.
+
+We therefore distinguish:
+
+- semantic distance/similarity, when the embedding space supports it;
+- directional causal traversal cost, e.g. `h_c^past(a,v)` and `h_c^future(a,v)`;
+- temporal clock separation `Δt(a,v) = |t_a - t_v|`;
+- temporal-hop count as a directional sequence cost, not a metric;
+- behavioral/topological components as navigation priors or affinities.
+
+The reference `EventProjector` fixes the scope of `TEMPORAL` edges to **consecutive events within the same `execution_id`**. It never connects arbitrary adjacent events in the global stream. Temporal-hop counts are therefore execution-relative and do not change merely because unrelated system traffic increases.
+
+Two events can be semantically distant while causally adjacent, or semantically nearly identical while belonging to unrelated executions. CT-RAG keeps those signals heterogeneous rather than pretending they are coordinates in one common metric space.
+
+## 6. Retrieval architecture and baseline score
+
+The preferred CT-RAG formulation is **staged retrieval**, not an assertion that heterogeneous raw distances can be added directly:
+
+```text
+query
+  -> semantic/lexical anchor generation
+  -> topology/basin expansion
+  -> directed causal traversal
+  -> mode constraints
+  -> calibrated or learned reranking
+```
+
+The repository retains a weighted linear score as a reproducible baseline and ablation interface:
 
 \[
-d_s(i,j) \quad \text{semantic distance}
-\]
-
-\[
-d_c(i,j) \quad \text{causal hop distance}
-\]
-
-\[
-d_t(i,j) \quad \text{temporal distance}
-\]
-
-\[
-d_b(i,j) \quad \text{behavioral/topological distance}
-\]
-
-Two events can be semantically distant while causally adjacent, or semantically nearly identical while belonging to unrelated executions.
-
-This is the core reason CT-RAG does not reduce the memory terrain to one embedding metric.
-
-## 6. Retrieval score
-
-The baseline CT-RAG score is a weighted combination:
-
-\[
-S(v \mid q,a) =
+S_{baseline}(v \mid q,a) =
 \alpha S_{semantic}
 + \beta S_{lexical}
 + \gamma S_{causal}
@@ -124,7 +127,7 @@ S(v \mid q,a) =
 + \zeta S_{behavioral}
 \]
 
-with mode-dependent weights.
+The component functions exposed by the implementation are normalized priors/affinities rather than raw hop counts added directly to cosine similarity. Fixed mode weights are experimental presets, **not** a claim of optimal calibration. An arXiv-grade successor should compare the baseline against learning-to-rank or calibrated reranking while preserving the staged candidate-generation/traversal architecture.
 
 The system currently supports:
 
