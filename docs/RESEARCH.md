@@ -291,6 +291,24 @@ Edge et al. proposed graph-based indexing and community summarization to answer 
 
 Reference: Darren Edge et al., *From Local to Global: A Graph RAG Approach to Query-Focused Summarization*, 2024: <https://arxiv.org/abs/2404.16130>
 
+### Topo-RAG (hybrid text-table structural topology)
+
+Dantart and Kóvacs-Navarro's *Topo-RAG: Topology-aware retrieval for hybrid text-table documents* (arXiv:2601.10215v1, 2026) uses topology in a different but complementary sense. It preserves the intrinsic spatial/structural organization of heterogeneous artifacts, routing narrative text through dense retrieval while tables use cell-aware late interaction rather than single-vector linearization.
+
+CT-RAG instead models experiential topology across memories/events: causal, temporal and behavioral relations, trajectories, basins and attractors.
+
+The distinction is important:
+
+```text
+artifact-native topology != experiential topology
+```
+
+CT-RAG can adopt Topo-RAG's structure-preservation principle without treating row/column/cell adjacency as causal evidence. This motivates typed retrieval adapters for structured telemetry and documents before causal/topological expansion.
+
+Detailed comparison: [RELATED_WORK_TOPO_RAG.md](RELATED_WORK_TOPO_RAG.md)
+
+Reference: Alex Dantart and Marco Kóvacs-Navarro, *Topo-RAG: Topology-aware retrieval for hybrid text-table documents*, arXiv:2601.10215v1, 2026: <https://arxiv.org/abs/2601.10215>
+
 ### BasinRAG
 
 BasinRAG explicitly frames retrieval through topological structure and dynamical basins. Its official citation identifies the work as *BasinRAG: High-Performance Topological Retrieval-Augmented Generation via Dynamical Basins*, version 1.0.3, released 2026-09-08, DOI `10.5281/zenodo.22664948`.
