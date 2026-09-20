@@ -7,6 +7,8 @@ from ctrag.benchmarks.early_degradation_robustness import (
     controlled_cohort_bootstrap,
     null_stress,
     paired_fpr_detector_ablation,
+    phase_offset_ablation,
+    robustness_surface_summary,
     run,
     sensitivity_grid,
     temporal_drift_detection_accuracy,
@@ -52,6 +54,7 @@ def test_robustness_run_writes_reviewer_artifacts(tmp_path: Path) -> None:
     assert (tmp_path / "robustness.json").exists()
     assert (tmp_path / "sensitivity.csv").exists()
     assert (tmp_path / "paired-fpr-detector-ablation.csv").exists()
+    assert (tmp_path / "phase-offset-ablation.csv").exists()
     assert (tmp_path / "README.md").exists()
 
 
@@ -94,3 +97,20 @@ def test_paired_fpr_ablation_uses_change_detector_not_level_threshold() -> None:
         float(default["behavioral_null_fpr"])
         - float(default["infrastructure_null_fpr"])
     ) <= 0.02
+
+
+def test_phase_offset_ablation_reports_alignment_sensitivity() -> None:
+    rows = phase_offset_ablation(simulations=100, seed=31)
+    assert [row["phase_fraction"] for row in rows] == [0.0, 0.25, 0.5, 0.75]
+    assert all(float(row["fpr_gap"]) <= 0.02 for row in rows)
+    leads = [row["paired_lead_time_days"] for row in rows]
+    assert all(lead is None or isinstance(lead, int) for lead in leads)
+
+
+def test_robustness_surface_reports_contiguous_region_and_fpr_gap() -> None:
+    rows = paired_fpr_detector_ablation(simulations=100, seed=37)
+    summary = robustness_surface_summary(rows)
+    assert summary["valid_fpr_matched_cells"] <= 28
+    assert summary["positive_lead_cells"] <= summary["valid_fpr_matched_cells"]
+    assert summary["largest_contiguous_positive_region_cells"] <= summary["positive_lead_cells"]
+    assert summary["max_fpr_gap"] <= 0.02
