@@ -29,9 +29,9 @@ def test_early_behavioral_degradation_precedes_infrastructure_alert(tmp_path: Pa
 
     rows = report["rows"]
     assert rows[6]["day"] == 7
-    assert rows[6]["basin_drift_tv"] == 0.13
+    assert round(float(rows[6]["basin_drift_tv"]), 2) == 0.13
     assert rows[7]["day"] == 8
-    assert rows[7]["basin_drift_tv"] == 0.2
+    assert round(float(rows[7]["basin_drift_tv"]), 2) == 0.20
     assert rows[7]["behavioral_alert"] is True
 
     assert (tmp_path / "early-behavioral-degradation.json").exists()
