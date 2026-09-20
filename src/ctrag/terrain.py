@@ -129,6 +129,37 @@ class DynamicTerrain:
         self._influence[identity] = updated
         return updated
 
+    def reinforce_by_surprise(
+        self,
+        edge: Edge,
+        *,
+        prediction_error: float,
+        cap: float = 1.0,
+    ) -> float:
+        """Reinforce by bounded surprise with diminishing frequency gain.
+
+        This is the recommended research policy for adaptive terrain updates.
+        Unlike frequency-only reinforcement, repeated predictable transitions
+        receive progressively smaller increments. ``prediction_error`` may be a
+        TD error, calibrated residual, or another externally defined surprise
+        signal; this method does not claim to estimate that error itself.
+
+        The historical transition count is still recorded, and protected edges
+        retain the configured safety floor during later decay.
+        """
+        if not math.isfinite(prediction_error):
+            raise ValueError("prediction_error must be finite")
+        if cap <= 0 or not math.isfinite(cap):
+            raise ValueError("cap must be finite and positive")
+        if not self.topology.has_edge(edge):
+            raise KeyError("cannot reinforce an edge that is not present in the topology")
+
+        observations = self.transition_count(edge)
+        bounded_surprise = min(abs(prediction_error), cap) / cap
+        diminishing_gain = 1.0 / math.sqrt(1.0 + observations)
+        amount = self.config.reinforcement_step * bounded_surprise * diminishing_gain
+        return self.reinforce(edge, amount=amount)
+
     def _matching_edges(
         self,
         source: str,
