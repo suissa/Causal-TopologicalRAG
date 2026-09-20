@@ -20,6 +20,7 @@ The core question is not only **“what looks like this?”**, but also **“whe
 - [Intervention-aware CT-RAG](docs/INTERVENTIONS.md)
 - [Early behavioral degradation experiment](docs/EARLY_BEHAVIORAL_DEGRADATION.md)
 - [Evidence Shape Router](docs/EVIDENCE_SHAPE_ROUTER.md)
+- [Architecture](docs/ARCHITECTURE.md)
 - [Threats to validity](docs/THREATS_TO_VALIDITY.md)
 - [Reproducibility protocol](docs/REPRODUCIBILITY.md)
 - [Topology: construction, meaning and structural parts](docs/TOPOLOGY.md)
