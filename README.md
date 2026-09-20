@@ -135,6 +135,12 @@ for hit in result.hits:
     print(hit.node.id, round(hit.score, 3), hit.components, hit.causal_path)
 ```
 
+### Known temporal-scope limitation
+
+`TemporalScope` is now part of temporal-edge identity, but generic temporal/topological traversal does not yet require a scope filter. Until issue #55 is completed, a graph containing multiple temporal scopes can admit semantically invalid mixed-scope temporal-hop paths.
+
+Therefore **temporal-hop benchmark numbers over mixed-scope graphs are not paper evidence yet**. Execution-local benchmarks remain valid because they contain a single temporal scope.
+
 ## Event-sourced ingestion
 
 `EventProjector` converts execution events into memory nodes. Explicit `causation_id` creates a causal edge with evidence; if the parent event arrives after the child, pending causation is reconciled deterministically when the parent appears. Events in the same execution receive temporal/behavioral relations, but those relations are never promoted to causality by order alone.
