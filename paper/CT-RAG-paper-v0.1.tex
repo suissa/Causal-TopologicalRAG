@@ -447,7 +447,10 @@ Invariants}\label{architecture-and-invariants}
 causation}\label{event-projection-and-authoritative-causation}
 
 The \texttt{EventProjector} maps authoritative event records into memory
-nodes. When event (v) declares \texttt{causation\_id\ =\ u} and (u)
+nodes. “Explicit provenance” does not imply manual labeling by a human
+operator: an instrumented runtime, workflow engine, message bus, or agent
+harness can propagate parent/causation context automatically as part of
+execution. When event (v) declares \texttt{causation\_id\ =\ u} and (u)
 already exists, the projector creates
 
 {[} u \xrightarrow{CAUSAL,\ EVENT} v {]}
