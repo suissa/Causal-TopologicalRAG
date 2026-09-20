@@ -32,7 +32,7 @@ The current implementation already contains temporal semantics in several places
 - The ranking model already has an independent temporal component.
 - External-validity experiments can use temporal topology without inventing causal edges from sequence alone.
 
-## Temporal distance
+## Temporal distance and consistency
 
 For memories `x_i` and `x_j`, CT-RAG distinguishes at least two notions of temporal distance:
 
@@ -57,6 +57,23 @@ Temporal-hop distance answers:
 > How far apart are they inside the observed sequence/topology?
 
 Neither implies causality.
+
+
+### Temporal Consistency Window
+
+Temporal order can be necessary for a causal hypothesis without being sufficient for one. CT-RAG can therefore apply a **Temporal Consistency Window** to reject paths whose observed clock separation is incompatible with the expected system dynamics.
+
+For a candidate path \(P=(v_0,\ldots,v_n)\), define:
+
+[
+C_{time}(P;\tau)=1 \iff \max_i d_t^{clock}(v_i,v_{i+1}) \le \tau
+]
+
+where \(\tau\) is a domain- or operation-specific bound such as an expected timeout, lease duration, retry interval or SLA-derived window.
+
+This filter does **not** create causality. It only rejects temporally inconsistent candidates that would otherwise survive graph-hop filtering.
+
+The bound must be sourced from system/domain configuration or a declared policy and persisted with the retrieval artifact; it must not be tuned post hoc on the evaluated incident.
 
 ## Temporal direction
 
@@ -139,6 +156,32 @@ B --CAUSAL(provenance=execution)--> C
 
 The same pair of nodes may legitimately have both temporal and causal edges.
 
+
+## Temporal scope hierarchy
+
+The reference projector currently creates execution-local temporal edges between consecutive events sharing one `execution_id`. Production systems also require explicit temporal relations across executions.
+
+Recommended temporal scopes are:
+
+```text
+execution
+actor_or_aggregate
+deployment
+incident_window
+global_observed
+```
+
+Examples:
+
+```text
+Deploy.v42 --TEMPORAL(scope=deployment)--> CheckoutExecution.991
+ConfigChanged --TEMPORAL(scope=incident_window)--> Incident.2026-09-20
+```
+
+A cross-execution temporal relation remains temporal only. It never creates a causal edge without independent provenance.
+
+Retrieval/path constraints should declare which temporal scopes are admissible for the query.
+
 ## Time and the Dynamic Terrain
 
 CT-RAG also has a second temporal property: **the topology itself evolves through experience**.
@@ -200,6 +243,34 @@ For production/event-sourced systems, CT-RAG should eventually distinguish at le
 
 The current implementation primarily uses event timestamps. Full bitemporal semantics are a planned extension, not a current claim.
 
+
+## Point-in-time reconstruction and bitemporal projection
+
+A production post-mortem often needs a stronger question than “what do we know now about what happened then?” It may need:
+
+> What topology and navigational influence were available to the agent at decision time \(t_0\)?
+
+CT-RAG should therefore support point-in-time projection over both authoritative history and the non-authoritative terrain:
+
+```text
+Topology(as_of = t0)
+Terrain(as_of = t0)
+Basins(as_of = t0)
+Attractors(as_of = t0)
+```
+
+This requires separating at least valid/event time from system/ingest time. A later correction may change what the system knows today without retroactively changing what the agent could have known at \(t_0\).
+
+The intended post-mortem invariant is:
+
+```text
+knowledge available at decision time
+!=
+knowledge reconstructed with today's database state
+```
+
+Full historical terrain snapshots are planned work; the current implementation does not yet claim bitemporal terrain reconstruction.
+
 ## Planned temporal extensions
 
 The temporal model should be extended with:
@@ -216,6 +287,32 @@ The temporal model should be extended with:
 - longitudinal basin-drift benchmarks.
 
 These extensions must preserve the core invariant that temporal proximity is evidence about **order and time**, not automatic evidence of **cause**.
+
+
+## Clock versus hop example
+
+```text
+10:00:00            10:00:01                              17:00:00
+   A  --TEMPORAL-->    B   --TEMPORAL-->                     C
+
+clock(A,B) = 1 second
+clock(B,C) = 6h 59m 59s
+clock(A,C) = 7 hours
+
+temporal-hop(A,B) = 1
+temporal-hop(B,C) = 1
+temporal-hop(A,C) = 2
+```
+
+The same topology supports different retrieval questions:
+
+```text
+"what happened chronologically after A?"
+    -> temporal scope + clock policy + TEMPORAL traversal
+
+"what was triggered by A?"
+    -> CAUSAL traversal only; temporal hops can constrain plausibility but cannot promote an edge
+```
 
 ## Mental model
 
