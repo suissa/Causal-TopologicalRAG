@@ -110,7 +110,7 @@ where the weight vector depends on query mode. CT-RAG currently exposes `SIMILAR
 
 ## 4.1 Event projection and authoritative causation
 
-The `EventProjector` maps authoritative event records into memory nodes. When event \(v\) declares `causation_id = u` and \(u\) already exists, the projector creates
+The `EventProjector` maps authoritative event records into memory nodes. "Explicit provenance" does not imply manual labeling by a human operator: an instrumented runtime, workflow engine, message bus, or agent harness can propagate parent/causation context automatically as part of execution. When event \(v\) declares `causation_id = u` and \(u\) already exists, the projector creates
 
 \[
 u \xrightarrow{CAUSAL,\ EVENT} v
