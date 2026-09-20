@@ -75,3 +75,8 @@ def test_recovery_rerank_uses_historical_success_without_terrain_veto() -> None:
     assert provider.components["historical_success_rate"] == 1.0
     assert manual.components["historical_success_rate"] == 0.1
     assert provider.score > manual.score
+
+
+def test_wilson_support_penalizes_one_for_one() -> None:
+    assert TerrainAwareRetriever._wilson_lower_bound(8, 8) > TerrainAwareRetriever._wilson_lower_bound(1, 1)
+    assert TerrainAwareRetriever._wilson_lower_bound(8, 10) > TerrainAwareRetriever._wilson_lower_bound(1, 10)
