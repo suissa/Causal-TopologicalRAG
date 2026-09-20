@@ -214,8 +214,12 @@ class CausalTopology:
         if max_hops < 0:
             raise ValueError("max_hops must be non-negative")
         allowed = set(kinds) if kinds is not None else None
+        # Fail-safe default: temporal traversal is execution-local unless the
+        # caller explicitly opts into cross-execution scopes.
         allowed_temporal_scopes = (
-            set(temporal_scopes) if temporal_scopes is not None else None
+            set(temporal_scopes)
+            if temporal_scopes is not None
+            else {TemporalScope.EXECUTION}
         )
         queue: deque[tuple[str, int]] = deque([(node_id, 0)])
         distances = {node_id: 0}
