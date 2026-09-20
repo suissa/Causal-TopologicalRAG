@@ -9,7 +9,7 @@ from typing import Protocol, runtime_checkable
 from .basins import AttractorDescriptor, BasinAffinity
 from .embedding import cosine_similarity
 from .events import EventRecord
-from .models import CausalPath, CausalProvenance, Edge, EdgeKind, MemoryNode
+from .models import CausalPath, CausalProvenance, Edge, EdgeKind, MemoryNode, TemporalScope
 from .terrain import DynamicTerrain, EdgeIdentity, TerrainConfig
 from .topology import CausalTopology
 
@@ -137,22 +137,25 @@ def _json_dumps(value: object) -> str:
 
 
 def _identity_to_dict(identity: EdgeIdentity) -> dict[str, str | None]:
-    source, target, kind, provenance = identity
+    source, target, kind, provenance, temporal_scope = identity
     return {
         "source": source,
         "target": target,
         "kind": kind.value,
         "provenance": None if provenance is None else provenance.value,
+        "temporal_scope": None if temporal_scope is None else temporal_scope.value,
     }
 
 
 def _identity_from_dict(raw: dict[str, object]) -> EdgeIdentity:
     provenance = raw.get("provenance")
+    temporal_scope = raw.get("temporal_scope")
     return (
         str(raw["source"]),
         str(raw["target"]),
         EdgeKind(str(raw["kind"])),
         None if provenance is None else CausalProvenance(str(provenance)),
+        None if temporal_scope is None else TemporalScope(str(temporal_scope)),
     )
 
 
@@ -234,6 +237,7 @@ class SQLiteCTStore:
                 edge.target,
                 edge.kind.value,
                 "" if edge.provenance is None else edge.provenance.value,
+                "" if edge.temporal_scope is None else edge.temporal_scope.value,
             )
         )
 
