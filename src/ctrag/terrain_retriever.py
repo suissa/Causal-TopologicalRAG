@@ -36,21 +36,35 @@ class TerrainAwareRetriever:
             token in event_type for token in ("healed", "recovered", "completed", "succeeded")
         )
 
-    def _branch_success_rate(self, hit: RetrievalHit) -> tuple[float, int]:
-        """Estimate P(success terminal | last decision branch) from observed counts.
+    @staticmethod
+    def _wilson_lower_bound(successes: int, total: int, *, z: float = 1.96) -> float:
+        """95% Wilson lower bound for a binomial success probability."""
+        if total <= 0:
+            return 0.0
+        p = successes / total
+        z2 = z * z
+        denominator = 1.0 + z2 / total
+        centre = p + z2 / (2.0 * total)
+        margin = z * math.sqrt((p * (1.0 - p) + z2 / (4.0 * total)) / total)
+        return max(0.0, (centre - margin) / denominator)
+
+    def _branch_success_stats(self, hit: RetrievalHit) -> tuple[int, int]:
+        """Count successful and total outcomes at the final causal branch.
+
+        Only candidates causally reachable from the current anchor can receive
+        recovery evidence. This is the topological conditioning that a global
+        raw-success baseline lacks.
 
         The last edge source is treated as the branch point immediately preceding
         the terminal candidate. Counts come only from observed terrain history;
         unobserved structural edges contribute zero observations.
 
-        Returns (success_rate, total_observed_outcomes). A successful candidate
-        with no observed branch outcomes gets rate 0 rather than an optimistic
-        prior, preventing purely structural paths from masquerading as learned
-        recovery evidence.
+        Returns (successful_outcomes, total_observed_outcomes). A successful
+        terminal with no causal path from the current anchor is ineligible.
         """
         path = hit.causal_path
         if path is None or not path.edges or not self._is_success_node(hit):
-            return 0.0, 0
+            return 0, 0
 
         branch_source = path.edges[-1].source
         outgoing = self.terrain.topology.outgoing(branch_source, {EdgeKind.CAUSAL})
@@ -69,9 +83,7 @@ class TerrainAwareRetriever:
             )
             if target_success:
                 successful += count
-        if total == 0:
-            return 0.0, 0
-        return successful / total, total
+        return successful, total
 
     def _rerank(self, hits: list[RetrievalHit], k: int) -> list[RetrievalHit]:
         reranked: list[RetrievalHit] = []
@@ -99,22 +111,27 @@ class TerrainAwareRetriever:
         - bounded observation support.
 
         Current terrain influence is retained for explanation only and never
-        multiplied into the recovery score.
+        multiplied into the recovery score. Historical support is represented
+        by the 95% Wilson lower confidence bound, not by an ad-hoc sample-size
+        multiplier.
         """
         reranked: list[RetrievalHit] = []
         for hit in hits:
             influence = self.terrain.path_influence(hit.causal_path)
-            success_rate, observations = self._branch_success_rate(hit)
-            support = 0.0 if observations <= 0 else min(1.0, math.log1p(observations) / math.log(11.0))
+            successes, observations = self._branch_success_stats(hit)
+            success_rate = 0.0 if observations <= 0 else successes / observations
+            wilson_lower = self._wilson_lower_bound(successes, observations)
+            reachable = hit.causal_path is not None and hit.causal_path.hops > 0
             components = dict(hit.components)
             components["terrain_influence"] = influence
             components["historical_success_rate"] = success_rate
-            components["historical_support"] = support
+            components["historical_support_n"] = float(observations)
+            components["historical_wilson_lower_95"] = wilson_lower
+            components["recovery_causally_reachable"] = 1.0 if reachable else 0.0
 
-            # A non-success terminal cannot gain recovery score from branch
-            # frequency alone. Positive rescue requires observed successful
-            # historical outcomes.
-            empirical_recovery = success_rate * support if self._is_success_node(hit) else 0.0
+            # The recovery evidence score is conservative in small-N regimes.
+            # Wilson lower bound folds rate and sample support into one quantity.
+            empirical_recovery = wilson_lower if self._is_success_node(hit) and reachable else 0.0
             score = hit.score + 0.35 * empirical_recovery
             reranked.append(RetrievalHit(
                 node=hit.node,
