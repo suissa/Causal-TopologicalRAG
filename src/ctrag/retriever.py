@@ -153,6 +153,7 @@ class CTRetriever:
                 anchor_id,
                 direction=direction,
                 kinds=kinds,
+                temporal_scopes={TemporalScope.EXECUTION},
                 max_hops=max_hops,
             )
             hops = distances.get(candidate_id)
@@ -283,6 +284,7 @@ class CTRetriever:
                 anchor_id,
                 direction=direction,
                 kinds=stage_kinds,
+                temporal_scopes={TemporalScope.EXECUTION},
                 max_hops=max_hops,
             ))
             for attractor_id in self.topology.basin_memberships(anchor_id, max_hops=max_hops):
