@@ -210,6 +210,23 @@ def basin_attraction_drift(config: TemporalTerrainConfig) -> dict[str, object]:
     for edge in (degraded_1, degraded_2, cycle_1, cycle_2):
         topology.add_edge(edge)
 
+    # Structural SCC exists once the newly observed cycle is known, but before
+    # repeated failure there is no empirical support for recurrent attraction.
+    discovered_pre = terrain.discover_attractors(register=False)
+    recurrent_pre = next(
+        (
+            item
+            for item in discovered_pre
+            if item.origin == "discovered:scc"
+            and "A_compensation" in set(item.metadata.get("members", []))
+        ),
+        None,
+    )
+    recurrent_confidence_before = 0.0 if recurrent_pre is None else recurrent_pre.confidence
+    recurrent_internal_before = (
+        0 if recurrent_pre is None else int(recurrent_pre.metadata.get("internal_observations", 0))
+    )
+
     for _ in range(config.recurrent_failure_repetitions):
         for edge in (degraded_1, degraded_2, cycle_1, cycle_2):
             terrain.reinforce(edge)
@@ -230,6 +247,13 @@ def basin_attraction_drift(config: TemporalTerrainConfig) -> dict[str, object]:
     recurrent_id = None if recurrent is None else recurrent.node_id
     compensation_basin = set() if recurrent_id is None else set(after.basins[recurrent_id])
     compensation_purity_after = _probe_purity(compensation_basin, affected_probe)
+    recurrent_confidence_after = 0.0 if recurrent is None else recurrent.confidence
+    recurrent_internal_after = (
+        0 if recurrent is None else int(recurrent.metadata.get("internal_observations", 0))
+    )
+    problematic_membership_gain = (
+        compensation_purity_after - success_purity_before
+    )
 
     return {
         "scenario": "basin_attraction_drift",
@@ -242,12 +266,18 @@ def basin_attraction_drift(config: TemporalTerrainConfig) -> dict[str, object]:
         "affected_probe": sorted(affected_probe),
         "success_basin_probe_purity_before": success_purity_before,
         "compensation_basin_probe_purity_after": compensation_purity_after,
+        "problematic_basin_membership_gain": problematic_membership_gain,
+        "recurrent_confidence_before": recurrent_confidence_before,
+        "recurrent_confidence_after": recurrent_confidence_after,
+        "recurrent_internal_observations_before": recurrent_internal_before,
+        "recurrent_internal_observations_after": recurrent_internal_after,
         "failure_cycle_observations": terrain.transition_count(cycle_1),
         "historical_success_edges_preserved": topology.has_edge(healthy_1) and topology.has_edge(healthy_2),
         "oracle_passed": (
             recurrent is not None
-            and drift.mean > 0.0
-            and compensation_purity_after >= 0.75
+            and problematic_membership_gain > 0.0
+            and recurrent_internal_after > recurrent_internal_before
+            and recurrent_confidence_after > recurrent_confidence_before
             and terrain.transition_count(cycle_1) == config.recurrent_failure_repetitions
             and topology.has_edge(healthy_1)
         ),
@@ -277,7 +307,7 @@ def out_of_order_causation_gap(config: TemporalTerrainConfig) -> dict[str, objec
         projector.ingest(
             EventRecord(
                 event_id=f"noise-{index}",
-                event_type="Noise.Observed",
+                event_type="Action.B.Success.Context",
                 timestamp=child_event_time + timedelta(minutes=index + 1),
                 status="ok",
             )
@@ -300,8 +330,30 @@ def out_of_order_causation_gap(config: TemporalTerrainConfig) -> dict[str, objec
         ).total_seconds()
     )
 
-    hits = CTRetriever(topology).search(
-        "why did action B succeed",
+    retriever = CTRetriever(topology)
+    query = "why did action B succeed"
+
+    # Semantic-only baseline: global dense ranking, excluding the query anchor.
+    semantic_ranked = [
+        node_id
+        for node_id, _ in retriever.rank_dense(query, k=len(topology.nodes))
+        if node_id != "Action_B_Success"
+    ]
+    semantic_parent_rank = (
+        semantic_ranked.index("Action_A_Intent") + 1
+        if "Action_A_Intent" in semantic_ranked
+        else None
+    )
+
+    # Recency-only baseline: newest event-time first, excluding the query anchor.
+    recency_ranked = sorted(
+        (node_id for node_id in topology.nodes if node_id != "Action_B_Success"),
+        key=lambda node_id: (-topology.nodes[node_id].timestamp.timestamp(), node_id),
+    )
+    recency_parent_rank = recency_ranked.index("Action_A_Intent") + 1
+
+    hits = retriever.search(
+        query,
         mode=QueryMode.WHY,
         anchor_ids=["Action_B_Success"],
         exhaustive=True,
@@ -310,6 +362,13 @@ def out_of_order_causation_gap(config: TemporalTerrainConfig) -> dict[str, objec
     ranked = [hit.node.id for hit in hits]
     parent_rank = ranked.index("Action_A_Intent") + 1 if "Action_A_Intent" in ranked else None
     parent_hit = next((hit for hit in hits if hit.node.id == "Action_A_Intent"), None)
+
+    top_k = 10
+    semantic_parent_recalled_at_k = (
+        semantic_parent_rank is not None and semantic_parent_rank <= top_k
+    )
+    recency_parent_recalled_at_k = recency_parent_rank <= top_k
+    ctrag_parent_recalled_at_k = parent_rank is not None and parent_rank <= top_k
 
     return {
         "scenario": "out_of_order_causation_gap",
@@ -324,8 +383,15 @@ def out_of_order_causation_gap(config: TemporalTerrainConfig) -> dict[str, objec
         "clock_gap_seconds": clock_gap_seconds,
         "clock_gap_hours": clock_gap_seconds / 3600.0,
         "noise_events_ingested": 25,
+        "semantic_only_ranking_top10": semantic_ranked[:top_k],
+        "recency_only_ranking_top10": recency_ranked[:top_k],
         "why_ranking": ranked,
+        "semantic_parent_rank": semantic_parent_rank,
+        "recency_parent_rank": recency_parent_rank,
         "parent_rank": parent_rank,
+        "semantic_parent_recalled_at_10": semantic_parent_recalled_at_k,
+        "recency_parent_recalled_at_10": recency_parent_recalled_at_k,
+        "ctrag_parent_recalled_at_10": ctrag_parent_recalled_at_k,
         "parent_causal_component": None if parent_hit is None else parent_hit.components["causal"],
         "oracle_passed": (
             len(causal_before_parent) == 0
@@ -334,6 +400,9 @@ def out_of_order_causation_gap(config: TemporalTerrainConfig) -> dict[str, objec
             and causal_edge.provenance is CausalProvenance.EVENT
             and causal_edge.evidence[0].source == "event.causation_id"
             and clock_gap_seconds == config.causal_gap_hours * 3600
+            and not semantic_parent_recalled_at_k
+            and not recency_parent_recalled_at_k
+            and ctrag_parent_recalled_at_k
             and parent_rank is not None
             and parent_hit is not None
             and parent_hit.components["causal"] > 0.0
@@ -367,7 +436,7 @@ def run(config: TemporalTerrainConfig, output: Path) -> dict[str, object]:
                 "scenario": scenario["scenario"],
                 "oracle_passed": scenario["oracle_passed"],
                 "summary": json.dumps(
-                    {key: value for key, value in scenario.items() if key not in {"decay_trace", "why_ranking"}},
+                    {key: value for key, value in scenario.items() if key not in {"decay_trace", "why_ranking", "semantic_only_ranking_top10", "recency_only_ranking_top10"}},
                     sort_keys=True,
                 ),
             }
