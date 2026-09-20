@@ -76,7 +76,9 @@ def load_trace_csv(
     """Project external trace CSV into non-causal execution topology.
 
     Parent/child span relations become BEHAVIORAL edges. Consecutive spans in a
-    trace become TEMPORAL edges. No CAUSAL edge is created by this adapter.
+    trace become TEMPORAL edges. If neither relation is justified, no edge is
+    created. No CAUSAL edge is created by this adapter; external telemetry without
+    causation metadata therefore runs in degraded E_t + E_b mode.
     """
     mapping = mapping or TraceCSVMapping()
     rows: list[dict[str, str]] = []
