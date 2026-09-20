@@ -109,13 +109,13 @@ def run(config: ErodedPathConfig, output: Path) -> dict[str, object]:
     terrain_only_winner = "failure" if failure_terrain >= recovery_terrain else "recovery"
 
     retriever = CTRetriever(topology)
-    recovery_hits = retriever.search(
+    recovery_result = retriever.search_staged(
         "payment recovery path",
         mode=QueryMode.RECOVERY,
         anchor_ids=["retry"],
-        exhaustive=True,
         k=5,
     )
+    recovery_hits = recovery_result.hits
     rank = {hit.node.id: index + 1 for index, hit in enumerate(recovery_hits)}
     recovered_rank = rank.get("recovered")
     human_rank = rank.get("human")
