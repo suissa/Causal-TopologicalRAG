@@ -145,7 +145,7 @@ separate causal structure from simpler ranking signals. In an
 out-of-order causation experiment, a child event is ingested before its
 parent, with a 336-hour event-time gap and 25 semantically adversarial
 distractors. Semantic-only and recency-only retrieval rank the true
-parent 26th, while CT-RAG \texttt{WHY} ranks it first using explicit
+parent 26th of 26 candidates, while CT-RAG \texttt{WHY} ranks it first using explicit
 runtime \texttt{causation\_id} provenance. In an eroded-path recovery
 experiment, a raw-success baseline prefers an unreachable
 \texttt{GlobalFix} path with 9/10 historical success, whereas CT-RAG
@@ -156,7 +156,7 @@ hoc count bonus. CT-RAG achieves Precision@1 = 1.0 in this controlled
 recovery fixture, while terrain-only, recency-only, and raw-success
 baselines each obtain 0.0; false-rescue increases from 0.0 at k=1 to
 0.75 at k=4, exposing rather than hiding degradation as more
-alternatives are returned. A secondary matched-FPR degradation study
+alternatives are returned. A secondary same-logic degradation study under the current zero-FPR null
 yields a median +1 day relative lead across a 28-cell parameter surface,
 with the positive-lead cells forming one contiguous region and the
 +1-day lead invariant to four phase offsets. These experiments are
@@ -201,6 +201,18 @@ reasons (\citeproc{ref-jensen2018temporal}{Jensen and Snodgrass 2018}).
 CT-RAG adopts the same discipline for agent memory: \textbf{different
 relations carry different semantics and must not silently collapse into
 one another}.
+
+This paper is organized around two distinct functions of experiential
+topology. \textbf{RQ1 treats topology as a relation of authority:} when
+several memories are semantically or temporally plausible, which prior
+event is entitled to explain the current event because the runtime
+explicitly identifies it as causal provenance? \textbf{RQ2 treats
+topology as a relation of feasibility:} among historically successful
+recovery routes, which alternatives are actually reachable from the
+current state? Similarity, recency, and global success statistics can
+rank observations, but they do not encode either authority or
+state-conditioned feasibility. The two primary experiments are designed
+to isolate these two roles separately.
 
 We use the term \textbf{structured experiential memory} to denote memory
 organized around observed execution experience rather than only facts or
@@ -700,8 +712,8 @@ comparative experimental wins.
 \subsection{8.1 Out-of-order causal
 provenance}\label{out-of-order-causal-provenance}
 
-\textbf{Table 1. Absolute rank of the true causal parent under
-adversarial semantic and temporal geometry.}
+\textbf{Table 1. Absolute rank of the true causal parent among 26 total
+candidates under adversarial semantic and temporal geometry.}
 
 \begin{longtable}[]{@{}lrrl@{}}
 \toprule\noalign{}
@@ -794,33 +806,34 @@ CT-RAG rank
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-GlobalFix & \textbf{0.90} & 10 & 0.596 & \textbf{No} & excluded \\
 ProviderFallback & 0.80 & 10 & \textbf{0.490} & Yes & \textbf{1} \\
-CacheReset & 0.25 & 4 & 0.046 & Yes & 3 \\
 ScriptPatch & 0.20 & 10 & 0.057 & Yes & 2 \\
+CacheReset & 0.25 & 4 & 0.046 & Yes & 3 \\
 ManualPatch & 0.10 & 10 & 0.018 & Yes & 4 \\
+GlobalFix & \textbf{0.90} & 10 & \textbf{0.596} & \textbf{No} & excluded \\
 \end{longtable}
 
 The order of \texttt{ScriptPatch} and \texttt{CacheReset} illustrates
 why empirical point rate alone is not the recovery score: Wilson support
 for 2/10 (0.057) exceeds 1/4 (0.046), despite the latter's higher raw
-point estimate. \texttt{ProviderFallback} remains clearly separated from
-both.
+point estimate. \texttt{ProviderFallback} remains clearly separated:
+its lower bound is 0.490, a gap of 0.433 from \texttt{ScriptPatch} and
+0.444 from \texttt{CacheReset}.
 
-\textbf{Table 3. Top-1 recovery comparison.}
+\textbf{Table 3. Recovery comparison with metric scope made explicit.}
 
-\begin{longtable}[]{@{}llr@{}}
+\begin{longtable}[]{@{}llrr@{}}
 \toprule\noalign{}
-Method & Top-ranked item & Precision@1 \\
+Method & Output & Precision@1 & Precision@4 \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Terrain-only & HumanIntervention & 0.0 \\
-Recency-only & ManualPatch & 0.0 \\
-Raw success, global & GlobalFix & 0.0 \\
-Structural reachable ceiling & unranked set of four & 0.25 at k=4 \\
-CT-RAG \texttt{RECOVERY} & \textbf{ProviderFallback} & \textbf{1.0} \\
+Terrain-only & HumanIntervention & 0.0 & --- \\
+Recency-only & ManualPatch & 0.0 & --- \\
+Raw success, global & GlobalFix & 0.0 & --- \\
+Structural reachable ceiling & unranked set of four & n/a & 0.25 \\
+CT-RAG \texttt{RECOVERY} & \textbf{ProviderFallback} & \textbf{1.0} & 0.25 \\
 \end{longtable}
 
 The top-1 result alone is insufficient for a healer that may consume
@@ -842,28 +855,48 @@ highest-success route is not reachable from the current state.} The
 causal topology supplies an eligibility relation not present in terrain,
 recency, or success statistics.
 
-\subsubsection{Remaining isolation
-check}\label{remaining-isolation-check}
+\subsubsection{Reachability-gate isolation
+check}\label{reachability-gate-isolation-check}
 
-One validation remains desirable before camera-ready submission. The
-same fixture should be mutated so that \texttt{GlobalFix} becomes
-causally reachable from \texttt{retry}. If causal reachability is
-strictly a gate rather than an undeclared penalty, the now-reachable
-9/10 branch should be eligible and, all else controlled, its Wilson
-lower bound (0.596) should exceed \texttt{ProviderFallback} (0.490).
-This mutation test is \textbf{not yet reported as executed} in CI \#210
-and is preregistered here as a follow-up validation.
+After the numerical evidence freeze used for Tables 1--3, we executed
+the preregistered mutation that changes only feasibility: an edge
+\texttt{retry\ -\textgreater{}\ global\_fix} is added while the
+terminal success statistics remain 9/10 for \texttt{GlobalFix} and 8/10
+for \texttt{ProviderFallback}. Under this mutation, both candidates are
+causally reachable and \texttt{GlobalFix} becomes the top-ranked
+recovery, with its Wilson lower bound (0.596) exceeding
+\texttt{ProviderFallback} (0.490). The test passed in GitHub Actions CI
+\textbf{\#213}, head commit
+\textbf{\texttt{9ed7878813b951ca04428e27868d5a4427e8011f}}, on Python
+3.11, 3.12, and 3.13.
+
+This isolation check is intentionally reported separately from the CI
+\#210 numerical freeze: it adds no new headline effect size. Its role is
+falsification-oriented. The observed rank flip supports the
+interpretation that causal reachability acts as an eligibility gate
+rather than as an undeclared continuous penalty hidden inside the
+recovery score.
 
 \subsection{8.3 Secondary result: matched-FPR early
 degradation}\label{secondary-result-matched-fpr-early-degradation}
 
 The original fixed infrastructure threshold produced an apparent +2-day
 lead at the default behavioral configuration. That comparison was
-demoted because the detectors did not share matched false-positive
-operating points. Under the primary FPR-matched ablation, threshold
-(\theta=0.10) with two sustained windows detects behavioral change on
-day 8 and infrastructure change on day 9, yielding a \textbf{+1-day
-relative lead} with FPR gap 0.
+demoted because it compared unlike detector operating rules. The
+stronger ablation applies the \textbf{same sustained-change detector
+logic} to behavioral and infrastructure signals and calibrates the
+infrastructure threshold on the same null generator. At
+(\theta=0.10) with two sustained windows, behavioral change is detected
+on day 8 and infrastructure change on day 9, yielding a \textbf{+1-day
+relative lead}.
+
+The current null generator, however, yields FPR = 0 for both detectors
+throughout the tested grid. Consequently, the observed FPR gap of 0 is
+\textbf{degenerate}: it does not demonstrate informative matching at a
+non-zero operating point. The protection of the +1-day result comes from
+comparing the same detector logic and from its robustness across
+parameter/phase perturbations, not from evidence that non-zero
+false-positive rates have been successfully matched.
 
 Across the full 28-cell grid:
 
@@ -872,8 +905,8 @@ Across the full 28-cell grid:
 \item
   16 cells have positive lead;
 \item
-  all 28 cells are FPR matched with maximum FPR gap 0 in the controlled
-  null generator;
+  achieved FPR is 0 for both detectors in all 28 cells, so the FPR gap
+  is 0 but non-informative as an operating-point match;
 \item
   the 16 positive cells form one contiguous region in the tested
   parameter lattice;
