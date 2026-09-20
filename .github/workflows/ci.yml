@@ -30,6 +30,8 @@ jobs:
         run: python -m ctrag.benchmarks.early_behavioral_degradation --output benchmark-results/early-behavioral-degradation
       - name: Run early degradation robustness suite
         run: python -m ctrag.benchmarks.early_degradation_robustness --output benchmark-results/early-degradation-robustness
+      - name: Run eroded path rescue experiment
+        run: python -m ctrag.benchmarks.eroded_path_rescue --output benchmark-results/eroded-path-rescue
       - name: Run MAPE-K observability experiment
         run: python -m ctrag.benchmarks.mape_k_observability --output benchmark-results/mape-k-observability
       - name: Run Phase 2 train split
