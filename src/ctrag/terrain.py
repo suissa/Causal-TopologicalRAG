@@ -6,11 +6,11 @@ from enum import Enum
 from typing import Iterable
 
 from .basins import AttractorDescriptor
-from .models import CausalPath, CausalProvenance, Edge, EdgeKind
+from .models import CausalPath, CausalProvenance, Edge, EdgeKind, TemporalScope
 from .topology import BASIN_EDGE_KINDS, CausalTopology
 
 
-EdgeIdentity = tuple[str, str, EdgeKind, CausalProvenance | None]
+EdgeIdentity = tuple[str, str, EdgeKind, CausalProvenance | None, TemporalScope | None]
 
 class SurpriseSource(str, Enum):
     """Operational source of a terrain surprise/prediction-error signal."""
