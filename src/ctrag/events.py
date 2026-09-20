@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .models import CausalProvenance, Edge, EdgeEvidence, EdgeKind, MemoryNode
+from .models import CausalProvenance, Edge, EdgeEvidence, EdgeKind, MemoryNode, TemporalScope
 from .topology import CausalTopology
 
 
@@ -332,6 +332,7 @@ class EventProjector:
                 source=previous,
                 target=event.event_id,
                 kind=EdgeKind.TEMPORAL,
+                temporal_scope=TemporalScope.EXECUTION,
             ))
             self._ensure_edge(Edge(
                 source=previous,
