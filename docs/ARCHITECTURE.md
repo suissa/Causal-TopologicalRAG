@@ -287,3 +287,61 @@ The architecture does not assert that:
 - Full `router.py`: tracked in issue #58.
 - Initial Config/Trace/Metric adapters: tracked in issue #58.
 - Factorial shape-aware × CT-RAG evaluation: tracked in issue #56.
+## CTEG as the mandatory memory substrate
+
+The experiential topology above is formally the **Causal-Temporal Experiential Graph (CTEG)**.
+
+> **CTEG stores what happened.**
+
+Its relation families remain epistemically separate:
+
+```text
+CAUSAL      -> authority from causal provenance
+TEMPORAL    -> scoped order / event-time relation
+BEHAVIORAL  -> execution continuity / trajectory
+SEMANTIC    -> similarity/retrieval relation
+```
+
+The system must never use one relation family as an implicit substitute for another.
+
+### Trace reconstruction boundary
+
+A trace supplies an **execution spine**. It can align the path of a payload with surrounding events, logs, metrics, configuration, code/tool activity and agent actions inside a temporal window.
+
+```text
+Trace
+  -> payload path reconstruction
+  -> system-scenario reconstruction
+  -> temporal/behavioral context
+  -X-> causal authority
+```
+
+Trace parent/child structure therefore remains local/behavioral unless independent causal provenance is supplied.
+
+### Dynamic Terrain boundary
+
+Dynamic Terrain is not the authoritative graph. It overlays CTEG with current navigational influence:
+
+```text
+reinforcement
+erosion
+surprise
+basin
+attractor
+basin drift
+```
+
+`surprise` measures how unexpected an observed transition/outcome is relative to experiential history. It may affect attention or reinforcement, but it cannot create causal authority.
+
+### Optional cognitive memory
+
+The Cognitive Graph is intentionally separate and optional:
+
+```text
+CTEG Database       REQUIRED   -> observed experience
+Cognitive Graph     OPTIONAL   -> belief / goal / hypothesis / decision / plan / prediction
+```
+
+A cognitive node may reference CTEG evidence, but it must never contaminate observed historical truth simply because the agent believed or predicted something.
+
+See [`CTEG.md`](CTEG.md) and [`COGNITIVE_GRAPH.md`](COGNITIVE_GRAPH.md).
