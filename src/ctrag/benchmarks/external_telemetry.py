@@ -21,7 +21,7 @@ class ExternalDatasetProfile:
 
 AIOPS2020_PROFILE = ExternalDatasetProfile(
     name="AIOps2020",
-    source_url="https://github.com/NetManAIOps",
+    source_url="https://github.com/NetManAIOps/AIOps-Challenge-2020-Data",
     evidence_shapes=("TRACE", "METRIC_SERIES"),
     supports_execution_topology=True,
     supports_causal_ground_truth=False,
