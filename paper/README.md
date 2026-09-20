@@ -4,7 +4,8 @@ Canonical manuscript sources for the first CT-RAG paper.
 
 - `CT-RAG-paper-v0.1.md` — source manuscript with citation keys.
 - `CT-RAG-paper-v0.1.tex` — LaTeX source.
-- `ctrag-references.bib` — bibliography.
+- `ctrag-references.bib` — verified bibliography.
+- `REFERENCE_AUDIT.md` — manual audit of recent references and the exact claims attributed to them.
 
 ## Evidence freeze for v0.1
 
@@ -21,3 +22,19 @@ Subsequent implementation commits must not silently rewrite these reported numbe
 ## Claim discipline
 
 The paper distinguishes runtime causal provenance from causal inference. Controlled synthetic mechanism experiments are not presented as production generalization. The preregistered Evidence Shape Router × CT-RAG factorial study is not a reported result until executed.
+
+
+## Post-freeze falsification check
+
+The headline numerical tables remain frozen to CI #210. A separate
+reachability-gate isolation test was executed after that freeze: making
+`GlobalFix` reachable from `retry` causes the 9/10 branch to outrank
+`ProviderFallback`, as predicted by the declared reachability-gate plus
+Wilson-support rule.
+
+- head commit: `9ed7878813b951ca04428e27868d5a4427e8011f`
+- GitHub Actions run: `#213`
+- matrix: Python 3.11 / 3.12 / 3.13 successful
+
+This validation is reported separately so it cannot silently alter the
+pre-existing headline effect sizes.
