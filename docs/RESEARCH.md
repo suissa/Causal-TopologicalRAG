@@ -176,47 +176,61 @@ Discovered attractors preserve an explicit `origin` so empirical discovery canno
 
 CT-RAG separates historical truth from navigational influence.
 
-For transition \(e\), the empirical terrain maintains:
+For transition `e`, the terrain keeps the observed transition count `f_e` and a separate navigational influence `w_e^nav` outside the authoritative edge object.
+
+The original reproducible baseline supports frequency reinforcement. Frequency-only reinforcement has an acknowledged popularity bias: common paths can become easier to retrieve merely because they are common.
+
+The implementation now also exposes **surprise-weighted reinforcement**:
 
 \[
-f_e = \text{observed transition count}
+\Delta w_e =
+\eta
+\frac{\min(|\delta_e|,c)}{c}
+\frac{1}{\sqrt{1+n_e}}
 \]
 
-and a navigational influence
+where `δ_e` is an externally supplied prediction-error/surprise signal, `c` bounds the contribution and `n_e` is the prior observation count. This supports TD-error-style or calibrated-residual signals without claiming that CT-RAG itself estimates a TD error.
 
-\[
-w_e^{nav}
-\]
+Rare-but-critical paths can be protected with a minimum retrieval-strength floor using the existing protected-edge mechanism. Protection changes accessibility, not stored history or causal authority.
 
-outside the authoritative edge object.
-
-Repeated trajectories can reinforce \(w_e^{nav}\). Erosion applies exponential decay:
+Erosion still applies exponential decay to navigational influence without deleting events or rewriting causal provenance/confidence:
 
 \[
 w_e^{nav}(t + \Delta t)
 = \max(w_{min}, w_e^{nav}(t)e^{-\lambda \Delta t})
 \]
 
-without deleting the event or rewriting causal provenance/confidence.
-
-For a causal path, current terrain-aware retrieval uses the geometric mean of edge influences as a final multiplicative navigation prior.
-
-This implements the conceptual distinction:
+For a causal path, the current terrain-aware retriever uses the geometric mean of edge influences as a final multiplicative navigation prior.
 
 ```text
-historical preservation != current navigational influence
+historical/storage strength
+!=
+current retrieval/navigation strength
 ```
 
-## 10. Basin drift
+This separation is analogous to Bjork & Bjork's storage-strength versus retrieval-strength distinction. The analogy motivates terminology; CT-RAG does not claim to be a cognitive model.
 
-For a basin before and after an update, the current drift metric is Jaccard distance:
+## 10. Basin drift: structural baseline and distributional target
+
+The implementation currently measures **structural membership drift** with Jaccard distance:
 
 \[
-D_B(A) = 1 - \frac{|B_{before}(A) \cap B_{after}(A)|}
-{|B_{before}(A) \cup B_{after}(A)|}
+D_J(A) = 1 - \frac{|B_{before}(A) \cap B_{after}(A)|}{|B_{before}(A) \cup B_{after}(A)|}
 \]
 
-This makes changes in the empirical terrain measurable between snapshots.
+This answers whether basin membership changed. It does **not** estimate how transition probabilities or absorption probabilities changed, so the paper must not present Jaccard membership drift as a complete dynamical estimator.
+
+The research target is a windowed transition model `P_t`. For attractors `A` in a set `𝒜`, define an empirical absorption distribution `π_t(𝒜|x)` from transitions observed in window `W_t`.
+
+Distributional basin drift can then use total variation or Jensen-Shannon divergence:
+
+\[
+D_{TV}(t_i,t_j \mid x) = \frac{1}{2}\sum_{a\in\mathcal{A}} |\pi_{t_i}(a\mid x)-\pi_{t_j}(a\mid x)|
+\]
+
+with `D_JS(π_ti || π_tj)` as an alternative. Change-point detectors such as ADWIN or CUSUM should operate on the resulting drift-statistic stream instead of relying on visual inspection.
+
+This distributional estimator is planned work; the current code implements only the Jaccard structural baseline.
 
 ## 11. Causality levels
 
