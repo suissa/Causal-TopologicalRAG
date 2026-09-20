@@ -283,3 +283,44 @@ def test_temporal_traversal_defaults_to_execution_scope() -> None:
 
     assert default_distances == {"a": 0, "b": 1}
     assert explicit_cross_execution == {"a": 0, "b": 1, "c": 2}
+
+
+def test_projector_links_cross_execution_temporal_relation_without_causality() -> None:
+    topology = CausalTopology()
+    projector = EventProjector(topology)
+    now = datetime(2026, 9, 20, 8, 0, tzinfo=timezone.utc)
+
+    projector.ingest(EventRecord(
+        event_id="deploy",
+        event_type="Deployment.Completed",
+        timestamp=now,
+        execution_id="deploy-exec",
+    ))
+    projector.ingest(EventRecord(
+        event_id="checkout",
+        event_type="Checkout.Started",
+        timestamp=now.replace(minute=1),
+        execution_id="checkout-exec",
+    ))
+
+    edge = projector.link_temporal(
+        "deploy",
+        "checkout",
+        scope=TemporalScope.DEPLOYMENT,
+    )
+
+    assert edge.kind is EdgeKind.TEMPORAL
+    assert edge.temporal_scope is TemporalScope.DEPLOYMENT
+    assert topology.outgoing("deploy", {EdgeKind.CAUSAL}) == []
+    assert topology.distances(
+        "deploy",
+        direction="out",
+        kinds={EdgeKind.TEMPORAL},
+        temporal_scopes={TemporalScope.DEPLOYMENT},
+    ) == {"deploy": 0, "checkout": 1}
+    # Fail-safe default excludes the cross-execution hop.
+    assert topology.distances(
+        "deploy",
+        direction="out",
+        kinds={EdgeKind.TEMPORAL},
+    ) == {"deploy": 0}
