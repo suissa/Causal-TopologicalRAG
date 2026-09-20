@@ -19,6 +19,15 @@ def _validate_timestamp(value: datetime) -> None:
         raise ValueError("timestamp must be timezone-aware")
 
 
+class TemporalScope(str, Enum):
+    """Scope within which a TEMPORAL relation is meaningful."""
+
+    EXECUTION = "execution"
+    ACTOR_OR_AGGREGATE = "actor_or_aggregate"
+    DEPLOYMENT = "deployment"
+    INCIDENT_WINDOW = "incident_window"
+    GLOBAL_OBSERVED = "global_observed"
+
 class EdgeKind(str, Enum):
     SEMANTIC = "semantic"
     CAUSAL = "causal"
@@ -121,6 +130,7 @@ class Edge:
     confidence: float = 1.0
     evidence: tuple[EdgeEvidence, ...] = ()
     provenance_metadata: dict[str, Any] = field(default_factory=dict, hash=False)
+    temporal_scope: TemporalScope | None = None
 
     def __post_init__(self) -> None:
         _validate_identity(self.source, "edge source")
@@ -135,6 +145,11 @@ class Edge:
             raise ValueError("causal provenance is only valid for causal edges")
         if self.kind is not EdgeKind.CAUSAL and (self.evidence or self.provenance_metadata):
             raise ValueError("causal evidence/provenance metadata is only valid for causal edges")
+        if self.kind is EdgeKind.TEMPORAL and self.temporal_scope is None:
+            # Backward-compatible serialized/manual temporal edges remain valid.
+            pass
+        elif self.kind is not EdgeKind.TEMPORAL and self.temporal_scope is not None:
+            raise ValueError("temporal_scope is only valid for temporal edges")
         evidence_ids = [item.id for item in self.evidence]
         if len(evidence_ids) != len(set(evidence_ids)):
             raise ValueError("edge evidence ids must be unique")
@@ -152,6 +167,7 @@ class Edge:
             "confidence": self.confidence,
             "evidence": [item.to_dict() for item in self.evidence],
             "provenance_metadata": dict(self.provenance_metadata),
+            "temporal_scope": None if self.temporal_scope is None else self.temporal_scope.value,
         }
 
     @classmethod
@@ -166,6 +182,9 @@ class Edge:
             confidence=float(raw.get("confidence", 1.0)),
             evidence=tuple(EdgeEvidence.from_dict(item) for item in raw.get("evidence", [])),
             provenance_metadata=dict(raw.get("provenance_metadata") or {}),
+            temporal_scope=(
+                None if raw.get("temporal_scope") is None else TemporalScope(raw["temporal_scope"])
+            ),
         )
 
 
