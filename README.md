@@ -2,7 +2,9 @@
 
 # Causal-Topological RAG (CT-RAG)
 
-CT-RAG is an experimental retrieval architecture for stateful agents and event-driven systems. It combines semantic and lexical retrieval with explicit causal evidence, topological navigation, behavioral traces, dynamic terrain and basins of attraction.
+CT-RAG is an experimental **Structured Experiential Memory** layer for long-lived agents and stateful/event-driven systems. It complements vector/lexical retrieval with explicit causal evidence, temporal and behavioral topology, dynamic terrain and basins of attraction.
+
+> **Retrieval becomes navigation; learning becomes terrain modification.**
 
 The core question is not only **“what looks like this?”**, but also **“where am I, how did I get here, and what happened the last time this terrain was traversed?”**
 
@@ -12,6 +14,7 @@ The core question is not only **“what looks like this?”**, but also **“whe
 - [Commercial-system root-cause experiment](research/commercial-system-v1/REPORT.md)
 - [Interactive commercial causal graph](research/commercial-system-v1/explorer.html)
 - [Formal research specification and related work](docs/RESEARCH.md)
+- [Paper positioning: Structured Experiential Memory](docs/PAPER_POSITIONING.md)
 - [Formalization review hardening](docs/FORMALIZATION_REVIEW_HARDENING.md)
 - [Temporal/causal novelty boundaries](docs/RELATED_WORK_TEMPORAL_CAUSAL.md)
 - [Intervention-aware CT-RAG](docs/INTERVENTIONS.md)
