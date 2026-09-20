@@ -71,24 +71,24 @@ causal evidence
 
 ## EvidenceShape
 
-Reference taxonomy:
+The initial public enum is intentionally small and aligned with the evidence forms needed by CT-RAG diagnostics:
 
-```text
-NARRATIVE
-TABLE
-CONFIG_TREE
-TRACE
-METRIC_SERIES
-EVENT
-LOG
-CODE
-GRAPH
-IMAGE
-STRUCTURED_PAYLOAD
-UNKNOWN
+```python
+class EvidenceShape(str, Enum):
+    NARRATIVE = "narrative"
+    TABLE = "table"
+    CONFIG_TREE = "config_tree"
+    TRACE = "trace"
+    METRIC_SERIES = "metric_series"
+    EVENT = "event"
+    LOG = "log"
+    CODE = "code"
+    STRUCTURED_PAYLOAD = "structured_payload"
 ```
 
-The taxonomy is extensible. Shape is a routing property, not an epistemic claim.
+Additional shapes such as graph/image evidence can be introduced later as extensions rather than widening the initial benchmark surface. Ambiguous/unclassified inputs are represented by a routing result with no accepted deterministic shape, not by silently coercing them into `NARRATIVE`.
+
+Shape is a routing property, not an epistemic claim.
 
 ## Routing policy
 
@@ -150,6 +150,25 @@ A route decision should contain at least:
 ```
 
 The router must never silently discard fields required for provenance, chronology or causal validation.
+
+## Preserve contract
+
+Each routing decision includes a `preserve` array describing the fields/relations that the selected adapter is forbidden to flatten away.
+
+Examples:
+
+```text
+CONFIG_TREE
+preserve = [path, value, value_type, source_layer, effective_value]
+
+TRACE
+preserve = [trace_id, span_id, parent_span_id, service, operation, duration, status]
+
+METRIC_SERIES
+preserve = [series_id, timestamp, window, value, unit, labels]
+```
+
+The array is part of the reproducibility contract: adapter/version changes that alter preserved fields must be visible in benchmark artifacts.
 
 ## TypedEvidenceAnchor
 
