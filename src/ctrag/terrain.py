@@ -152,37 +152,75 @@ class DynamicTerrain:
         self._influence[identity] = updated
         return updated
 
+    def transition_surprise_signal(
+        self,
+        edge: Edge,
+        *,
+        smoothing: float = 1.0,
+    ) -> SurpriseSignal:
+        """Estimate surprise as 1 - P(edge | source, kind) before observing it.
+
+        The empirical transition probability uses Laplace smoothing over outgoing
+        edges of the same kind. This is the deterministic default CT-RAG terrain
+        surprise. It is a transition residual, not LLM confidence and not an RL
+        TD error.
+        """
+        if smoothing <= 0 or not math.isfinite(smoothing):
+            raise ValueError("smoothing must be finite and positive")
+        if not self.topology.has_edge(edge):
+            raise KeyError("cannot score an edge that is not present in the topology")
+
+        alternatives = self.topology.outgoing(edge.source, {edge.kind})
+        if not alternatives:
+            raise ValueError("transition source has no outgoing alternatives")
+
+        total = sum(self.transition_count(candidate) for candidate in alternatives)
+        denominator = total + smoothing * len(alternatives)
+        numerator = self.transition_count(edge) + smoothing
+        probability = numerator / denominator
+        return SurpriseSignal(
+            value=1.0 - probability,
+            source=SurpriseSource.TRANSITION_RESIDUAL,
+            method_version="laplace-outgoing-v1",
+        )
+
     def reinforce_by_surprise(
         self,
         edge: Edge,
         *,
-        prediction_error: float,
+        signal: SurpriseSignal,
         cap: float = 1.0,
     ) -> float:
-        """Reinforce by bounded surprise with diminishing frequency gain.
+        """Reinforce using an explicit, versioned surprise signal.
 
-        This is the recommended research policy for adaptive terrain updates.
-        Unlike frequency-only reinforcement, repeated predictable transitions
-        receive progressively smaller increments. ``prediction_error`` may be a
-        TD error, calibrated residual, or another externally defined surprise
-        signal; this method does not claim to estimate that error itself.
-
-        The historical transition count is still recorded, and protected edges
-        retain the configured safety floor during later decay.
+        TRANSITION_RESIDUAL is the recommended deterministic default and can be
+        obtained from transition_surprise_signal(). OUTCOME_RESIDUAL and
+        POLICY_TD_ERROR are accepted only when an external component computes
+        them and supplies their provenance. CT-RAG never treats LLM confidence as
+        prediction error by default.
         """
-        if not math.isfinite(prediction_error):
-            raise ValueError("prediction_error must be finite")
         if cap <= 0 or not math.isfinite(cap):
             raise ValueError("cap must be finite and positive")
         if not self.topology.has_edge(edge):
             raise KeyError("cannot reinforce an edge that is not present in the topology")
 
         observations = self.transition_count(edge)
-        bounded_surprise = min(abs(prediction_error), cap) / cap
+        bounded_surprise = min(abs(signal.value), cap) / cap
         diminishing_gain = 1.0 / math.sqrt(1.0 + observations)
         amount = self.config.reinforcement_step * bounded_surprise * diminishing_gain
         return self.reinforce(edge, amount=amount)
 
+    def reinforce_by_transition_surprise(
+        self,
+        edge: Edge,
+        *,
+        smoothing: float = 1.0,
+        cap: float = 1.0,
+    ) -> tuple[float, SurpriseSignal]:
+        """Compute the default transition residual, then reinforce the edge."""
+        signal = self.transition_surprise_signal(edge, smoothing=smoothing)
+        updated = self.reinforce_by_surprise(edge, signal=signal, cap=cap)
+        return updated, signal
     def _matching_edges(
         self,
         source: str,
