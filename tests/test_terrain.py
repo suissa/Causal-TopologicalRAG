@@ -138,3 +138,18 @@ def test_protected_rare_edge_has_a_decay_floor_and_reset_preserves_history() -> 
     terrain.reset_navigation()
     assert terrain.influences == {}
     assert terrain.transition_counts == history
+
+
+def test_surprise_reinforcement_downweights_repeated_predictable_transitions() -> None:
+    topology, first, _ = simple_topology()
+    terrain = DynamicTerrain(topology, config=TerrainConfig(reinforcement_step=1.0))
+
+    first_update = terrain.reinforce_by_surprise(first, prediction_error=1.0)
+    second_update = terrain.reinforce_by_surprise(first, prediction_error=1.0)
+    predictable_update = terrain.reinforce_by_surprise(first, prediction_error=0.0)
+
+    assert first_update == 2.0
+    assert second_update < 3.0
+    assert second_update > first_update
+    assert predictable_update == second_update
+    assert terrain.transition_count(first) == 3
