@@ -124,7 +124,25 @@ Events sharing an execution identifier may also receive temporal and behavioral 
 
 External telemetry often lacks authoritative causal fields. CT-RAG therefore operates in a degraded but explicit mode: trace hierarchy, temporal adjacency, and behavioral continuity may be represented, but disconnected spans or events are not promoted into \(E_c\) merely because no competing explanation exists. This fail-safe behavior reduces recall of causal paths when provenance is missing, but preserves epistemic integrity.
 
-## 4.3 Basins and attractors
+## 4.3 Observability as an evidence contract, not a causal oracle
+
+CT-RAG requires **observable execution context**, but it does not require "perfect telemetry" and it does not treat observability as an oracle that manufactures causality. This distinction matters operationally.
+
+Modern distributed systems already propagate execution context to make traces reconstructable. W3C Trace Context standardizes portable `traceparent`/`tracestate` propagation specifically so requests can be correlated across distributed components [@w3c2021tracecontext]. OpenTelemetry likewise treats traces, metrics, and logs as the basic signals required to understand a running system, and its current Generative AI conventions instrument agent invocations, model calls, and tool executions [@otel2026observability; @otel2026genai]. CT-RAG consumes this class of evidence but assigns different epistemic roles to different fields.
+
+| Evidence available | CT-RAG role | If absent |
+|---|---|---|
+| execution/trace/request identifiers | behavioral continuity and correlation | lower cross-component recall |
+| event time and ingest/observed time | scoped temporal ordering | weaker temporal navigation |
+| logs, metrics, traces, tool-call records | typed contextual evidence | reduced diagnostic context |
+| explicit `causation_id`, declared workflow dependency, or equivalent runtime provenance | authoritative causal edge | **no causal promotion** |
+| full prompts/completions | optional diagnostic evidence | no loss of causal authority by itself |
+
+The final row is important for cost and privacy: a professional observability stack need not record every token or payload. OpenTelemetry itself treats verbose GenAI content as opt-in because it may be large or sensitive. What CT-RAG needs for authoritative causal retrieval is not maximum telemetry volume; it needs **semantically typed provenance and context propagation**.
+
+This also changes how the legacy-system limitation should be stated. Retrofitting a system that emits only unstructured logs can be expensive, and causal coverage will initially be low. That is a real deployment cost. However, missing provenance causes CT-RAG to **abstain from causal authority**, not to infer causality from temporal adjacency. The failure mode is reduced causal recall, not silent conversion of correlation into causation.
+
+## 4.4 Basins and attractors
 
 CT-RAG models repeated execution as movement through topology. A structural sink is a node with no outgoing basin-relevant edge. A recurrent strongly connected component (SCC) may also act as an attractor. Basins are defined as bounded incoming neighborhoods of registered attractors over causal and behavioral relations.
 
@@ -398,7 +416,7 @@ The Wilson lower bound is a conservative support score, not a posterior probabil
 
 The strongest results are controlled synthetic fixtures. They establish that runtime topology can encode useful information under specific adversarial geometries, but they do not establish improvements on production incidents, LongMemEval, AIOps traces, or arbitrary agent tasks.
 
-The repository contains adapters and external-telemetry scaffolding, but a versioned external microservice fixture sufficient for a publication-level external-validity claim is not yet part of the evidence reported here. In telemetry without authoritative causation metadata, CT-RAG deliberately operates with weaker temporal/behavioral relations and should not be described as recovering authoritative causality.
+The repository contains adapters and external-telemetry scaffolding, but a versioned external microservice fixture sufficient for a publication-level external-validity claim is not yet part of the evidence reported here. In telemetry without authoritative causation metadata, CT-RAG deliberately operates with weaker temporal/behavioral relations and should not be described as recovering authoritative causality. Systems that already propagate trace/request context and structured agent/tool telemetry have a substantially lower integration barrier than legacy systems that emit only unstructured logs; retrofitting provenance into the latter remains a real engineering cost, not something the current experiments eliminate.
 
 ## 10.4 Statistical validity
 
