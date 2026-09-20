@@ -341,6 +341,34 @@ class EventProjector:
             ))
         self._last_by_execution[event.execution_id] = event.event_id
 
+    def link_temporal(
+        self,
+        source_id: str,
+        target_id: str,
+        *,
+        scope: TemporalScope,
+    ) -> Edge:
+        """Link already-projected records with explicit temporal scope.
+
+        This is the public cross-execution temporal relation API for relations
+        such as deploy-before-execution or config-change-before-incident.
+        It never creates causal authority.
+        """
+        if source_id not in self.topology.nodes:
+            raise KeyError(source_id)
+        if target_id not in self.topology.nodes:
+            raise KeyError(target_id)
+        if source_id == target_id:
+            raise ValueError("temporal relation endpoints must be distinct")
+        edge = Edge(
+            source=source_id,
+            target=target_id,
+            kind=EdgeKind.TEMPORAL,
+            temporal_scope=scope,
+        )
+        self._ensure_edge(edge)
+        return edge
+
     def ingest(self, event: EventRecord) -> MemoryNode:
         existing = self.topology.nodes.get(event.event_id)
         if existing is not None:
