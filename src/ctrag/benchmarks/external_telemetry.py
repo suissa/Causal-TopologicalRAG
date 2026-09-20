@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-from ctrag.models import Edge, EdgeKind, MemoryNode
+from ctrag.models import Edge, EdgeKind, MemoryNode, TemporalScope
 from ctrag.topology import CausalTopology
 
 
@@ -126,7 +126,7 @@ def load_trace_csv(
     for trace_id, members in by_trace.items():
         ordered = [node_id for _, node_id in sorted(members, key=lambda item: (item[0], item[1]))]
         for left, right in zip(ordered, ordered[1:]):
-            edge = Edge(left, right, EdgeKind.TEMPORAL)
+            edge = Edge(left, right, EdgeKind.TEMPORAL, temporal_scope=TemporalScope.EXECUTION)
             if not topology.has_edge(edge):
                 topology.add_edge(edge)
 
