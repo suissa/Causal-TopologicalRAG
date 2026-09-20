@@ -60,3 +60,28 @@ Two additional public-source adapters are now documented in `src/ctrag/benchmark
 `load_trace_csv()` provides a provenance-safe generic trace adapter: span parent/child becomes `BEHAVIORAL`; within-trace chronology becomes `TEMPORAL(scope=execution)`; neither relation becomes `CAUSAL` automatically.
 
 External benchmark inputs must be versioned or fingerprinted locally. CI must not silently pull mutable remote datasets and then report unreproducible results.
+
+## Degraded external-telemetry mode
+
+When an external dataset exposes chronology and execution hierarchy but no authoritative causation identifier, CT-RAG operates in a deliberately degraded mode:
+
+```text
+available:
+  E_t  temporal evidence
+  E_b  behavioral/execution evidence
+
+unavailable:
+  authoritative E_c
+```
+
+The adapter must not infer a causal edge by exclusion. Specifically:
+
+```text
+span parent/child       -> BEHAVIORAL
+within-trace chronology -> TEMPORAL(scope=execution)
+neither                 -> no edge
+```
+
+An `INFERRED` causal edge is permissible only when a named inference method explicitly produces it together with method/version, confidence and evidence provenance. Such an edge remains weaker than runtime-declared causation.
+
+External results obtained in degraded mode must be labeled as topology/trajectory evidence, not validation of authoritative causal-path retrieval.
