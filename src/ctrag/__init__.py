@@ -10,6 +10,21 @@ from .adapters import (
 )
 from .basins import AttractorDescriptor, BasinAffinity
 from .events import EventFieldMapping, EventProjector, EventRecord
+from .evidence import (
+    ConfigTreeAdapter,
+    EvidenceAdapter,
+    EvidenceRoute,
+    EvidenceRouter,
+    EvidenceShape,
+    LocalRelation,
+    LocalRelationKind,
+    MetricSeriesAdapter,
+    RawEvidence,
+    SemanticShapeClassifier,
+    TraceAdapter,
+    TypedEvidenceAnchor,
+    adapter_for,
+)
 from .models import (
     CausalPath,
     CausalProvenance,
@@ -35,7 +50,7 @@ from .storage import (
     TopologyView,
     VectorIndex,
 )
-from .terrain import BasinDrift, DynamicTerrain, SurpriseSignal, SurpriseSource, TerrainConfig, TerrainSnapshot
+from .terrain import BasinDrift, DynamicTerrain, SurpriseSignal, SurpriseSource, TerrainConfig, TerrainSnapshot, TerrainUpdate
 from .terrain_retriever import TerrainAwareRetriever
 from .topology import CausalTopology
 
@@ -84,6 +99,20 @@ __all__ = [
     "TopologyStore",
     "TopologyView",
     "VectorIndex",
+    "ConfigTreeAdapter",
+    "EvidenceAdapter",
+    "EvidenceRoute",
+    "EvidenceRouter",
+    "EvidenceShape",
+    "LocalRelation",
+    "LocalRelationKind",
+    "MetricSeriesAdapter",
+    "RawEvidence",
+    "SemanticShapeClassifier",
+    "TraceAdapter",
+    "TypedEvidenceAnchor",
+    "TerrainUpdate",
+    "adapter_for",
     "validate_causal_claim",
     "reciprocal_rank_fusion",
 ]
