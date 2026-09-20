@@ -252,3 +252,34 @@ def test_temporal_scope_filter_blocks_cross_scope_hops() -> None:
 
     assert execution_only == {"a": 0, "b": 1}
     assert deployment_only == {"b": 0, "c": 1}
+
+
+def test_temporal_traversal_defaults_to_execution_scope() -> None:
+    from ctrag import Edge, MemoryNode
+
+    topology = CausalTopology()
+    for node_id in ("a", "b", "c"):
+        topology.add_node(MemoryNode(id=node_id, text=node_id))
+    topology.add_edge(Edge(
+        "a", "b", EdgeKind.TEMPORAL, temporal_scope=TemporalScope.EXECUTION
+    ))
+    topology.add_edge(Edge(
+        "b", "c", EdgeKind.TEMPORAL, temporal_scope=TemporalScope.DEPLOYMENT
+    ))
+
+    default_distances = topology.distances(
+        "a",
+        direction="out",
+        kinds={EdgeKind.TEMPORAL},
+        max_hops=4,
+    )
+    explicit_cross_execution = topology.distances(
+        "a",
+        direction="out",
+        kinds={EdgeKind.TEMPORAL},
+        temporal_scopes={TemporalScope.EXECUTION, TemporalScope.DEPLOYMENT},
+        max_hops=4,
+    )
+
+    assert default_distances == {"a": 0, "b": 1}
+    assert explicit_cross_execution == {"a": 0, "b": 1, "c": 2}
