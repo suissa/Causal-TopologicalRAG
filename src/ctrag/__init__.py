@@ -20,6 +20,7 @@ from .models import (
     QueryMode,
     RetrievalHit,
     RetrievalWeights,
+    TemporalScope,
 )
 from .query import CausalClaimError, EvidenceLevel, RetrievalStage, StagedRetrievalResult, validate_causal_claim
 from .directional_retriever import CTRetriever
@@ -34,7 +35,7 @@ from .storage import (
     TopologyView,
     VectorIndex,
 )
-from .terrain import BasinDrift, DynamicTerrain, TerrainConfig, TerrainSnapshot
+from .terrain import BasinDrift, DynamicTerrain, SurpriseSignal, SurpriseSource, TerrainConfig, TerrainSnapshot
 from .terrain_retriever import TerrainAwareRetriever
 from .topology import CausalTopology
 
@@ -73,6 +74,9 @@ __all__ = [
     "SQLiteCTStore",
     "SentenceTransformersEmbedder",
     "StagedRetrievalResult",
+    "SurpriseSignal",
+    "SurpriseSource",
+    "TemporalScope",
     "TerrainAwareRetriever",
     "TerrainConfig",
     "TerrainSnapshot",

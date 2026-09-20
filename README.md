@@ -2,7 +2,9 @@
 
 # Causal-Topological RAG (CT-RAG)
 
-CT-RAG is an experimental retrieval architecture for stateful agents and event-driven systems. It combines semantic and lexical retrieval with explicit causal evidence, topological navigation, behavioral traces, dynamic terrain and basins of attraction.
+CT-RAG is an experimental **Structured Experiential Memory** layer for long-lived agents and stateful/event-driven systems. It complements vector/lexical retrieval with explicit causal evidence, temporal and behavioral topology, dynamic terrain and basins of attraction.
+
+> **Retrieval becomes navigation; learning becomes terrain modification.**
 
 The core question is not only **“what looks like this?”**, but also **“where am I, how did I get here, and what happened the last time this terrain was traversed?”**
 
@@ -12,6 +14,14 @@ The core question is not only **“what looks like this?”**, but also **“whe
 - [Commercial-system root-cause experiment](research/commercial-system-v1/REPORT.md)
 - [Interactive commercial causal graph](research/commercial-system-v1/explorer.html)
 - [Formal research specification and related work](docs/RESEARCH.md)
+- [Paper positioning: Structured Experiential Memory](docs/PAPER_POSITIONING.md)
+- [Formalization review hardening](docs/FORMALIZATION_REVIEW_HARDENING.md)
+- [Temporal/causal novelty boundaries](docs/RELATED_WORK_TEMPORAL_CAUSAL.md)
+- [Intervention-aware CT-RAG](docs/INTERVENTIONS.md)
+- [Early behavioral degradation experiment](docs/EARLY_BEHAVIORAL_DEGRADATION.md)
+- [Evidence Shape Router](docs/EVIDENCE_SHAPE_ROUTER.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Threats to validity](docs/THREATS_TO_VALIDITY.md)
 - [Reproducibility protocol](docs/REPRODUCIBILITY.md)
 - [Topology: construction, meaning and structural parts](docs/TOPOLOGY.md)
 - [Temporal topology: order, distance, evolution and invariants](docs/TEMPORAL_TOPOLOGY.md)
@@ -126,6 +136,12 @@ for hit in result.hits:
     print(hit.node.id, round(hit.score, 3), hit.components, hit.causal_path)
 ```
 
+### Temporal-scope traversal safety
+
+`TemporalScope` is part of temporal-edge identity and `CausalTopology.distances()/neighborhood()` now accept explicit temporal-scope filters. Default CT-RAG topological retrieval is restricted to `EXECUTION` temporal edges, with legacy unscoped temporal edges interpreted as execution-local for compatibility.
+
+Cross-execution temporal traversal (for example `DEPLOYMENT` or `INCIDENT_WINDOW`) must be requested explicitly by higher-level retrieval policies. The remaining work in issue #55 is exposing those policies cleanly at query/path level and combining them with Temporal Consistency Windows.
+
 ## Event-sourced ingestion
 
 `EventProjector` converts execution events into memory nodes. Explicit `causation_id` creates a causal edge with evidence; if the parent event arrives after the child, pending causation is reconciled deterministically when the parent appears. Events in the same execution receive temporal/behavioral relations, but those relations are never promoted to causality by order alone.
@@ -145,6 +161,14 @@ See [`docs/retrieval-adapters.md`](docs/retrieval-adapters.md).
 `DynamicTerrain` tracks observed transition frequency and navigational influence separately from the authoritative graph. Repeated trajectories can be reinforced; erosion decays influence without deleting historical evidence. The terrain can discover structural sink and recurrent-SCC attractors and measure basin drift between snapshots.
 
 `TerrainAwareRetriever` consumes this overlay without changing the historical baseline `CTRetriever.search()` implementation used by the published validation report.
+
+## Early behavioral degradation
+
+`python -m ctrag.benchmarks.early_behavioral_degradation` implements a deterministic early-warning mechanism test. It tracks the absorption distribution of execution trajectories between `Recovered` and `HumanIntervention` attractors and compares Total-Variation basin drift with an independent infrastructure alert threshold.
+
+In the committed synthetic fixture, sustained behavioral drift fires on day 8 while the infrastructure threshold fires on day 10, yielding a **2-day controlled lead time** with zero baseline false alerts. This is a mechanism result, not a production forecasting claim.
+
+See [the experiment protocol](docs/EARLY_BEHAVIORAL_DEGRADATION.md).
 
 ## MAPE-K observability mechanism
 

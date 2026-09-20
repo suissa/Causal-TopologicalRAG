@@ -170,3 +170,74 @@ CT-RAG causal topology. The controlled loop verifies the following order:
 The result asserts chronological ordering, evidence-bounded knowledge, the absence of
 authoritative-history mutation, and recovered latency below its threshold. It does not
 claim that an arbitrary production incident is diagnosable or recoverable by MAPE-K.
+
+## Early-degradation robustness suite
+
+```bash
+python -m ctrag.benchmarks.early_degradation_robustness \
+  --output benchmark-results/early-degradation-robustness
+```
+
+The suite performs three reviewer-facing checks:
+
+1. **Sensitivity grid:** Total-Variation thresholds from 0.05 to 0.20 and sustained-window requirements from 1 to 4. Report the full surface rather than selecting only the best configuration.
+2. **Stationary null stress:** 500 deterministic 30-day healthy scenarios with stochastic variation around the healthy basin split. Report scenario-level false-positive rate and mean time between false alarms (or an observation-time lower bound if none occur).
+3. **Bootstrap:** 1,000 deterministic incident-level resamples over a controlled synthetic incident cohort. The resulting confidence interval is explicitly synthetic and must not be presented as a production confidence interval.
+
+### Temporal Drift Detection Accuracy
+
+For datasets with a known drift interval, define a detection event as correct when the detector fires within the preregistered tolerance around the labeled transition. Report:
+
+```text
+Temporal Drift Detection Accuracy
+Detection Delay
+Lead Time versus independent operational alert
+False Positive Rate
+False Negative Rate
+Mean Time Between False Alarms
+```
+
+Lead time is:
+
+\[
+LeadTime = t_{traditional-alert} - t_{basin-drift-alert}
+\]
+
+A positive lead time is useful only when paired with an acceptable false-positive rate.
+
+### FPR-matched detector ablation
+
+The fixed infrastructure level threshold is retained only as a historical/descriptive baseline. It is **not** the primary evidence for early-warning advantage.
+
+The primary comparison now applies the same sustained change-detection pattern to both signal families:
+
+```text
+behavioral:
+  healthy absorption distribution
+      -> Total-Variation shift
+      -> sustained-window detector
+
+infrastructure:
+  healthy infrastructure mean
+      -> absolute scalar shift
+      -> sustained-window detector
+```
+
+For every behavioral configuration `(TV threshold, sustained windows)`, the infrastructure change threshold is calibrated **only on stationary null scenarios** to match the behavioral detector's scenario-level false-positive rate as closely as the finite null sample permits.
+
+Only then is lead time computed:
+
+`LeadTime_matched = t_infra-change,FPR-matched - t_behavioral,FPR-matched`
+
+This ablation tests whether the behavioral representation contains earlier information, rather than comparing a change detector with a frozen level threshold.
+
+Artifacts:
+
+```text
+benchmark-results/early-degradation-robustness/
+  robustness.json
+  sensitivity.csv
+  paired-fpr-detector-ablation.csv
+```
+
+Interpretation must report the achieved FPR gap for every pair. Configurations whose FPRs cannot be matched sufficiently closely must not be used as evidence of detector superiority.

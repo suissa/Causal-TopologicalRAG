@@ -11,6 +11,14 @@ from ctrag.topology import CausalTopology
 GENERATOR_VERSION = 1
 
 
+def _edge_manifest(edge: Edge) -> dict:
+    """Preserve frozen v1 manifests while allowing explicit temporal scopes."""
+    payload = asdict(edge)
+    if payload.get("temporal_scope") is None:
+        payload.pop("temporal_scope", None)
+    return payload
+
+
 @dataclass
 class Query:
     id: str
@@ -39,7 +47,7 @@ class Dataset:
             "nodes": [dict(id=n.id, text=n.text, timestamp=n.timestamp.isoformat(),
                            metadata=n.metadata, is_attractor=n.is_attractor)
                       for n in sorted(self.topology.nodes.values(), key=lambda n: n.id)],
-            "edges": [asdict(e) for node_id in sorted(self.topology.nodes)
+            "edges": [_edge_manifest(e) for node_id in sorted(self.topology.nodes)
                       for e in sorted(self.topology.outgoing(node_id),
                                       key=lambda e: (e.target, e.kind.value))],
             "queries": [asdict(q) for q in self.queries],

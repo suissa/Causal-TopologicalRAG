@@ -4,7 +4,7 @@ import math
 
 from .adapters import EmbeddingProvider, IdfOverlapRetriever, LexicalRetriever, reciprocal_rank_fusion
 from .embedding import HashingEmbedder, cosine_similarity
-from .models import CausalPath, EdgeKind, QueryMode, RetrievalHit, RetrievalWeights
+from .models import CausalPath, EdgeKind, QueryMode, RetrievalHit, RetrievalWeights, TemporalScope
 from .query import RetrievalStage, StagedRetrievalResult
 from .topology import CausalTopology
 
@@ -153,6 +153,7 @@ class CTRetriever:
                 anchor_id,
                 direction=direction,
                 kinds=kinds,
+                temporal_scopes={TemporalScope.EXECUTION},
                 max_hops=max_hops,
             )
             hops = distances.get(candidate_id)
@@ -283,6 +284,7 @@ class CTRetriever:
                 anchor_id,
                 direction=direction,
                 kinds=stage_kinds,
+                temporal_scopes={TemporalScope.EXECUTION},
                 max_hops=max_hops,
             ))
             for attractor_id in self.topology.basin_memberships(anchor_id, max_hops=max_hops):

@@ -4,7 +4,7 @@ from collections import defaultdict, deque
 from collections.abc import Iterable
 
 from .basins import AttractorDescriptor, BasinAffinity
-from .models import CausalPath, CausalProvenance, Edge, EdgeKind, MemoryNode
+from .models import CausalPath, CausalProvenance, Edge, EdgeKind, MemoryNode, TemporalScope
 
 
 PROVENANCE_FACTORS: dict[CausalProvenance, float] = {
@@ -182,6 +182,7 @@ class CausalTopology:
         *,
         direction: str = "both",
         kinds: Iterable[EdgeKind] | None = None,
+        temporal_scopes: Iterable[TemporalScope] | None = None,
         max_hops: int = 4,
         include_anchor: bool = False,
     ) -> set[str]:
@@ -189,6 +190,7 @@ class CausalTopology:
             node_id,
             direction=direction,
             kinds=kinds,
+            temporal_scopes=temporal_scopes,
             max_hops=max_hops,
         )
         result = set(distances)
@@ -202,6 +204,7 @@ class CausalTopology:
         *,
         direction: str = "both",
         kinds: Iterable[EdgeKind] | None = None,
+        temporal_scopes: Iterable[TemporalScope] | None = None,
         max_hops: int = 4,
     ) -> dict[str, int]:
         if direction not in {"in", "out", "both"}:
@@ -211,6 +214,13 @@ class CausalTopology:
         if max_hops < 0:
             raise ValueError("max_hops must be non-negative")
         allowed = set(kinds) if kinds is not None else None
+        # Fail-safe default: temporal traversal is execution-local unless the
+        # caller explicitly opts into cross-execution scopes.
+        allowed_temporal_scopes = (
+            set(temporal_scopes)
+            if temporal_scopes is not None
+            else {TemporalScope.EXECUTION}
+        )
         queue: deque[tuple[str, int]] = deque([(node_id, 0)])
         distances = {node_id: 0}
 
@@ -227,6 +237,10 @@ class CausalTopology:
             for edge, neighbor in edges:
                 if allowed is not None and edge.kind not in allowed:
                     continue
+                if edge.kind is EdgeKind.TEMPORAL and allowed_temporal_scopes is not None:
+                    effective_scope = edge.temporal_scope or TemporalScope.EXECUTION
+                    if effective_scope not in allowed_temporal_scopes:
+                        continue
                 candidate_hops = hops + 1
                 if neighbor in distances and distances[neighbor] <= candidate_hops:
                     continue

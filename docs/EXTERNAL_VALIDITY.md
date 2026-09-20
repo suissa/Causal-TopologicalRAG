@@ -47,3 +47,41 @@ Results are reported per dataset. Synthetic and external results must never be p
 This benchmark tests whether CT-RAG's navigation model remains useful on real procedural traces when explicit causal metadata is absent. It does **not** test the central causal-edge hypothesis by itself. A negative result here would mean causal/topological advantages do not automatically transfer to generic workflow logs without causal provenance.
 
 The final preregistered synthetic holdout remains sealed throughout Gate C development.
+
+## Planned telemetry sources
+
+The existing GitHub Actions corpus is retained as a procedural-trace external-validity gate. It should not be treated as representative microservice telemetry.
+
+Two additional public-source adapters are now documented in `src/ctrag/benchmarks/external_telemetry.py`:
+
+- **AIOps Challenge 2020**: suitable for external trace plus business/infrastructure-metric evaluation. Its public description includes failure records, business metrics, infrastructure metrics and call-chain traces with span `id`/parent `pid`. Causal ground truth must not be invented from span hierarchy.
+- **SMD / OmniAnomaly**: suitable for multivariate telemetry anomaly/drift validation. It is not execution-topology or causal-path ground truth.
+
+`load_trace_csv()` provides a provenance-safe generic trace adapter: span parent/child becomes `BEHAVIORAL`; within-trace chronology becomes `TEMPORAL(scope=execution)`; neither relation becomes `CAUSAL` automatically.
+
+External benchmark inputs must be versioned or fingerprinted locally. CI must not silently pull mutable remote datasets and then report unreproducible results.
+
+## Degraded external-telemetry mode
+
+When an external dataset exposes chronology and execution hierarchy but no authoritative causation identifier, CT-RAG operates in a deliberately degraded mode:
+
+```text
+available:
+  E_t  temporal evidence
+  E_b  behavioral/execution evidence
+
+unavailable:
+  authoritative E_c
+```
+
+The adapter must not infer a causal edge by exclusion. Specifically:
+
+```text
+span parent/child       -> BEHAVIORAL
+within-trace chronology -> TEMPORAL(scope=execution)
+neither                 -> no edge
+```
+
+An `INFERRED` causal edge is permissible only when a named inference method explicitly produces it together with method/version, confidence and evidence provenance. Such an edge remains weaker than runtime-declared causation.
+
+External results obtained in degraded mode must be labeled as topology/trajectory evidence, not validation of authoritative causal-path retrieval.

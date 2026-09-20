@@ -17,6 +17,12 @@ behavioral retrieval: which trajectories/basins contain comparable experience?
 
 CT-RAG does not claim that semantic similarity, temporal order or graph adjacency is itself causality.
 
+CT-RAG is therefore positioned as a **Structured Experiential Memory** layer for long-lived agents rather than as a replacement for vector retrieval or other RAG families. Vector/lexical retrieval can remain the anchor mechanism; CT-RAG adds execution-aware navigation over causal, temporal and behavioral experience.
+
+> **Retrieval becomes navigation; learning becomes terrain modification.**
+
+Here, "learning" means updating non-authoritative navigational influence over preserved historical evidence, not rewriting the event history or claiming that graph navigation itself is novel.
+
 ## 2. Memory topology
 
 Let the memory topology be a heterogeneous directed graph
@@ -86,36 +92,39 @@ The current implementation computes path confidence from edge confidence, edge w
 
 Temporal and behavioral edges can influence topological retrieval but never contribute to causal-path confidence.
 
-## 5. Distances
+## 5. Navigation signals are not a single metric space
 
-CT-RAG can reason over multiple non-equivalent distances:
+CT-RAG does **not** claim that causal, temporal-hop or behavioral relations form metrics in the mathematical sense. Causal reachability is directed and asymmetric; temporal sequence is directed; behavioral affinity need not satisfy symmetry or the triangle inequality.
+
+We therefore distinguish:
+
+- semantic distance/similarity, when the embedding space supports it;
+- directional causal traversal cost, e.g. `h_c^past(a,v)` and `h_c^future(a,v)`;
+- temporal clock separation `Δt(a,v) = |t_a - t_v|`;
+- temporal-hop count as a directional sequence cost, not a metric;
+- behavioral/topological components as navigation priors or affinities.
+
+The reference `EventProjector` fixes the scope of `TEMPORAL` edges to **consecutive events within the same `execution_id`**. It never connects arbitrary adjacent events in the global stream. Temporal-hop counts are therefore execution-relative and do not change merely because unrelated system traffic increases.
+
+Two events can be semantically distant while causally adjacent, or semantically nearly identical while belonging to unrelated executions. CT-RAG keeps those signals heterogeneous rather than pretending they are coordinates in one common metric space.
+
+## 6. Retrieval architecture and baseline score
+
+The preferred CT-RAG formulation is **staged retrieval**, not an assertion that heterogeneous raw distances can be added directly:
+
+```text
+query
+  -> semantic/lexical anchor generation
+  -> topology/basin expansion
+  -> directed causal traversal
+  -> mode constraints
+  -> calibrated or learned reranking
+```
+
+The repository retains a weighted linear score as a reproducible baseline and ablation interface:
 
 \[
-d_s(i,j) \quad \text{semantic distance}
-\]
-
-\[
-d_c(i,j) \quad \text{causal hop distance}
-\]
-
-\[
-d_t(i,j) \quad \text{temporal distance}
-\]
-
-\[
-d_b(i,j) \quad \text{behavioral/topological distance}
-\]
-
-Two events can be semantically distant while causally adjacent, or semantically nearly identical while belonging to unrelated executions.
-
-This is the core reason CT-RAG does not reduce the memory terrain to one embedding metric.
-
-## 6. Retrieval score
-
-The baseline CT-RAG score is a weighted combination:
-
-\[
-S(v \mid q,a) =
+S_{baseline}(v \mid q,a) =
 \alpha S_{semantic}
 + \beta S_{lexical}
 + \gamma S_{causal}
@@ -124,7 +133,7 @@ S(v \mid q,a) =
 + \zeta S_{behavioral}
 \]
 
-with mode-dependent weights.
+The component functions exposed by the implementation are normalized priors/affinities rather than raw hop counts added directly to cosine similarity. Fixed mode weights are experimental presets, **not** a claim of optimal calibration. An arXiv-grade successor should compare the baseline against learning-to-rank or calibrated reranking while preserving the staged candidate-generation/traversal architecture.
 
 The system currently supports:
 
@@ -173,47 +182,77 @@ Discovered attractors preserve an explicit `origin` so empirical discovery canno
 
 CT-RAG separates historical truth from navigational influence.
 
-For transition \(e\), the empirical terrain maintains:
+For transition `e`, the terrain keeps the observed transition count `f_e` and a separate navigational influence `w_e^nav` outside the authoritative edge object.
+
+The original reproducible baseline supports frequency reinforcement. Frequency-only reinforcement has an acknowledged popularity bias: common paths can become easier to retrieve merely because they are common.
+
+The implementation now also exposes **surprise-weighted reinforcement**:
 
 \[
-f_e = \text{observed transition count}
+\Delta w_e =
+\eta
+\frac{\min(|\delta_e|,c)}{c}
+\frac{1}{\sqrt{1+n_e}}
 \]
 
-and a navigational influence
+where `δ_e` is an explicit, provenance-bearing surprise signal, `c` bounds the contribution and `n_e` is the prior observation count.
 
-\[
-w_e^{nav}
-\]
+CT-RAG now defines three distinct sources:
 
-outside the authoritative edge object.
+```text
+TRANSITION_RESIDUAL
+OUTCOME_RESIDUAL
+POLICY_TD_ERROR
+```
 
-Repeated trajectories can reinforce \(w_e^{nav}\). Erosion applies exponential decay:
+The deterministic default is `TRANSITION_RESIDUAL`:
+
+[
+\delta_e = 1 - \hat P(e \mid source(e), kind(e))
+]
+
+with Laplace smoothing over outgoing alternatives of the same edge kind, computed **before** the new transition is observed. `OUTCOME_RESIDUAL` and `POLICY_TD_ERROR` must be supplied by external components with method/version provenance. LLM confidence is not used as prediction error by default.
+
+Rare-but-critical paths can be protected with a minimum retrieval-strength floor using the existing protected-edge mechanism. Protection changes accessibility, not stored history or causal authority.
+
+Erosion still applies exponential decay to navigational influence without deleting events or rewriting causal provenance/confidence:
 
 \[
 w_e^{nav}(t + \Delta t)
 = \max(w_{min}, w_e^{nav}(t)e^{-\lambda \Delta t})
 \]
 
-without deleting the event or rewriting causal provenance/confidence.
-
-For a causal path, current terrain-aware retrieval uses the geometric mean of edge influences as a final multiplicative navigation prior.
-
-This implements the conceptual distinction:
+For a causal path, the current terrain-aware retriever uses the geometric mean of edge influences as a final multiplicative navigation prior.
 
 ```text
-historical preservation != current navigational influence
+historical/storage strength
+!=
+current retrieval/navigation strength
 ```
 
-## 10. Basin drift
+This separation is analogous to Bjork & Bjork's storage-strength versus retrieval-strength distinction, but the mapping is deliberately limited. In the psychological model, storage strength and retrieval strength have specific learning-theoretic dynamics; CT-RAG instead keeps authoritative event/history semantics immutable while allowing a separate navigational overlay to increase or decrease. The analogy is terminological and conceptual, not an isomorphism or cognitive-model claim.
 
-For a basin before and after an update, the current drift metric is Jaccard distance:
+## 10. Basin drift: structural baseline and distributional target
+
+The implementation currently measures **structural membership drift** with Jaccard distance:
 
 \[
-D_B(A) = 1 - \frac{|B_{before}(A) \cap B_{after}(A)|}
-{|B_{before}(A) \cup B_{after}(A)|}
+D_J(A) = 1 - \frac{|B_{before}(A) \cap B_{after}(A)|}{|B_{before}(A) \cup B_{after}(A)|}
 \]
 
-This makes changes in the empirical terrain measurable between snapshots.
+This answers whether basin membership changed. It does **not** estimate how transition probabilities or absorption probabilities changed, so the paper must not present Jaccard membership drift as a complete dynamical estimator.
+
+The research target is a windowed transition model `P_t`. For attractors `A` in a set `𝒜`, define an empirical absorption distribution `π_t(𝒜|x)` from transitions observed in window `W_t`.
+
+Distributional basin drift can then use total variation or Jensen-Shannon divergence:
+
+\[
+D_{TV}(t_i,t_j \mid x) = \frac{1}{2}\sum_{a\in\mathcal{A}} |\pi_{t_i}(a\mid x)-\pi_{t_j}(a\mid x)|
+\]
+
+with `D_JS(π_ti || π_tj)` as an alternative. Change-point detectors such as ADWIN or CUSUM should operate on the resulting drift-statistic stream instead of relying on visual inspection.
+
+This distributional estimator is planned work; the current code implements only the Jaccard structural baseline.
 
 ## 11. Causality levels
 
@@ -231,11 +270,39 @@ A relation proposed by an inference procedure and stored with `provenance=inferr
 
 It is weaker than otherwise equivalent observed execution evidence in the current ranking model.
 
-### 11.3 Counterfactual hypothesis
+### 11.3 Counterfactual retrieval and counterfactual hypothesis
 
-Historical branching can support questions such as “where did successful and failed trajectories diverge?” It does **not** establish what would have happened under an intervention.
+Historical branching can support questions such as “where did successful and failed trajectories diverge?” CT-RAG treats this first as a **retrieval problem**.
 
-CT-RAG therefore never promotes a retrieved divergence point to a proven counterfactual effect.
+For a current degraded trajectory such as:
+
+```text
+PaymentFailure -> Retry -> Timeout -> HumanIntervention
+```
+
+the terrain may preserve an alternative historical branch:
+
+```text
+PaymentFailure -> Retry -> ProviderFallback -> Recovered
+```
+
+A `COUNTERFACTUAL` query may retrieve that alternative when the historical conditions are semantically/structurally comparable, even if the path currently has low terrain influence because it has eroded through disuse.
+
+The retrieval objective is therefore to identify:
+
+- comparable historical anchor states;
+- divergence points;
+- alternative observed branches;
+- paths reaching a desired attractor such as `Recovered`;
+- provenance and conditions attached to those paths.
+
+Dynamic terrain affects retrieval strength, not historical existence. An eroded path can remain queryable; rare critical paths may additionally be protected by a retrieval-strength floor.
+
+This supports hypothesis generation and recovery planning. It does **not** establish the stronger claim that taking the alternative action now would cause recovery. That requires an interventional or otherwise identified causal model.
+
+CT-RAG therefore never promotes a retrieved divergence point or historical alternative into a proven counterfactual effect.
+
+See [`PAPER_POSITIONING.md`](PAPER_POSITIONING.md) for the paper framing and proposed counterfactual-retrieval hypothesis.
 
 ## 12. Experimental hypothesis
 
@@ -277,7 +344,19 @@ The first command produces machine-readable benchmark data. The second derives:
 
 No benchmark value in those generated files needs to be copied manually.
 
-## 14. Related work
+## 14. Exogenous interventions and quasi-experimental identification
+
+CT-RAG distinguishes ordinary observations from exogenous system changes such as deployments, configuration changes, feature-flag changes and rollbacks.
+
+These events may define intervention boundaries, but the intervention marker itself is not proof of effect. A causal estimate requires an explicit estimand and identification assumptions, for example a justified comparison/control series and parallel-trends diagnostics for difference-in-differences.
+
+A future intervention record should preserve intervention identity/kind, target scope, effective time, pre/post windows, comparison definition, assumptions, diagnostics, effect estimate, uncertainty and provenance back to raw evidence.
+
+This provides a path from descriptive basin drift to quasi-experimental analysis when real exogenous cuts exist, while preserving the distinction between association, intervention and counterfactual claims.
+
+See [`INTERVENTIONS.md`](INTERVENTIONS.md).
+
+## 15. Related work
 
 ### Retrieval-Augmented Generation
 
@@ -285,6 +364,17 @@ Lewis et al. introduced RAG as generation combining parametric model memory with
 
 Reference: Patrick Lewis et al., *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks*, 2020: <https://arxiv.org/abs/2005.11401>
 
+### Zep / Graphiti
+
+Rasmussen et al. introduced Zep/Graphiti as a temporally-aware knowledge-graph architecture for agent memory. CT-RAG therefore does not claim temporal/bitemporal graph memory itself as novel. Its intended distinction is execution-provenance causality, explicit causal/temporal/behavioral edge semantics, directional causal retrieval, basins/attractors and dynamic terrain.
+
+Reference: Rasmussen et al., *Zep: A Temporal Knowledge Graph Architecture for Agent Memory*, arXiv:2501.13956 (2025): <https://arxiv.org/abs/2501.13956>
+
+### HippoRAG
+
+HippoRAG already demonstrates graph-based memory retrieval using knowledge graphs and Personalized PageRank. CT-RAG therefore avoids treating the generic statement "retrieval becomes navigation" as a novelty claim.
+
+Reference: Jiménez Gutiérrez et al., *HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models*, NeurIPS 2024 / arXiv:2405.14831: <https://arxiv.org/abs/2405.14831>
 ### GraphRAG
 
 Edge et al. proposed graph-based indexing and community summarization to answer global questions over large text corpora. CT-RAG differs in its primary target: execution/event memory in which some graph edges can come from recorded causal structure rather than entity extraction alone.
@@ -320,13 +410,28 @@ References:
 
 CT-RAG takes the basin/topological intuition in a different direction: a stateful/event-driven system can possess explicit execution provenance and causal identifiers that do not need to be reconstructed solely from document adjacency or semantic similarity.
 
+### Temporal-order and streaming foundations
+
+Lamport's happens-before relation and later vector-clock work ground partial ordering in distributed systems. CT-RAG treats temporal order as necessary context but not sufficient evidence for an observed causal edge.
+
+Akidau et al.'s Dataflow Model provides established semantics for event time, processing time, watermarks and out-of-order streams. CT-RAG's ingestion model should reuse these semantics rather than invent an incompatible watermark model.
+
+Allen's interval algebra is the reference model for interval-valued state. Snodgrass/TSQL2 and temporal-database work ground valid-time versus transaction/system-time semantics. These are prior art, not CT-RAG novelty claims.
+
+Bjork & Bjork's storage-strength versus retrieval-strength distinction is a useful analogy for immutable historical evidence versus mutable navigational influence.
+
+Pearl's causal hierarchy grounds CT-RAG's separation between association, intervention and counterfactual claims. PCMCI/Granger-family methods are candidates for `provenance=inferred`, never automatic substitutes for runtime-declared causation.
+
+ADWIN/CUSUM and concept-drift literature ground automatic detection over transition/absorption drift statistics.
+
+Detailed novelty boundaries: [`RELATED_WORK_TEMPORAL_CAUSAL.md`](RELATED_WORK_TEMPORAL_CAUSAL.md).
 ### Event Sourcing
 
 Event Sourcing records application state changes as a sequence of events and allows state to be rebuilt from the event log. CT-RAG uses that event history as an authoritative source from which retrieval projections can be constructed; it does not make the retrieval graph the source of truth.
 
 Reference: Martin Fowler, *Event Sourcing*, 2005: <https://martinfowler.com/eaaDev/EventSourcing.html>
 
-## 15. Current research limits
+## 16. Current research limits
 
 The current evidence remains limited by:
 
@@ -338,3 +443,33 @@ The current evidence remains limited by:
 - absence of interventional causal ground truth.
 
 The next external-validity experiments should add learned dense retrieval, production BM25, real event-sourced traces, unknown-anchor evaluation and shared comparisons where the competing methods can be run under equivalent retrieval budgets.
+
+
+## 17. Paper scope discipline
+
+The first CT-RAG paper should focus on the **core retrieval/memory contribution**:
+
+- runtime/event causal provenance;
+- separation of causal, temporal and behavioral topology;
+- basins/attractors;
+- non-authoritative dynamic terrain;
+- staged retrieval over structured experiential memory;
+- root-cause/recovery retrieval and behavioral-drift experiments.
+
+Two adjacent research directions should remain secondary or future work unless independently validated:
+
+1. **Intervention-aware longitudinal causal analysis** — DiD, intervention contracts, inferred causal discovery and stronger counterfactual identification.
+2. **Structure-preserving evidence retrieval** — Evidence Shape Router plus table/config/trace/metric/code-specific adapters.
+
+This separation prevents one paper from requiring simultaneous validation of three distinct contributions.
+
+A future factorial ablation should evaluate:
+
+```text
+A: flattening + no CT-RAG
+B: structure-aware retrieval only
+C: CT-RAG experiential topology only
+D: structure-aware retrieval + CT-RAG
+```
+
+and report the interaction term rather than concluding from D alone that both mechanisms independently contribute.
