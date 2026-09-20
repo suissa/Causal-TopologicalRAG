@@ -130,3 +130,46 @@ Recommended subsections:
 - Eroded-path recovery
 - Intervention-aware evidence
 - Boundary between retrieval and causal identification
+
+
+## Scope recommendation: one system, two papers
+
+The repository can contain all mechanisms, but the first submission should not attempt to prove every research direction simultaneously.
+
+### Paper 1 — CT-RAG core
+
+Primary contribution:
+
+- Structured Experiential Memory for long-lived agents;
+- runtime/event causal provenance;
+- causal/temporal/behavioral separation;
+- staged navigation;
+- basins and attractors;
+- non-authoritative adaptive terrain;
+- root-cause, recovery and behavioral-drift retrieval.
+
+Primary evaluation:
+
+- controlled ablations;
+- real external execution/telemetry validation;
+- sensitivity/null/bootstrap robustness;
+- retrieval and trajectory metrics.
+
+### Paper 2 — Intervention-aware longitudinal causal memory
+
+Primary contribution:
+
+- intervention records for deploy/config/feature-flag/rollback events;
+- pre/post basin-distribution analysis;
+- quasi-experimental identification;
+- intervention-conditioned retrieval;
+- inferred causal discovery with explicit weaker provenance;
+- stronger counterfactual evaluation.
+
+This second line may ultimately be the stronger causal contribution, but including it as a full first-paper claim would require a second independent validation burden.
+
+### Evidence Shape Router
+
+Structure-preserving evidence retrieval should be treated as an orthogonal retrieval mechanism until the factorial ablation establishes whether it adds independent value to CT-RAG.
+
+The first paper can describe it as an extensibility layer or secondary experiment. It should become a headline contribution only if the 2x2 ablation demonstrates an identifiable main effect or useful interaction.
