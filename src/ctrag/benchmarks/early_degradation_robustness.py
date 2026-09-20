@@ -167,6 +167,141 @@ def calibrate_infrastructure_change_threshold(
     }
 
 
+def phase_shift_windows(
+    windows: tuple[DailyWindow, ...],
+    *,
+    phase_fraction: float,
+) -> tuple[DailyWindow, ...]:
+    """Shift window phase by mixing each window with its predecessor.
+
+    This is a sensitivity test over window alignment, not higher-resolution data.
+    A fraction of 0.5 models a half-window offset in the aggregate boundaries.
+    """
+    if not 0.0 <= phase_fraction < 1.0:
+        raise ValueError("phase_fraction must be within [0, 1)")
+    if phase_fraction == 0.0:
+        return windows
+    shifted: list[DailyWindow] = []
+    for index, current in enumerate(windows):
+        previous = windows[index - 1] if index > 0 else current
+        recovered = int(round(
+            (1.0 - phase_fraction) * current.retry_recovered
+            + phase_fraction * previous.retry_recovered
+        ))
+        human = 100 - recovered
+        infrastructure = (
+            (1.0 - phase_fraction) * current.infrastructure_metric
+            + phase_fraction * previous.infrastructure_metric
+        )
+        shifted.append(DailyWindow(current.day, recovered, human, infrastructure))
+    return tuple(shifted)
+
+
+def phase_offset_ablation(
+    *,
+    simulations: int = 500,
+    seed: int = 20260920,
+) -> list[dict[str, object]]:
+    """Re-evaluate the default detector under fractional window-boundary shifts."""
+    phase_fractions = (0.0, 0.25, 0.50, 0.75)
+    rows: list[dict[str, object]] = []
+    for phase in phase_fractions:
+        incident = phase_shift_windows(default_windows(), phase_fraction=phase)
+        null_windows = tuple(
+            phase_shift_windows(
+                stationary_null_windows(seed=seed + index, days=30, baseline_days=5),
+                phase_fraction=phase,
+            )
+            for index in range(simulations)
+        )
+        behavioral_false_alarms = sum(
+            behavioral_change_alert_day(
+                windows, baseline_days=5, drift_threshold=0.10, sustained_windows=2
+            ) is not None
+            for windows in null_windows
+        )
+        behavioral_fpr = behavioral_false_alarms / simulations
+        calibration = calibrate_infrastructure_change_threshold(
+            null_windows,
+            baseline_days=5,
+            sustained_windows=2,
+            target_fpr=behavioral_fpr,
+        )
+        behavioral_day = behavioral_change_alert_day(
+            incident, baseline_days=5, drift_threshold=0.10, sustained_windows=2
+        )
+        infrastructure_day = infrastructure_change_alert_day(
+            incident,
+            baseline_days=5,
+            change_threshold=float(calibration["threshold"]),
+            sustained_windows=2,
+        )
+        lead = None
+        if behavioral_day is not None and infrastructure_day is not None:
+            lead = infrastructure_day - behavioral_day
+        rows.append({
+            "phase_fraction": phase,
+            "behavioral_null_fpr": behavioral_fpr,
+            "infrastructure_null_fpr": calibration["achieved_fpr"],
+            "fpr_gap": abs(behavioral_fpr - float(calibration["achieved_fpr"])),
+            "behavioral_alert_day": behavioral_day,
+            "infrastructure_alert_day": infrastructure_day,
+            "paired_lead_time_days": lead,
+        })
+    return rows
+
+
+def robustness_surface_summary(rows: list[dict[str, object]]) -> dict[str, object]:
+    """Describe contiguous positive-lead regions on the threshold/sustained grid."""
+    valid = {
+        (float(row["behavioral_drift_threshold"]), int(row["sustained_windows"])): row
+        for row in rows
+        if float(row["fpr_gap"]) <= 0.02
+    }
+    positive = {
+        key for key, row in valid.items()
+        if row["paired_lead_time_days"] is not None and int(row["paired_lead_time_days"]) > 0
+    }
+    thresholds = sorted({key[0] for key in valid})
+    sustained_values = sorted({key[1] for key in valid})
+    t_index = {value: index for index, value in enumerate(thresholds)}
+    s_index = {value: index for index, value in enumerate(sustained_values)}
+    unseen = set(positive)
+    components: list[list[tuple[float, int]]] = []
+    while unseen:
+        start = unseen.pop()
+        component = [start]
+        stack = [start]
+        while stack:
+            threshold, sustained = stack.pop()
+            ti = t_index[threshold]
+            si = s_index[sustained]
+            neighbors: list[tuple[float, int]] = []
+            for nti, nsi in ((ti - 1, si), (ti + 1, si), (ti, si - 1), (ti, si + 1)):
+                if 0 <= nti < len(thresholds) and 0 <= nsi < len(sustained_values):
+                    neighbors.append((thresholds[nti], sustained_values[nsi]))
+            for neighbor in neighbors:
+                if neighbor in unseen:
+                    unseen.remove(neighbor)
+                    component.append(neighbor)
+                    stack.append(neighbor)
+        components.append(sorted(component))
+    components.sort(key=lambda item: (-len(item), item))
+    leads = [
+        int(row["paired_lead_time_days"])
+        for row in valid.values()
+        if row["paired_lead_time_days"] is not None
+    ]
+    return {
+        "valid_fpr_matched_cells": len(valid),
+        "positive_lead_cells": len(positive),
+        "largest_contiguous_positive_region_cells": len(components[0]) if components else 0,
+        "largest_contiguous_positive_region": components[0] if components else [],
+        "lead_distribution": sorted(leads),
+        "median_lead_days": None if not leads else median(leads),
+        "max_fpr_gap": max((float(row["fpr_gap"]) for row in rows), default=0.0),
+    }
+
 def paired_fpr_detector_ablation(
     *,
     simulations: int = 500,
@@ -464,6 +599,8 @@ def run(output: Path) -> dict[str, object]:
     sensitivity = sensitivity_grid()
     null = null_stress()
     paired = paired_fpr_detector_ablation()
+    phase = phase_offset_ablation()
+    surface = robustness_surface_summary(paired)
     bootstrap = controlled_cohort_bootstrap()
 
     positive = sum(1 for row in sensitivity if row["positive_lead"])
@@ -493,6 +630,18 @@ def run(output: Path) -> dict[str, object]:
                 "match each behavioral configuration's false-positive rate."
             ),
         },
+        "phase_offset_ablation": {
+            "rows": phase,
+            "median_lead_days": median([
+                int(row["paired_lead_time_days"])
+                for row in phase
+                if row["paired_lead_time_days"] is not None
+            ]),
+            "all_phase_leads": [
+                row["paired_lead_time_days"] for row in phase
+            ],
+        },
+        "robustness_surface": surface,
         "bootstrap": bootstrap,
     }
     (output / "robustness.json").write_text(
@@ -508,13 +657,21 @@ def run(output: Path) -> dict[str, object]:
         writer = csv.DictWriter(stream, fieldnames=list(paired[0]))
         writer.writeheader()
         writer.writerows(paired)
+    with (output / "phase-offset-ablation.csv").open(
+        "w", encoding="utf-8", newline=""
+    ) as stream:
+        writer = csv.DictWriter(stream, fieldnames=list(phase[0]))
+        writer.writeheader()
+        writer.writerows(phase)
     (output / "README.md").write_text(
         "# Early-degradation robustness\n\n"
         f"- Legacy fixed-level-threshold sensitivity (descriptive only): "
         f"{positive}/{len(sensitivity)} positive lead\n"
         f"- Null scenario false-positive rate: {null['scenario_false_positive_rate']:.4f}\n"
-        f"- FPR-matched configurations where behavioral drift leads: "
-        f"{paired_positive}/{len(paired)}\n"
+        f"- FPR-matched surface largest contiguous positive region: "
+        f"{surface['largest_contiguous_positive_region_cells']} cells\n"
+        f"- Phase-offset median paired lead: "
+        f"{median([int(row['paired_lead_time_days']) for row in phase if row['paired_lead_time_days'] is not None]):.3f} days\n"
         f"- Controlled-cohort bootstrap mean lead: {bootstrap['bootstrap']['mean']:.3f} days\n"
         f"- Controlled-cohort 95% bootstrap CI: "
         f"[{bootstrap['bootstrap']['ci_low']:.3f}, {bootstrap['bootstrap']['ci_high']:.3f}] days\n\n"
