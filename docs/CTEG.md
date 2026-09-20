@@ -8,6 +8,8 @@ The mandatory memory substrate of CT-RAG is the **Causal-Temporal Experiential G
 
 CTEG is a heterogeneous experiential graph in which causal authority, temporal ordering, behavioral continuity, semantic similarity, evidence provenance and navigational influence remain distinct dimensions.
 
+The evidence/provenance inventory below names **sources that can justify or contextualize graph state**. It does **not** mean that every Event, Trace, Log, Metric, Config or Code artifact becomes a vertex in (V). Typed Evidence Anchors are projection inputs/evidence pointers; vertex materialization is a separate projector decision.
+
 ```text
 CT-RAG
 │
