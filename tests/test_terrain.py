@@ -170,6 +170,11 @@ def test_surprise_signal_distinguishes_high_low_and_repetition() -> None:
     updated, used_signal = terrain.reinforce_by_transition_surprise(rare)
     assert used_signal.source is SurpriseSource.TRANSITION_RESIDUAL
     assert updated > before
+    audit = terrain.updates[-1]
+    assert audit.method_id == "surprise-weighted-v1"
+    assert audit.surprise_source is SurpriseSource.TRANSITION_RESIDUAL
+    assert audit.surprise_method_version == "laplace-outgoing-v1"
+    assert audit.surprise_value == used_signal.value
 
 
 def test_external_surprise_signal_requires_explicit_source() -> None:
@@ -182,3 +187,7 @@ def test_external_surprise_signal_requires_explicit_source() -> None:
     terrain.reset_navigation()
     high_update = terrain.reinforce_by_surprise(first, signal=high)
     assert high_update > low_update
+    audit = terrain.updates[-1]
+    assert audit.surprise_source is SurpriseSource.OUTCOME_RESIDUAL
+    assert audit.surprise_method_version == "fixture-v1"
+    assert audit.method_id == "surprise-weighted-v1"
