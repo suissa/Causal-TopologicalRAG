@@ -88,7 +88,7 @@ Mitigation:
 
 ### Public AIOps datasets
 
-AIOps2020 contains production-derived microservice traces and infrastructure/business metrics, while SMD from the OmniAnomaly release contains multivariate server-machine telemetry. These can improve realism, but they answer different questions: AIOps2020 can support execution/trace experiments; SMD is more suitable for anomaly/drift baselines than causal-path evaluation.
+AIOps Challenge 2020 publishes failure records, business metrics, infrastructure metrics and call-chain traces, while SMD from the OmniAnomaly release contains multivariate server-machine telemetry. These can improve realism, but they answer different questions: AIOps2020 can support execution/trace experiments; SMD is more suitable for anomaly/drift baselines than causal-path evaluation.
 
 Mitigation:
 - preserve dataset-native labels;
