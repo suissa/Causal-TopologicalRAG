@@ -24,8 +24,9 @@ def test_recurrent_failure_creates_new_scc_attractor_and_basin_drift() -> None:
     assert result["oracle_passed"] is True
     assert result["recurrent_scc_attractor"] is not None
     assert "A_compensation" in result["recurrent_scc_members"]
-    assert result["basin_drift_mean"] > 0.0
-    assert result["compensation_basin_probe_purity_after"] >= 0.75
+    assert result["problematic_basin_membership_gain"] > 0.0
+    assert result["recurrent_internal_observations_after"] > result["recurrent_internal_observations_before"]
+    assert result["recurrent_confidence_after"] > result["recurrent_confidence_before"]
     assert result["historical_success_edges_preserved"] is True
 
 
@@ -37,7 +38,13 @@ def test_out_of_order_causation_reconciles_across_large_clock_gap() -> None:
     assert result["causal_provenance"] == "event"
     assert result["causal_evidence_source"] == "event.causation_id"
     assert result["clock_gap_hours"] == 24 * 14
+    assert result["semantic_parent_recalled_at_10"] is False
+    assert result["recency_parent_recalled_at_10"] is False
+    assert result["ctrag_parent_recalled_at_10"] is True
+    assert result["semantic_parent_rank"] > 10
+    assert result["recency_parent_rank"] > 10
     assert result["parent_rank"] is not None
+    assert result["parent_rank"] <= 10
     assert result["parent_causal_component"] > 0.0
 
 
