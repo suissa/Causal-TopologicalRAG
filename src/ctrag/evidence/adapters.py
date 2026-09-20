@@ -96,8 +96,11 @@ class ConfigTreeAdapter:
         lineage = _lineage(evidence, route, self.adapter_id, self.version)
 
         if isinstance(parsed, str):
-            preserved = {"raw_text": parsed}
-            missing = [field for field in route.preserve if field not in {"path", "value"} and field not in preserved]
+            preserved = {"path": "$", "value": parsed, "raw_text": parsed}
+            chain = self._resolution_chain(evidence, "$")
+            if chain is not None:
+                preserved["resolution_chain"] = chain
+            missing = [field for field in route.preserve if field not in preserved]
             if missing:
                 raise ValueError(f"cannot preserve required config fields: {missing}")
             return [
