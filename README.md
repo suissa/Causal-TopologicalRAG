@@ -21,6 +21,8 @@ The core question is not only **“what looks like this?”**, but also **“whe
 - [Early behavioral degradation experiment](docs/EARLY_BEHAVIORAL_DEGRADATION.md)
 - [Evidence Shape Router](docs/EVIDENCE_SHAPE_ROUTER.md)
 - [Architecture](docs/ARCHITECTURE.md)
+- [CTEG: Causal-Temporal Experiential Graph](docs/CTEG.md)
+- [Optional Cognitive Graph](docs/COGNITIVE_GRAPH.md)
 - [Threats to validity](docs/THREATS_TO_VALIDITY.md)
 - [Reproducibility protocol](docs/REPRODUCIBILITY.md)
 - [Topology: construction, meaning and structural parts](docs/TOPOLOGY.md)
@@ -47,6 +49,36 @@ Additional public contracts:
 - **Stateful-agent friendly.** Event-sourced systems can project causation/correlation/execution identifiers directly into the terrain.
 - **Reproducibility is executable.** Benchmarks and paper artifacts are generated from machine-readable inputs in CI.
 
+## CTEG memory substrate
+
+The mandatory CT-RAG memory substrate is the **Causal-Temporal Experiential Graph (CTEG)**.
+
+```text
+CT-RAG
+│
+├── Structured Experiential Memory
+│
+└── CTEG
+    ├── CAUSAL
+    ├── TEMPORAL
+    ├── BEHAVIORAL
+    ├── SEMANTIC
+    └── evidence / provenance
+        ├── Event
+        ├── Trace
+        ├── Log
+        ├── Metric
+        ├── Config
+        └── Code
+```
+
+**Trace is the execution spine for reconstruction, not causal authority.** It reconstructs both the path of a payload across components and the surrounding system scenario inside a temporal window by joining events, logs, metrics, configuration and related evidence. Causal edges still require independent provenance.
+
+`DynamicTerrain` is a non-authoritative overlay over CTEG: reinforcement, erosion, surprise, basins, attractors and basin drift modify navigation rather than historical truth.
+
+A separate **Cognitive Graph** is optional. It may model Belief, Goal, Hypothesis, Decision, Plan, Prediction, Uncertainty and Reflection without making cognitive state mandatory for CT-RAG core.
+
+See [`docs/CTEG.md`](docs/CTEG.md) and [`docs/COGNITIVE_GRAPH.md`](docs/COGNITIVE_GRAPH.md).
 ## Architecture
 
 ```text
