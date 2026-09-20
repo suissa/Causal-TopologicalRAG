@@ -131,6 +131,10 @@ class TerrainAwareRetriever:
 
             # The recovery evidence score is conservative in small-N regimes.
             # Wilson lower bound folds rate and sample support into one quantity.
+            if self._is_success_node(hit) and not reachable:
+                # A globally successful terminal that cannot be reached from the
+                # current anchor is not a valid recovery candidate.
+                continue
             empirical_recovery = wilson_lower if self._is_success_node(hit) and reachable else 0.0
             score = hit.score + 0.35 * empirical_recovery
             reranked.append(RetrievalHit(
