@@ -35,6 +35,7 @@ from .models import (
     QueryMode,
     RetrievalHit,
     RetrievalWeights,
+    TemporalConsistencyWindow,
     TemporalScope,
 )
 from .query import CausalClaimError, EvidenceLevel, RetrievalStage, StagedRetrievalResult, validate_causal_claim
@@ -91,6 +92,7 @@ __all__ = [
     "StagedRetrievalResult",
     "SurpriseSignal",
     "SurpriseSource",
+    "TemporalConsistencyWindow",
     "TemporalScope",
     "TerrainAwareRetriever",
     "TerrainConfig",
