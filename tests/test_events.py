@@ -324,3 +324,54 @@ def test_projector_links_cross_execution_temporal_relation_without_causality() -
         direction="out",
         kinds={EdgeKind.TEMPORAL},
     ) == {"deploy": 0}
+
+
+def test_event_keeps_event_time_and_observed_time_separate() -> None:
+    topology = CausalTopology()
+    projector = EventProjector(topology)
+    event_time = datetime(2026, 9, 20, 8, 0, tzinfo=timezone.utc)
+    observed_at = datetime(2026, 9, 20, 8, 5, tzinfo=timezone.utc)
+
+    event = EventRecord(
+        event_id="evt-bitemporal",
+        event_type="Payment.Completed",
+        timestamp=event_time,
+        observed_at=observed_at,
+        execution_id="exec-time",
+    )
+    node = projector.ingest(event)
+
+    assert event.event_time == event_time
+    assert node.timestamp == event_time
+    assert node.metadata["event_time"] == event_time.isoformat()
+    assert node.metadata["observed_at"] == observed_at.isoformat()
+
+
+def test_observed_time_is_not_part_of_event_fingerprint() -> None:
+    event_time = datetime(2026, 9, 20, 8, 0, tzinfo=timezone.utc)
+    first = EventRecord(
+        event_id="evt-replay-time",
+        event_type="Action.Done",
+        timestamp=event_time,
+        observed_at=datetime(2026, 9, 20, 8, 1, tzinfo=timezone.utc),
+    )
+    replay = EventRecord(
+        event_id="evt-replay-time",
+        event_type="Action.Done",
+        timestamp=event_time,
+        observed_at=datetime(2026, 9, 21, 8, 1, tzinfo=timezone.utc),
+    )
+
+    assert first.fingerprint() == replay.fingerprint()
+
+
+def test_from_dict_accepts_optional_observed_time() -> None:
+    event = EventRecord.from_dict({
+        "event_id": "evt-mapped-time",
+        "event_type": "Action.Done",
+        "timestamp": "2026-09-20T08:00:00Z",
+        "observed_at": "2026-09-20T08:00:03Z",
+    })
+
+    assert event.timestamp == datetime(2026, 9, 20, 8, 0, tzinfo=timezone.utc)
+    assert event.observed_at == datetime(2026, 9, 20, 8, 0, 3, tzinfo=timezone.utc)
