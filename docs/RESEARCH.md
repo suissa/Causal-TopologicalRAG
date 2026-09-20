@@ -17,6 +17,12 @@ behavioral retrieval: which trajectories/basins contain comparable experience?
 
 CT-RAG does not claim that semantic similarity, temporal order or graph adjacency is itself causality.
 
+CT-RAG is therefore positioned as a **Structured Experiential Memory** layer for long-lived agents rather than as a replacement for vector retrieval or other RAG families. Vector/lexical retrieval can remain the anchor mechanism; CT-RAG adds execution-aware navigation over causal, temporal and behavioral experience.
+
+> **Retrieval becomes navigation; learning becomes terrain modification.**
+
+Here, "learning" means updating non-authoritative navigational influence over preserved historical evidence, not rewriting the event history or claiming that graph navigation itself is novel.
+
 ## 2. Memory topology
 
 Let the memory topology be a heterogeneous directed graph
@@ -248,11 +254,39 @@ A relation proposed by an inference procedure and stored with `provenance=inferr
 
 It is weaker than otherwise equivalent observed execution evidence in the current ranking model.
 
-### 11.3 Counterfactual hypothesis
+### 11.3 Counterfactual retrieval and counterfactual hypothesis
 
-Historical branching can support questions such as “where did successful and failed trajectories diverge?” It does **not** establish what would have happened under an intervention.
+Historical branching can support questions such as “where did successful and failed trajectories diverge?” CT-RAG treats this first as a **retrieval problem**.
 
-CT-RAG therefore never promotes a retrieved divergence point to a proven counterfactual effect.
+For a current degraded trajectory such as:
+
+```text
+PaymentFailure -> Retry -> Timeout -> HumanIntervention
+```
+
+the terrain may preserve an alternative historical branch:
+
+```text
+PaymentFailure -> Retry -> ProviderFallback -> Recovered
+```
+
+A `COUNTERFACTUAL` query may retrieve that alternative when the historical conditions are semantically/structurally comparable, even if the path currently has low terrain influence because it has eroded through disuse.
+
+The retrieval objective is therefore to identify:
+
+- comparable historical anchor states;
+- divergence points;
+- alternative observed branches;
+- paths reaching a desired attractor such as `Recovered`;
+- provenance and conditions attached to those paths.
+
+Dynamic terrain affects retrieval strength, not historical existence. An eroded path can remain queryable; rare critical paths may additionally be protected by a retrieval-strength floor.
+
+This supports hypothesis generation and recovery planning. It does **not** establish the stronger claim that taking the alternative action now would cause recovery. That requires an interventional or otherwise identified causal model.
+
+CT-RAG therefore never promotes a retrieved divergence point or historical alternative into a proven counterfactual effect.
+
+See [`PAPER_POSITIONING.md`](PAPER_POSITIONING.md) for the paper framing and proposed counterfactual-retrieval hypothesis.
 
 ## 12. Experimental hypothesis
 
