@@ -204,3 +204,40 @@ LeadTime = t_{traditional-alert} - t_{basin-drift-alert}
 \]
 
 A positive lead time is useful only when paired with an acceptable false-positive rate.
+
+### FPR-matched detector ablation
+
+The fixed infrastructure level threshold is retained only as a historical/descriptive baseline. It is **not** the primary evidence for early-warning advantage.
+
+The primary comparison now applies the same sustained change-detection pattern to both signal families:
+
+```text
+behavioral:
+  healthy absorption distribution
+      -> Total-Variation shift
+      -> sustained-window detector
+
+infrastructure:
+  healthy infrastructure mean
+      -> absolute scalar shift
+      -> sustained-window detector
+```
+
+For every behavioral configuration `(TV threshold, sustained windows)`, the infrastructure change threshold is calibrated **only on stationary null scenarios** to match the behavioral detector's scenario-level false-positive rate as closely as the finite null sample permits.
+
+Only then is lead time computed:
+
+`LeadTime_matched = t_infra-change,FPR-matched - t_behavioral,FPR-matched`
+
+This ablation tests whether the behavioral representation contains earlier information, rather than comparing a change detector with a frozen level threshold.
+
+Artifacts:
+
+```text
+benchmark-results/early-degradation-robustness/
+  robustness.json
+  sensitivity.csv
+  paired-fpr-detector-ablation.csv
+```
+
+Interpretation must report the achieved FPR gap for every pair. Configurations whose FPRs cannot be matched sufficiently closely must not be used as evidence of detector superiority.
