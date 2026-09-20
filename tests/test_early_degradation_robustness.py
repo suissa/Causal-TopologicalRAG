@@ -6,6 +6,7 @@ from ctrag.benchmarks.early_degradation_robustness import (
     bootstrap_mean_ci,
     controlled_cohort_bootstrap,
     null_stress,
+    paired_fpr_detector_ablation,
     run,
     sensitivity_grid,
     temporal_drift_detection_accuracy,
@@ -49,6 +50,7 @@ def test_robustness_run_writes_reviewer_artifacts(tmp_path: Path) -> None:
     assert 0.0 <= report["sensitivity"]["positive_lead_fraction"] <= 1.0
     assert (tmp_path / "robustness.json").exists()
     assert (tmp_path / "sensitivity.csv").exists()
+    assert (tmp_path / "paired-fpr-detector-ablation.csv").exists()
     assert (tmp_path / "README.md").exists()
 
 
@@ -63,3 +65,31 @@ def test_temporal_drift_detection_accuracy_counts_misses_and_false_alarms() -> N
     assert result["false_negatives"] == 1
     assert result["false_positives"] == 1
     assert result["detection_delays"] == [2, 10]
+
+
+def test_paired_fpr_detector_ablation_matches_false_alarm_budget() -> None:
+    rows = paired_fpr_detector_ablation(simulations=100, seed=17)
+    assert len(rows) == 28
+    assert {row["sustained_windows"] for row in rows} == {1, 2, 3, 4}
+    assert all(float(row["fpr_gap"]) <= 0.02 for row in rows)
+    assert all(
+        0.0 <= float(row["infrastructure_change_threshold"]) <= 1.0
+        for row in rows
+    )
+
+
+def test_paired_fpr_ablation_uses_change_detector_not_level_threshold() -> None:
+    rows = paired_fpr_detector_ablation(simulations=100, seed=23)
+    default = next(
+        row
+        for row in rows
+        if float(row["behavioral_drift_threshold"]) == 0.10
+        and int(row["sustained_windows"]) == 2
+    )
+    assert "infrastructure_change_alert_day" in default
+    assert "paired_lead_time_days" in default
+    assert "infrastructure_null_fpr" in default
+    assert abs(
+        float(default["behavioral_null_fpr"])
+        - float(default["infrastructure_null_fpr"])
+    ) <= 0.02
