@@ -667,9 +667,8 @@ false-rescue curve matters because a healer consuming multiple
 suggestions is exposed to harmful alternatives even when top-1 is
 correct.
 
-\subsection{7.3 RQ3: Is early behavioral degradation detectable before
-an FPR-matched infrastructure
-detector?}\label{rq3-is-early-behavioral-degradation-detectable-before-an-fpr-matched-infrastructure-detector}
+\subsection{7.3 RQ3: Does the behavioral signal lead an infrastructure
+signal under the same detection logic?}\label{rq3-same-logic-degradation}
 
 This secondary experiment uses daily windows whose terminal absorption
 distribution shifts gradually from \texttt{Recovered} toward
@@ -677,8 +676,10 @@ distribution shifts gradually from \texttt{Recovered} toward
 fixed healthy baseline. To avoid the original unfair comparison against
 a frozen infrastructure threshold, both behavioral and infrastructure
 signals use the same sustained-change detection pattern, and the
-infrastructure threshold is calibrated on stationary null scenarios to
-match the behavioral false-positive rate for each parameter cell.
+infrastructure threshold is calibrated on stationary null scenarios.
+In the current generator, however, both achieved FPRs remain exactly
+zero across the tested grid, so this calibration does not establish a
+non-zero matched operating point.
 
 The robustness grid contains 28 combinations of behavioral drift
 threshold and sustained windows. We report the contiguous positive-lead
@@ -877,8 +878,8 @@ interpretation that causal reachability acts as an eligibility gate
 rather than as an undeclared continuous penalty hidden inside the
 recovery score.
 
-\subsection{8.3 Secondary result: matched-FPR early
-degradation}\label{secondary-result-matched-fpr-early-degradation}
+\subsection{8.3 Secondary result: same-logic early degradation under a
+zero-FPR null}\label{secondary-result-same-logic-zero-fpr}
 
 The original fixed infrastructure threshold produced an apparent +2-day
 lead at the default behavioral configuration. That comparison was
