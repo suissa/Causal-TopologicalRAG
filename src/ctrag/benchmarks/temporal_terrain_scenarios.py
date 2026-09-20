@@ -403,7 +403,7 @@ def out_of_order_causation_gap(config: TemporalTerrainConfig) -> dict[str, objec
             and not semantic_parent_recalled_at_k
             and not recency_parent_recalled_at_k
             and ctrag_parent_recalled_at_k
-            and parent_rank is not None
+            and parent_rank == 1
             and parent_hit is not None
             and parent_hit.components["causal"] > 0.0
         ),
