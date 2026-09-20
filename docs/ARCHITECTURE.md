@@ -95,6 +95,22 @@ raw evidence
     -> projection
 ```
 
+A Typed Evidence Anchor is **not automatically a vertex in** (V). It is a typed projection input and evidence reference. The projector decides whether an experiential vertex should be created from it, whether it should only annotate/prove an existing vertex or edge, or whether it should remain external evidence addressed by provenance.
+
+This distinction is deliberate:
+
+```text
+TypedEvidenceAnchor
+    !=
+Experiential vertex
+
+Log / Metric / Config / Code evidence
+    !=
+automatic node in V
+```
+
+For example, a log line or metric sample may support the reconstruction of an execution state or an edge without becoming its own persistent experiential node. Vertices represent projected experiential entities/states/events chosen by the graph model; anchors preserve source structure, location and provenance needed to justify that projection.
+
 A Typed Evidence Anchor carries the normalized evidence unit plus the structural information the adapter was required to preserve:
 
 ```text
@@ -115,11 +131,13 @@ The projector may use those typed fields to construct experiential edges, but on
 
 ## Projection semantics
 
-The projector maps Typed Evidence Anchors into the experiential graph:
+The projector maps evidence from Typed Evidence Anchors into the experiential graph:
 
 ```text
 G = (V, E_s, E_c, E_t, E_b)
 ```
+
+Projection is selective. An anchor may produce a vertex, contribute attributes/evidence to an existing vertex or edge, or remain only as an external evidence pointer. Therefore the evidence inventory is not isomorphic to (V).
 
 where:
 

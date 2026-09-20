@@ -120,6 +120,8 @@ with evidence source `event.causation_id`. If \(u\) has not yet arrived, the chi
 
 Events sharing an execution identifier may also receive temporal and behavioral edges according to execution sequence. Crucially, sequence alone never creates a causal edge. This prevents the common error of converting "B happened after A" into "A caused B."
 
+This invariant is defended by an adversarial property suite in `tests/test_causal_chaos.py`. Across multiple deterministic seeds, the fixture deliberately combines shuffled ingest order, randomized/inverted event time, repeated execution and correlation identifiers, trace/span parent relationships, and payload fields named `cause`, `causal_parent`, `parent_event_id`, and even `causation_id` that point to real event identifiers. Two complementary oracles are used. With no canonical `EventRecord.causation_id`, the expected causal edge set is exactly empty. With explicit runtime causation mixed among the false hints, the materialized causal edge set must be **exactly equal** to the canonical declarations, not merely a subset. The suite also verifies that an explicitly created temporal link cannot acquire causal authority. These are invariant/property tests rather than performance benchmarks; their role is to show that temporal, trace, correlation, lexical, and payload-level hints cannot silently manufacture or suppress authoritative causation.
+
 ## 4.2 Degraded mode without causal provenance
 
 External telemetry often lacks authoritative causal fields. CT-RAG therefore operates in a degraded but explicit mode: trace hierarchy, temporal adjacency, and behavioral continuity may be represented, but disconnected spans or events are not promoted into \(E_c\) merely because no competing explanation exists. This fail-safe behavior reduces recall of causal paths when provenance is missing, but preserves epistemic integrity.
@@ -448,6 +450,8 @@ The resulting design can be summarized as:
 
 The phrase is architectural rather than cognitive. Retrieval navigates a typed experiential graph; learning changes a non-authoritative overlay. Historical evidence is changed only by new evidence, not by retrieval preference.
 
+A separate cognitive-memory layer for concepts such as beliefs, goals, hypotheses, plans, predictions, uncertainty, and reflection is intentionally outside the scope of this paper. Such a layer may be explored as future work, but none of the method, experiments, or claims reported here depends on it.
+
 # 13. Reproducibility and Artifact Status
 
 The implementation and benchmarks used for this draft are available in the `suissa/Causal-TopologicalRAG` repository. The results reported here correspond to:
@@ -466,7 +470,7 @@ Primary artifact files are:
 - `temporal-terrain-scenarios/temporal-terrain-scenarios.json`;
 - `early-degradation-robustness/robustness.json`.
 
-The repository also contains regression, train/dev holdout, terrain-dynamics, and observability artifacts. We intentionally do not use an unrun preregistration or an unavailable external fixture as a reported result.
+The repository also contains regression, train/dev holdout, terrain-dynamics, observability, and adversarial invariant tests. In particular, `tests/test_causal_chaos.py` is the executable defense of the no-causal-authority-without-provenance invariant described in Section 4.1. It is a correctness/property test and is not counted as a comparative benchmark result. We intentionally do not use an unrun preregistration or an unavailable external fixture as a reported result.
 
 # 14. Conclusion
 
