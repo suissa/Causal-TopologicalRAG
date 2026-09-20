@@ -120,3 +120,21 @@ def test_basin_drift_is_measurable_between_snapshots() -> None:
     drift = terrain.basin_drift(before, after)
     assert drift.per_attractor["sink"] == 0.25
     assert drift.mean == 0.25
+
+
+def test_protected_rare_edge_has_a_decay_floor_and_reset_preserves_history() -> None:
+    topology, first, _ = simple_topology()
+    terrain = DynamicTerrain(
+        topology,
+        config=TerrainConfig(reinforcement_step=1.0, decay_rate=1.0, protected_minimum_influence=0.8),
+    )
+    terrain.protect_edge(first)
+    terrain.reinforce(first)
+    terrain.decay(100)
+    history = terrain.transition_counts
+
+    assert terrain.influence(first) == 0.8
+    assert terrain.protected_edges == frozenset({first.identity()})
+    terrain.reset_navigation()
+    assert terrain.influences == {}
+    assert terrain.transition_counts == history
