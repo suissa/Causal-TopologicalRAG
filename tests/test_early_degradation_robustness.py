@@ -8,6 +8,7 @@ from ctrag.benchmarks.early_degradation_robustness import (
     null_stress,
     run,
     sensitivity_grid,
+    temporal_drift_detection_accuracy,
 )
 
 
@@ -49,3 +50,16 @@ def test_robustness_run_writes_reviewer_artifacts(tmp_path: Path) -> None:
     assert (tmp_path / "robustness.json").exists()
     assert (tmp_path / "sensitivity.csv").exists()
     assert (tmp_path / "README.md").exists()
+
+
+def test_temporal_drift_detection_accuracy_counts_misses_and_false_alarms() -> None:
+    result = temporal_drift_detection_accuracy(
+        [8, None, 4, 20],
+        [6, 7, None, 10],
+        tolerance_days=3,
+    )
+    assert result["n"] == 4
+    assert result["accuracy"] == 0.25
+    assert result["false_negatives"] == 1
+    assert result["false_positives"] == 1
+    assert result["detection_delays"] == [2, 10]
