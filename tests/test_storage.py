@@ -214,6 +214,7 @@ def test_terrain_overlay_round_trip_is_exact(tmp_path) -> None:
     assert loaded_terrain.config == terrain.config
     assert loaded_terrain.transition_counts == terrain.transition_counts
     assert loaded_terrain.influences == terrain.influences
+    assert loaded_terrain.updates == terrain.updates
 
 
 def test_in_memory_vector_index_is_deterministic() -> None:
