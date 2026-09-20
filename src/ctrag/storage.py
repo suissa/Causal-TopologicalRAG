@@ -9,7 +9,15 @@ from typing import Protocol, runtime_checkable
 from .basins import AttractorDescriptor, BasinAffinity
 from .embedding import cosine_similarity
 from .events import EventRecord
-from .models import CausalPath, CausalProvenance, Edge, EdgeKind, MemoryNode, TemporalScope
+from .models import (
+    CausalPath,
+    CausalProvenance,
+    Edge,
+    EdgeKind,
+    MemoryNode,
+    TemporalConsistencyWindow,
+    TemporalScope,
+)
 from .terrain import DynamicTerrain, EdgeIdentity, SurpriseSource, TerrainConfig, TerrainUpdate
 from .topology import CausalTopology
 
@@ -33,6 +41,7 @@ class TopologyView(Protocol):
         direction: str = "both",
         kinds: Iterable[EdgeKind] | None = None,
         temporal_scopes: Iterable[TemporalScope] | None = None,
+        temporal_window: TemporalConsistencyWindow | None = None,
         max_hops: int = 4,
     ) -> dict[str, int]: ...
     def neighborhood(
@@ -42,6 +51,7 @@ class TopologyView(Protocol):
         direction: str = "both",
         kinds: Iterable[EdgeKind] | None = None,
         temporal_scopes: Iterable[TemporalScope] | None = None,
+        temporal_window: TemporalConsistencyWindow | None = None,
         max_hops: int = 4,
         include_anchor: bool = False,
     ) -> set[str]: ...
