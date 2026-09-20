@@ -4,7 +4,15 @@ import math
 
 from .adapters import EmbeddingProvider, IdfOverlapRetriever, LexicalRetriever, reciprocal_rank_fusion
 from .embedding import HashingEmbedder, cosine_similarity
-from .models import CausalPath, EdgeKind, QueryMode, RetrievalHit, RetrievalWeights, TemporalScope
+from .models import (
+    CausalPath,
+    EdgeKind,
+    QueryMode,
+    RetrievalHit,
+    RetrievalWeights,
+    TemporalConsistencyWindow,
+    TemporalScope,
+)
 from .query import RetrievalStage, StagedRetrievalResult
 from .topology import CausalTopology
 
@@ -144,6 +152,7 @@ class CTRetriever:
         *,
         direction: str,
         max_hops: int,
+        temporal_window: TemporalConsistencyWindow | None = None,
     ) -> tuple[float, str | None]:
         best_score = 0.0
         best_anchor: str | None = None
@@ -154,6 +163,7 @@ class CTRetriever:
                 direction=direction,
                 kinds=kinds,
                 temporal_scopes={TemporalScope.EXECUTION},
+                temporal_window=temporal_window,
                 max_hops=max_hops,
             )
             hops = distances.get(candidate_id)
@@ -261,6 +271,7 @@ class CTRetriever:
         max_hops: int = 4,
         ancestor_hops: int | None = None,
         descendant_hops: int | None = None,
+        temporal_window: TemporalConsistencyWindow | None = None,
         weights: RetrievalWeights | None = None,
     ) -> StagedRetrievalResult:
         """Run query-intent-aware retrieval while exposing each navigation stage.
@@ -285,6 +296,7 @@ class CTRetriever:
                 direction=direction,
                 kinds=stage_kinds,
                 temporal_scopes={TemporalScope.EXECUTION},
+                temporal_window=temporal_window,
                 max_hops=max_hops,
             ))
             for attractor_id in self.topology.basin_memberships(anchor_id, max_hops=max_hops):
@@ -305,6 +317,7 @@ class CTRetriever:
             max_hops=max_hops,
             ancestor_hops=ancestor_hops,
             descendant_hops=descendant_hops,
+            temporal_window=temporal_window,
             weights=weights,
             exhaustive=True,
         )
@@ -388,6 +401,7 @@ class CTRetriever:
         max_hops: int = 4,
         ancestor_hops: int | None = None,
         descendant_hops: int | None = None,
+        temporal_window: TemporalConsistencyWindow | None = None,
         weights: RetrievalWeights | None = None,
         include_anchors: bool = False,
         exhaustive: bool = False,
@@ -438,6 +452,7 @@ class CTRetriever:
                     anchor_id,
                     direction=direction,
                     kinds={EdgeKind.CAUSAL, EdgeKind.BEHAVIORAL, EdgeKind.TEMPORAL},
+                    temporal_window=temporal_window,
                     max_hops=expansion_hops,
                 )
             )
@@ -454,6 +469,7 @@ class CTRetriever:
                 anchor_ids,
                 direction=direction,
                 max_hops=expansion_hops,
+                temporal_window=temporal_window,
             )
             causal, causal_hops, causal_anchor, causal_path = self._causal_score(
                 candidate_id,

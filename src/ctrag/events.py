@@ -21,6 +21,8 @@ _RESERVED_METADATA = {
     "actor_id",
     "action_id",
     "status",
+    "event_time",
+    "observed_at",
     "payload",
     "_event_fingerprint",
 }
@@ -58,6 +60,7 @@ class EventFieldMapping:
     event_id: str = "event_id"
     event_type: str = "event_type"
     timestamp: str = "timestamp"
+    observed_at: str = "observed_at"
     payload: str = "payload"
     causation_id: str = "causation_id"
     correlation_id: str = "correlation_id"
@@ -72,6 +75,7 @@ class EventFieldMapping:
             self.event_id,
             self.event_type,
             self.timestamp,
+            self.observed_at,
             self.payload,
             self.causation_id,
             self.correlation_id,
@@ -92,6 +96,7 @@ class EventRecord:
     event_id: str
     event_type: str
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    observed_at: datetime | None = None
     payload: dict[str, Any] = field(default_factory=dict)
     causation_id: str | None = None
     correlation_id: str | None = None
@@ -108,6 +113,11 @@ class EventRecord:
             raise TypeError("timestamp must be a datetime")
         if self.timestamp.tzinfo is None or self.timestamp.utcoffset() is None:
             raise ValueError("timestamp must be timezone-aware")
+        if self.observed_at is not None:
+            if not isinstance(self.observed_at, datetime):
+                raise TypeError("observed_at must be a datetime")
+            if self.observed_at.tzinfo is None or self.observed_at.utcoffset() is None:
+                raise ValueError("observed_at must be timezone-aware")
         if not isinstance(self.payload, dict):
             raise TypeError("payload must be an object/dict")
         try:
@@ -130,11 +140,17 @@ class EventRecord:
         if self.causation_id == self.event_id:
             raise ValueError("event cannot causally reference itself")
 
+    @property
+    def event_time(self) -> datetime:
+        """Authoritative time at which the source says the event occurred."""
+        return self.timestamp
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "event_id": self.event_id,
             "event_type": self.event_type,
             "timestamp": self.timestamp.isoformat(),
+            "observed_at": None if self.observed_at is None else self.observed_at.isoformat(),
             "payload": dict(self.payload),
             "causation_id": self.causation_id,
             "correlation_id": self.correlation_id,
@@ -146,8 +162,13 @@ class EventRecord:
         }
 
     def fingerprint(self) -> str:
+        # observed_at is transaction/ingest metadata, not part of the event's
+        # authoritative identity. Replaying the same event at a later time must
+        # remain idempotent.
+        canonical_event = self.to_dict()
+        canonical_event.pop("observed_at", None)
         canonical = json.dumps(
-            self.to_dict(),
+            canonical_event,
             sort_keys=True,
             separators=(",", ":"),
             ensure_ascii=False,
@@ -199,10 +220,22 @@ class EventRecord:
             value = _lookup_path(raw, path, None)
             return None if value is None else str(value)
 
+        def optional_datetime(path: str, canonical_name: str) -> datetime | None:
+            value = _lookup_path(raw, path, None)
+            if value is None:
+                return None
+            if not isinstance(value, str):
+                raise TypeError(f"{canonical_name} must be an ISO-8601 string")
+            try:
+                return datetime.fromisoformat(value.replace("Z", "+00:00"))
+            except ValueError as exc:
+                raise ValueError(f"invalid ISO-8601 {canonical_name}: {value!r}") from exc
+
         return cls(
             event_id=str(event_id),
             event_type=str(event_type),
             timestamp=timestamp,
+            observed_at=optional_datetime(mapping.observed_at, "observed_at"),
             payload=dict(payload),
             causation_id=optional(mapping.causation_id),
             correlation_id=optional(mapping.correlation_id),
@@ -257,7 +290,7 @@ class EventProjector:
                     key=lambda node_id: (self.topology.nodes[node_id].timestamp, node_id),
                 )
 
-    def _metadata_for(self, event: EventRecord) -> dict[str, Any]:
+    def _metadata_for(self, event: EventRecord, observed_at: datetime) -> dict[str, Any]:
         # Payload remains available both as a nested authoritative value and as
         # non-reserved convenience metadata. Canonical identifiers always win.
         metadata = {
@@ -274,12 +307,14 @@ class EventProjector:
             "actor_id": event.actor_id,
             "action_id": event.action_id,
             "status": event.status,
+            "event_time": event.timestamp.isoformat(),
+            "observed_at": observed_at.isoformat(),
             "payload": dict(event.payload),
             "_event_fingerprint": event.fingerprint(),
         })
         return {key: value for key, value in metadata.items() if value is not None}
 
-    def _node_for(self, event: EventRecord) -> MemoryNode:
+    def _node_for(self, event: EventRecord, observed_at: datetime) -> MemoryNode:
         text_parts = [event.event_type]
         if event.status:
             text_parts.append(f"status={event.status}")
@@ -289,7 +324,7 @@ class EventProjector:
             id=event.event_id,
             text=" ".join(text_parts),
             timestamp=event.timestamp,
-            metadata=self._metadata_for(event),
+            metadata=self._metadata_for(event, observed_at),
         )
 
     def _ensure_edge(self, edge: Edge) -> None:
@@ -341,6 +376,34 @@ class EventProjector:
             ))
         self._last_by_execution[event.execution_id] = event.event_id
 
+    def link_temporal(
+        self,
+        source_id: str,
+        target_id: str,
+        *,
+        scope: TemporalScope,
+    ) -> Edge:
+        """Link already-projected records with explicit temporal scope.
+
+        This is the public cross-execution temporal relation API for relations
+        such as deploy-before-execution or config-change-before-incident.
+        It never creates causal authority.
+        """
+        if source_id not in self.topology.nodes:
+            raise KeyError(source_id)
+        if target_id not in self.topology.nodes:
+            raise KeyError(target_id)
+        if source_id == target_id:
+            raise ValueError("temporal relation endpoints must be distinct")
+        edge = Edge(
+            source=source_id,
+            target=target_id,
+            kind=EdgeKind.TEMPORAL,
+            temporal_scope=scope,
+        )
+        self._ensure_edge(edge)
+        return edge
+
     def ingest(self, event: EventRecord) -> MemoryNode:
         existing = self.topology.nodes.get(event.event_id)
         if existing is not None:
@@ -351,7 +414,8 @@ class EventProjector:
                 f"event id conflict for {event.event_id!r}: existing projection differs from replay"
             )
 
-        node = self._node_for(event)
+        observed_at = event.observed_at or datetime.now(timezone.utc)
+        node = self._node_for(event, observed_at)
         self.topology.add_node(node)
         self._project_causation(event)
         self._resolve_pending_children(event.event_id)

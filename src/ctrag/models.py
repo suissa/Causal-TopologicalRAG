@@ -28,6 +28,22 @@ class TemporalScope(str, Enum):
     INCIDENT_WINDOW = "incident_window"
     GLOBAL_OBSERVED = "global_observed"
 
+@dataclass(slots=True, frozen=True)
+class TemporalConsistencyWindow:
+    """Optional event-time plausibility constraint for TEMPORAL traversal.
+
+    The constraint filters navigation only. It never creates, upgrades, or
+    rewrites causal evidence.
+    """
+
+    max_gap_seconds: float
+    require_monotonic_event_time: bool = True
+
+    def __post_init__(self) -> None:
+        if not math.isfinite(self.max_gap_seconds) or self.max_gap_seconds < 0:
+            raise ValueError("max_gap_seconds must be finite and non-negative")
+
+
 class EdgeKind(str, Enum):
     SEMANTIC = "semantic"
     CAUSAL = "causal"

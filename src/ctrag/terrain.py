@@ -36,6 +36,30 @@ class SurpriseSignal:
 
 
 @dataclass(slots=True, frozen=True)
+class TerrainUpdate:
+    """Auditable reinforcement record for the non-authoritative terrain overlay."""
+
+    edge: EdgeIdentity
+    observation_index: int
+    before_influence: float
+    after_influence: float
+    increment: float
+    method_id: str
+    surprise_source: SurpriseSource | None = None
+    surprise_value: float | None = None
+    surprise_method_version: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.observation_index < 1:
+            raise ValueError("observation_index must be positive")
+        for value in (self.before_influence, self.after_influence, self.increment):
+            if not math.isfinite(value):
+                raise ValueError("terrain update values must be finite")
+        if not self.method_id.strip():
+            raise ValueError("method_id must be non-empty")
+
+
+@dataclass(slots=True, frozen=True)
 class TerrainConfig:
     """Configuration for the non-authoritative navigational terrain overlay."""
 
@@ -95,6 +119,7 @@ class DynamicTerrain:
         self._transition_counts: dict[EdgeIdentity, int] = {}
         self._influence: dict[EdgeIdentity, float] = {}
         self._protected: set[EdgeIdentity] = set()
+        self._updates: list[TerrainUpdate] = []
 
     @staticmethod
     def edge_identity(edge: Edge) -> EdgeIdentity:
@@ -107,6 +132,11 @@ class DynamicTerrain:
     @property
     def influences(self) -> dict[EdgeIdentity, float]:
         return dict(self._influence)
+
+    @property
+    def updates(self) -> tuple[TerrainUpdate, ...]:
+        """Immutable view of auditable reinforcement updates."""
+        return tuple(self._updates)
 
     @property
     def protected_edges(self) -> frozenset[EdgeIdentity]:
@@ -138,19 +168,46 @@ class DynamicTerrain:
         """Return current navigational multiplier; unobserved edges default to 1."""
         return self._influence.get(self.edge_identity(edge), 1.0)
 
-    def reinforce(self, edge: Edge, *, amount: float | None = None) -> float:
-        """Record one observed transition and strengthen only its navigation weight."""
+    def _apply_reinforcement(
+        self,
+        edge: Edge,
+        *,
+        increment: float,
+        method_id: str,
+        signal: SurpriseSignal | None = None,
+    ) -> float:
         if not self.topology.has_edge(edge):
             raise KeyError("cannot reinforce an edge that is not present in the topology")
-        increment = self.config.reinforcement_step if amount is None else amount
         if increment < 0 or not math.isfinite(increment):
             raise ValueError("reinforcement amount must be finite and non-negative")
         identity = self.edge_identity(edge)
-        self._transition_counts[identity] = self._transition_counts.get(identity, 0) + 1
+        observation_index = self._transition_counts.get(identity, 0) + 1
         current = self._influence.get(identity, 1.0)
         updated = min(self.config.maximum_influence, current + increment)
+        self._transition_counts[identity] = observation_index
         self._influence[identity] = updated
+        self._updates.append(TerrainUpdate(
+            edge=identity,
+            observation_index=observation_index,
+            before_influence=current,
+            after_influence=updated,
+            increment=increment,
+            method_id=method_id,
+            surprise_source=None if signal is None else signal.source,
+            surprise_value=None if signal is None else signal.value,
+            surprise_method_version=None if signal is None else signal.method_version,
+        ))
         return updated
+
+    def reinforce(self, edge: Edge, *, amount: float | None = None) -> float:
+        """Record one observed transition and strengthen only its navigation weight."""
+        increment = self.config.reinforcement_step if amount is None else amount
+        method_id = "fixed-step-v1" if amount is None else "explicit-amount-v1"
+        return self._apply_reinforcement(
+            edge,
+            increment=increment,
+            method_id=method_id,
+        )
 
     def transition_surprise_signal(
         self,
@@ -208,7 +265,12 @@ class DynamicTerrain:
         bounded_surprise = min(abs(signal.value), cap) / cap
         diminishing_gain = 1.0 / math.sqrt(1.0 + observations)
         amount = self.config.reinforcement_step * bounded_surprise * diminishing_gain
-        return self.reinforce(edge, amount=amount)
+        return self._apply_reinforcement(
+            edge,
+            increment=amount,
+            method_id="surprise-weighted-v1",
+            signal=signal,
+        )
 
     def reinforce_by_transition_surprise(
         self,

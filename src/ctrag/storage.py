@@ -9,8 +9,16 @@ from typing import Protocol, runtime_checkable
 from .basins import AttractorDescriptor, BasinAffinity
 from .embedding import cosine_similarity
 from .events import EventRecord
-from .models import CausalPath, CausalProvenance, Edge, EdgeKind, MemoryNode, TemporalScope
-from .terrain import DynamicTerrain, EdgeIdentity, TerrainConfig
+from .models import (
+    CausalPath,
+    CausalProvenance,
+    Edge,
+    EdgeKind,
+    MemoryNode,
+    TemporalConsistencyWindow,
+    TemporalScope,
+)
+from .terrain import DynamicTerrain, EdgeIdentity, SurpriseSource, TerrainConfig, TerrainUpdate
 from .topology import CausalTopology
 
 
@@ -33,6 +41,7 @@ class TopologyView(Protocol):
         direction: str = "both",
         kinds: Iterable[EdgeKind] | None = None,
         temporal_scopes: Iterable[TemporalScope] | None = None,
+        temporal_window: TemporalConsistencyWindow | None = None,
         max_hops: int = 4,
     ) -> dict[str, int]: ...
     def neighborhood(
@@ -42,6 +51,7 @@ class TopologyView(Protocol):
         direction: str = "both",
         kinds: Iterable[EdgeKind] | None = None,
         temporal_scopes: Iterable[TemporalScope] | None = None,
+        temporal_window: TemporalConsistencyWindow | None = None,
         max_hops: int = 4,
         include_anchor: bool = False,
     ) -> set[str]: ...
@@ -304,6 +314,7 @@ class SQLiteCTStore:
                 "decay_rate": terrain.config.decay_rate,
                 "minimum_influence": terrain.config.minimum_influence,
                 "maximum_influence": terrain.config.maximum_influence,
+                "protected_minimum_influence": terrain.config.protected_minimum_influence,
             },
             "transitions": [
                 {
@@ -315,6 +326,22 @@ class SQLiteCTStore:
                     terrain.transition_counts.items(),
                     key=lambda item: _json_dumps(_identity_to_dict(item[0])),
                 )
+            ],
+            "updates": [
+                {
+                    "edge": _identity_to_dict(update.edge),
+                    "observation_index": update.observation_index,
+                    "before_influence": update.before_influence,
+                    "after_influence": update.after_influence,
+                    "increment": update.increment,
+                    "method_id": update.method_id,
+                    "surprise_source": (
+                        None if update.surprise_source is None else update.surprise_source.value
+                    ),
+                    "surprise_value": update.surprise_value,
+                    "surprise_method_version": update.surprise_method_version,
+                }
+                for update in terrain.updates
             ],
         }
         with self._connect() as connection:
@@ -345,6 +372,30 @@ class SQLiteCTStore:
             influences[identity] = float(item["influence"])
         terrain._transition_counts = transition_counts
         terrain._influence = influences
+        terrain._updates = [
+            TerrainUpdate(
+                edge=_identity_from_dict(item["edge"]),
+                observation_index=int(item["observation_index"]),
+                before_influence=float(item["before_influence"]),
+                after_influence=float(item["after_influence"]),
+                increment=float(item["increment"]),
+                method_id=str(item["method_id"]),
+                surprise_source=(
+                    None
+                    if item.get("surprise_source") is None
+                    else SurpriseSource(str(item["surprise_source"]))
+                ),
+                surprise_value=(
+                    None if item.get("surprise_value") is None else float(item["surprise_value"])
+                ),
+                surprise_method_version=(
+                    None
+                    if item.get("surprise_method_version") is None
+                    else str(item["surprise_method_version"])
+                ),
+            )
+            for item in payload.get("updates", [])
+        ]
         return terrain
 
 

@@ -4,7 +4,15 @@ from collections import defaultdict, deque
 from collections.abc import Iterable
 
 from .basins import AttractorDescriptor, BasinAffinity
-from .models import CausalPath, CausalProvenance, Edge, EdgeKind, MemoryNode, TemporalScope
+from .models import (
+    CausalPath,
+    CausalProvenance,
+    Edge,
+    EdgeKind,
+    MemoryNode,
+    TemporalConsistencyWindow,
+    TemporalScope,
+)
 
 
 PROVENANCE_FACTORS: dict[CausalProvenance, float] = {
@@ -183,6 +191,7 @@ class CausalTopology:
         direction: str = "both",
         kinds: Iterable[EdgeKind] | None = None,
         temporal_scopes: Iterable[TemporalScope] | None = None,
+        temporal_window: TemporalConsistencyWindow | None = None,
         max_hops: int = 4,
         include_anchor: bool = False,
     ) -> set[str]:
@@ -191,6 +200,7 @@ class CausalTopology:
             direction=direction,
             kinds=kinds,
             temporal_scopes=temporal_scopes,
+            temporal_window=temporal_window,
             max_hops=max_hops,
         )
         result = set(distances)
@@ -205,6 +215,7 @@ class CausalTopology:
         direction: str = "both",
         kinds: Iterable[EdgeKind] | None = None,
         temporal_scopes: Iterable[TemporalScope] | None = None,
+        temporal_window: TemporalConsistencyWindow | None = None,
         max_hops: int = 4,
     ) -> dict[str, int]:
         if direction not in {"in", "out", "both"}:
@@ -237,10 +248,19 @@ class CausalTopology:
             for edge, neighbor in edges:
                 if allowed is not None and edge.kind not in allowed:
                     continue
-                if edge.kind is EdgeKind.TEMPORAL and allowed_temporal_scopes is not None:
-                    effective_scope = edge.temporal_scope or TemporalScope.EXECUTION
-                    if effective_scope not in allowed_temporal_scopes:
-                        continue
+                if edge.kind is EdgeKind.TEMPORAL:
+                    if allowed_temporal_scopes is not None:
+                        effective_scope = edge.temporal_scope or TemporalScope.EXECUTION
+                        if effective_scope not in allowed_temporal_scopes:
+                            continue
+                    if temporal_window is not None:
+                        source_time = self.nodes[edge.source].timestamp
+                        target_time = self.nodes[edge.target].timestamp
+                        delta_seconds = (target_time - source_time).total_seconds()
+                        if temporal_window.require_monotonic_event_time and delta_seconds < 0:
+                            continue
+                        if abs(delta_seconds) > temporal_window.max_gap_seconds:
+                            continue
                 candidate_hops = hops + 1
                 if neighbor in distances and distances[neighbor] <= candidate_hops:
                     continue

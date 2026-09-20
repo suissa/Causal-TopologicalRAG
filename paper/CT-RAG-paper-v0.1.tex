@@ -1,0 +1,1092 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  11pt,
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={CT-RAG: Structured Experiential Memory via Causal-Topological Retrieval for Long-Lived Agents},
+  pdfauthor={Jean Carlo Nascimento},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{CT-RAG: Structured Experiential Memory via Causal-Topological
+Retrieval for Long-Lived Agents}
+\author{Jean Carlo Nascimento}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\section{Candidate titles}\label{candidate-titles}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{CT-RAG: Structured Experiential Memory via Causal-Topological
+  Retrieval for Long-Lived Agents} \emph{(selected)}
+\item
+  \textbf{Beyond Similarity and Recency: Runtime Causal Provenance for
+  Long-Lived Agent Memory}
+\item
+  \textbf{Retrieval Becomes Navigation: Causal-Topological Memory and
+  Dynamic Terrain for Agents}
+\end{enumerate}
+
+\section{Abstract}\label{abstract}
+
+Long-lived software agents accumulate execution histories that are
+difficult to use as memory. Conventional retrieval-augmented generation
+(RAG) primarily ranks items by semantic similarity, while temporal
+memory systems emphasize when facts were valid or observed. Neither
+geometry is sufficient when the relevant evidence is defined by runtime
+execution structure: an event can be causally authoritative despite
+being semantically dissimilar, temporally distant, or received out of
+order. We introduce \textbf{CT-RAG}, a retrieval architecture for
+\textbf{structured experiential memory} that represents execution
+evidence using typed causal, temporal, and behavioral relations,
+separates authoritative causal provenance from inferred association, and
+maintains a dynamic, non-authoritative \textbf{terrain} whose
+navigational influence can be reinforced or eroded without rewriting
+immutable historical evidence. Retrieval is therefore treated as
+navigation over preserved experience, while learning changes navigation
+rather than truth.
+
+We evaluate CT-RAG using controlled adversarial fixtures designed to
+separate causal structure from simpler ranking signals. In an
+out-of-order causation experiment, a child event is ingested before its
+parent, with a 336-hour event-time gap and 25 semantically adversarial
+distractors. Semantic-only and recency-only retrieval rank the true
+parent 26th of 26 candidates, while CT-RAG \texttt{WHY} ranks it first using explicit
+runtime \texttt{causation\_id} provenance. In an eroded-path recovery
+experiment, a raw-success baseline prefers an unreachable
+\texttt{GlobalFix} path with 9/10 historical success, whereas CT-RAG
+excludes it because it is not causally reachable from the current state
+and ranks the best reachable recovery first. Conservative small-sample
+support is represented by the 95\% Wilson lower bound rather than an ad
+hoc count bonus. CT-RAG achieves Precision@1 = 1.0 in this controlled
+recovery fixture, while terrain-only, recency-only, and raw-success
+baselines each obtain 0.0; false-rescue increases from 0.0 at k=1 to
+0.75 at k=4, exposing rather than hiding degradation as more
+alternatives are returned. A secondary same-logic degradation study under the current zero-FPR null
+yields a median +1 day relative lead across a 28-cell parameter surface,
+with the positive-lead cells forming one contiguous region and the
++1-day lead invariant to four phase offsets. These experiments are
+mechanism-level synthetic evidence, not production generalization. The
+results support a narrower claim: \textbf{runtime causal reachability
+contains retrieval information that semantic similarity, recency, and
+global success statistics do not encode}.
+
+\section{1. Introduction}\label{introduction}
+
+Retrieval-augmented generation augments a parametric language model with
+information retrieved from an external memory
+(\citeproc{ref-lewis2020rag}{Lewis et al. 2020}). Most deployed and
+research RAG systems begin from a geometric assumption: if two items are
+close in an embedding space, one is likely to be useful for answering a
+query. Long-term agent-memory systems add persistence, reflection,
+hierarchical storage, temporal knowledge graphs, or graph navigation
+(\citeproc{ref-park2023generative}{Park et al. 2023};
+\citeproc{ref-packer2023memgpt}{Packer et al. 2023};
+\citeproc{ref-rasmussen2025zep}{Rasmussen et al. 2025};
+\citeproc{ref-gutierrez2024hipporag}{Gutiérrez et al. 2024}). This
+progression is important, but agents operating inside event-driven
+systems face an additional problem. Their relevant memory is often not
+merely \emph{about the same thing} or \emph{nearby in time}. It is the
+execution that caused the current event, the previously successful route
+reachable from the current state, the basin toward which repeated
+behavior is drifting, or the historical branch whose current
+navigational influence has eroded without invalidating the evidence that
+it once occurred.
+
+Distributed systems make the distinction concrete. Event arrival order
+is not event time, event time is not causal order, and semantic
+similarity is not causal authority. Lamport's happens-before relation
+established the importance of partial order over physical-clock
+proximity in distributed computation
+(\citeproc{ref-lamport1978time}{Lamport 1978}). Stream-processing
+systems similarly distinguish event time from processing time because
+out-of-order arrival is intrinsic rather than exceptional
+(\citeproc{ref-akidau2015dataflow}{Akidau et al. 2015}). Temporal
+databases distinguish valid time from transaction time for related
+reasons (\citeproc{ref-jensen2018temporal}{Jensen and Snodgrass 2018}).
+CT-RAG adopts the same discipline for agent memory: \textbf{different
+relations carry different semantics and must not silently collapse into
+one another}.
+
+This paper is organized around two distinct functions of experiential
+topology. \textbf{RQ1 treats topology as a relation of authority:} when
+several memories are semantically or temporally plausible, which prior
+event is entitled to explain the current event because the runtime
+explicitly identifies it as causal provenance? \textbf{RQ2 treats
+topology as a relation of feasibility:} among historically successful
+recovery routes, which alternatives are actually reachable from the
+current state? Similarity, recency, and global success statistics can
+rank observations, but they do not encode either authority or
+state-conditioned feasibility. The two primary experiments are designed
+to isolate these two roles separately.
+
+We use the term \textbf{structured experiential memory} to denote memory
+organized around observed execution experience rather than only facts or
+text fragments. This term is intentionally descriptive rather than a
+claim that graph-structured experience is unique to CT-RAG. Recent work
+explicitly studies graph-based agent memory and experiential memory
+(\citeproc{ref-yang2026graphmemory}{Yang et al. 2026};
+\citeproc{ref-hu2025memorysurvey}{Hu et al. 2025};
+\citeproc{ref-dai2026gsem}{Dai et al. 2026}), while other 2026 systems
+explore retrieval-driven reconsolidation and selective forgetting
+(\citeproc{ref-song2026realm}{Song et al. 2026};
+\citeproc{ref-rusu2026selective}{Rusu, Khanzadeh, and Alalfi 2026}). Our
+claim is narrower: CT-RAG combines runtime-owned causal provenance,
+typed separation of experiential relations, execution basins/attractors,
+and a dynamic terrain overlay that changes navigational influence
+without changing historical truth.
+
+The design follows one central invariant:
+
+\begin{quote}
+\textbf{Observed adjacency may create temporal or behavioral evidence,
+but only explicit or separately justified provenance may create a causal
+edge.}
+\end{quote}
+
+This distinction also separates CT-RAG from causal inference. A runtime
+field such as \texttt{causation\_id} is not a statistical estimate that
+one variable causes another; it is provenance asserted by the executing
+system. Conversely, observational alternatives retrieved from history do
+not identify intervention effects in Pearl's sense
+(\citeproc{ref-pearl2009causality}{Pearl 2009}). Granger-style
+predictability and PCMCI-style causal discovery can be useful analytical
+tools, but they answer different questions and are not substituted for
+runtime provenance (\citeproc{ref-granger1969causal}{Granger 1969};
+\citeproc{ref-runge2020pcmci}{Runge 2020}).
+
+This paper makes four contributions.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{A typed experiential topology.} We model agent/system
+  experience as nodes connected by causal, temporal, behavioral, and
+  optionally semantic relations, with causal edges carrying explicit
+  provenance and temporal relations carrying scope.
+\item
+  \textbf{A non-authoritative dynamic terrain.} Repeated trajectories
+  reinforce navigational influence and unused paths erode, while the
+  underlying nodes, edges, provenance, and observed transition history
+  remain intact.
+\item
+  \textbf{Mode-aware causal-topological retrieval.} \texttt{WHY}
+  retrieval can prioritize authoritative causal ancestry even under
+  adversarial semantic and temporal geometry; \texttt{RECOVERY} uses
+  causal reachability as an eligibility gate and conservative historical
+  success support to order reachable alternatives without letting low
+  terrain influence act as a veto.
+\item
+  \textbf{Adversarial controlled evidence.} We construct baselines
+  intended to defeat the method: 25 semantically near and temporally
+  recent distractors in the causal-gap experiment, and a globally
+  higher-success but causally unreachable recovery in the eroded-path
+  experiment. These fixtures isolate information carried by runtime
+  topology rather than merely showing that an implementation satisfies
+  its own specification.
+\end{enumerate}
+
+The remainder of the paper describes the model, implementation
+invariants, experimental protocol, results, and limitations. All
+numerical results reported here were regenerated by GitHub Actions CI
+run \textbf{\#210} from commit
+\textbf{\texttt{d2c73de6ae1a691ad7d61c9ece26a4e84c93c44c}} on Python
+3.11, 3.12, and 3.13; the tables below use the Python 3.13 uploaded
+benchmark artifact.
+
+\section{2. Related Work}\label{related-work}
+
+\subsection{2.1 Retrieval-augmented generation and graph
+retrieval}\label{retrieval-augmented-generation-and-graph-retrieval}
+
+RAG combines parametric generation with non-parametric retrieval
+(\citeproc{ref-lewis2020rag}{Lewis et al. 2020}). Dense retrieval is
+effective when relevance correlates with semantic similarity, but it
+does not by itself encode execution causality, temporal validity, or
+reachability constraints.
+
+HippoRAG combines LLM extraction, a knowledge graph, and Personalized
+PageRank to support efficient multi-hop retrieval and long-term
+knowledge integration (\citeproc{ref-gutierrez2024hipporag}{Gutiérrez et
+al. 2024}). Its contribution demonstrates that graph structure can
+improve retrieval beyond flat vector search. CT-RAG does not claim
+generic graph navigation as novel. The distinction is the graph's
+semantics: CT-RAG's primary structure is \textbf{runtime experience},
+and its causal relations are admitted under provenance constraints
+rather than created because entities co-occur or are semantically
+associated.
+
+Topo-RAG argues that hybrid enterprise documents should preserve
+intrinsic data topology rather than linearizing every structure into
+text; it routes narrative and tabular evidence through
+structure-appropriate retrieval
+(\citeproc{ref-dantart2026toporag}{Dantart and Kóvacs-Navarro 2026}).
+CT-RAG uses \emph{topology} in a different sense. Topo-RAG preserves the
+intrinsic spatial/structural topology of an artifact; CT-RAG models the
+topology of \textbf{execution experience} across events and states. An
+important invariant follows: intrinsic artifact adjacency, temporal
+adjacency, behavioral continuity, and causal evidence are separate
+relations.
+
+\subsection{2.2 Long-term agent memory}\label{long-term-agent-memory}
+
+Generative Agents stores a stream of natural-language experiences,
+retrieves memories dynamically, and synthesizes reflections that
+influence future behavior (\citeproc{ref-park2023generative}{Park et al.
+2023}). MemGPT manages multiple memory tiers using an operating-system
+analogy to extend effective context over long interactions
+(\citeproc{ref-packer2023memgpt}{Packer et al. 2023}). Zep/Graphiti uses
+a temporally aware knowledge graph to dynamically integrate
+conversational and business data while preserving historical
+relationships (\citeproc{ref-rasmussen2025zep}{Rasmussen et al. 2025}).
+These systems establish long-term memory as a first-class agent
+primitive and motivate explicit treatment of memory dynamics.
+
+Recent surveys distinguish factual, experiential, working, structural,
+and graph-based memory, showing that graph structure is now a broad
+design family rather than a differentiating claim by itself
+(\citeproc{ref-hu2025memorysurvey}{Hu et al. 2025};
+\citeproc{ref-yang2026graphmemory}{Yang et al. 2026}). GSEM, for
+example, encodes multi-agent coordination episodes as heterogeneous
+relational graphs and retrieves structurally similar experience to
+accelerate adaptation (\citeproc{ref-dai2026gsem}{Dai et al. 2026}).
+REALM reorganizes a heterogeneous memory graph based on retrieval
+feedback (\citeproc{ref-song2026realm}{Song et al. 2026}). Selective
+Forgetting reports a useful negative result: a graph-based
+conversational memory pipeline did not automatically beat a flat vector
+baseline under matched retrieval budget, while selective pruning could
+reduce memory with little measured loss
+(\citeproc{ref-rusu2026selective}{Rusu, Khanzadeh, and Alalfi 2026}).
+These findings reinforce our claim discipline: \textbf{CT-RAG does not
+assert that graphs are intrinsically better than vectors.} Its
+experiments instead ask whether specific runtime relations carry
+information absent from semantic or temporal baselines.
+
+\subsection{2.3 Time and causality in distributed
+systems}\label{time-and-causality-in-distributed-systems}
+
+Lamport formalized happens-before as a partial order independent of
+physical clock equality (\citeproc{ref-lamport1978time}{Lamport 1978}).
+Modern dataflow systems distinguish event time, processing time, and
+completeness/watermarks to handle unbounded out-of-order streams
+(\citeproc{ref-akidau2015dataflow}{Akidau et al. 2015}). Temporal
+database research similarly distinguishes valid time and transaction
+time (\citeproc{ref-jensen2018temporal}{Jensen and Snodgrass 2018}).
+CT-RAG draws an engineering lesson from this literature: memory systems
+should not treat one scalar timestamp as a universal relation.
+
+CT-RAG further distinguishes \textbf{runtime causal provenance} from
+\textbf{causal inference}. Pearl's structural causal models and
+intervention semantics concern identification of causal effects
+(\citeproc{ref-pearl2009causality}{Pearl 2009}). Granger causality
+concerns predictive temporal precedence
+(\citeproc{ref-granger1969causal}{Granger 1969}), while PCMCI/PCMCI+
+estimates lagged and contemporaneous causal relations from observational
+time series under explicit assumptions
+(\citeproc{ref-runge2020pcmci}{Runge 2020}). CT-RAG may store hypotheses
+from such methods with lower epistemic status, but an event relation
+asserted by \texttt{causation\_id} is a different object: it is
+provenance emitted by the runtime, not an observational causal estimate.
+
+\subsection{2.4 Memory strength as a limited
+analogy}\label{memory-strength-as-a-limited-analogy}
+
+Bjork and Bjork's New Theory of Disuse distinguishes storage strength
+from retrieval strength (\citeproc{ref-bjork1992disuse}{Bjork and Bjork
+1992}). CT-RAG's separation between preserved history and current
+navigational influence is analogous in a limited engineering sense: a
+path can become hard to retrieve without being erased. We do
+\textbf{not} claim cognitive or psychological isomorphism. The terrain
+is an engineered retrieval overlay, not a model of human memory.
+
+\section{3. Problem Definition}\label{problem-definition}
+
+Let an experiential memory be a typed directed graph
+
+{[} G = (V, E\_c, E\_t, E\_b, E\_s), {]}
+
+where (V) contains observed events or states; (E\_c) contains causal
+relations; (E\_t) temporal relations; (E\_b)
+behavioral/execution-continuity relations; and (E\_s) optional semantic
+relations. Semantic and lexical similarity may also be computed as
+retrieval channels without materializing (E\_s).
+
+A causal edge is represented as
+
+{[} e\_c = (u,v,p,q,\mathcal{E}), {]}
+
+where (p) is a provenance class, (q\in[0,1]) a confidence, and
+(\mathcal{E}) evidence pointers. The implementation distinguishes
+provenance such as event, execution, workflow, dependency, inferred, and
+hypothesized. The epistemic invariant is that an edge in (E\_c) cannot
+exist without causal provenance.
+
+A temporal edge is
+
+{[} e\_t=(u,v,\sigma), {]}
+
+where (\sigma) is a temporal scope. Implemented scopes are
+\texttt{EXECUTION}, \texttt{ACTOR\_OR\_AGGREGATE}, \texttt{DEPLOYMENT},
+\texttt{INCIDENT\_WINDOW}, and \texttt{GLOBAL\_OBSERVED}. The fail-safe
+default for temporal traversal is execution-local; callers must
+explicitly opt into broader scope traversal. This prevents accidental
+chaining of unrelated executions merely because timestamps are adjacent.
+
+For a query (q), anchor set (A), and mode (m), the base retriever
+combines semantic, lexical, causal, topological, temporal, and
+behavioral components:
+
+{[} S\_\{base\}(v\mid q,A,m)= \sum\_j w\^{}\{(m)\}\_j s\_j(v\mid q,A),
+{]}
+
+where the weight vector depends on query mode. CT-RAG currently exposes
+\texttt{SIMILAR}, \texttt{WHY}, \texttt{WHAT\_NEXT}, \texttt{RECOVERY},
+and \texttt{COUNTERFACTUAL}. \texttt{COUNTERFACTUAL} is observational
+retrieval of historical divergence and must not be interpreted as an
+identified intervention effect.
+
+\section{4. Architecture and
+Invariants}\label{architecture-and-invariants}
+
+\subsection{4.1 Event projection and authoritative
+causation}\label{event-projection-and-authoritative-causation}
+
+The \texttt{EventProjector} maps authoritative event records into memory
+nodes. “Explicit provenance” does not imply manual labeling by a human
+operator: an instrumented runtime, workflow engine, message bus, or agent
+harness can propagate parent/causation context automatically as part of
+execution. When event (v) declares \texttt{causation\_id\ =\ u} and (u)
+already exists, the projector creates
+
+{[} u \xrightarrow{CAUSAL,\ EVENT} v {]}
+
+with evidence source \texttt{event.causation\_id}. If (u) has not yet
+arrived, the child is placed in a pending-causation structure keyed by
+the parent identifier. When (u) later arrives, the edge is reconciled
+deterministically. Arrival order therefore affects when the edge can be
+materialized, but not its eventual causal authority.
+
+Events sharing an execution identifier may also receive temporal and
+behavioral edges according to execution sequence. Crucially, sequence
+alone never creates a causal edge. This prevents the common error of
+converting ``B happened after A'' into ``A caused B.''
+
+\subsection{4.2 Degraded mode without causal
+provenance}\label{degraded-mode-without-causal-provenance}
+
+External telemetry often lacks authoritative causal fields. CT-RAG
+therefore operates in a degraded but explicit mode: trace hierarchy,
+temporal adjacency, and behavioral continuity may be represented, but
+disconnected spans or events are not promoted into (E\_c) merely because
+no competing explanation exists. This fail-safe behavior reduces recall
+of causal paths when provenance is missing, but preserves epistemic
+integrity.
+
+\subsection{4.3 Observability as an evidence contract, not a causal
+oracle}\label{observability-evidence-contract}
+
+CT-RAG requires \textbf{observable execution context}, but it does not
+require “perfect telemetry” and it does not treat observability as an
+oracle that manufactures causality. This distinction matters
+operationally.
+
+Modern distributed systems already propagate execution context to make
+traces reconstructable. W3C Trace Context standardizes portable
+\texttt{traceparent}/\texttt{tracestate} propagation specifically so
+requests can be correlated across distributed components
+(\citeproc{ref-w3c2021tracecontext}{World Wide Web Consortium 2021}).
+OpenTelemetry likewise treats traces, metrics, and logs as the basic
+signals required to understand a running system, and its current
+Generative AI conventions instrument agent invocations, model calls, and
+tool executions
+(\citeproc{ref-otel2026observability}{OpenTelemetry Project 2026};
+\citeproc{ref-otel2026genai}{Newton-King 2026}). CT-RAG consumes this
+class of evidence but assigns different epistemic roles to different
+fields.
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule\noalign{}
+Evidence available & CT-RAG role & If absent \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+execution/trace/request identifiers & behavioral continuity and correlation & lower cross-component recall \\
+event time and ingest/observed time & scoped temporal ordering & weaker temporal navigation \\
+logs, metrics, traces, tool-call records & typed contextual evidence & reduced diagnostic context \\
+explicit \texttt{causation\_id}, declared workflow dependency, or equivalent runtime provenance & authoritative causal edge & \textbf{no causal promotion} \\
+full prompts/completions & optional diagnostic evidence & no loss of causal authority by itself \\
+\end{longtable}
+
+The final row is important for cost and privacy: a professional
+observability stack need not record every token or payload.
+OpenTelemetry itself treats verbose GenAI content as opt-in because it
+may be large or sensitive. What CT-RAG needs for authoritative causal
+retrieval is not maximum telemetry volume; it needs \textbf{semantically
+typed provenance and context propagation}.
+
+This also changes how the legacy-system limitation should be stated.
+Retrofitting a system that emits only unstructured logs can be expensive,
+and causal coverage will initially be low. That is a real deployment
+cost. However, missing provenance causes CT-RAG to \textbf{abstain from
+causal authority}, not to infer causality from temporal adjacency. The
+failure mode is reduced causal recall, not silent conversion of
+correlation into causation.
+
+\subsection{4.4 Basins and attractors}\label{basins-and-attractors}
+
+CT-RAG models repeated execution as movement through topology. A
+structural sink is a node with no outgoing basin-relevant edge. A
+recurrent strongly connected component (SCC) may also act as an
+attractor. Basins are defined as bounded incoming neighborhoods of
+registered attractors over causal and behavioral relations.
+
+Given two snapshots with basin member sets (B\_a\^{}\{(0)\}) and
+(B\_a\^{}\{(1)\}) for attractor (a), basin drift is represented by
+Jaccard distance:
+
+{[}
+D\_B(a)=1-\frac{|B_a^{(0)}\cap B_a^{(1)}|}{|B_a^{(0)}\cup B_a^{(1)}|}.
+{]}
+
+This is a descriptive topological drift measure, not a causal-effect
+estimate.
+
+\section{5. Dynamic Terrain}\label{dynamic-terrain}
+
+The graph records historical structure; the \textbf{DynamicTerrain}
+records current navigational influence. For each edge (e), terrain
+maintains an observation count (n\_e) and influence (I\_e). Observing a
+transition reinforces only the overlay:
+
+{[} I\_e \leftarrow \min(I\_\{max\}, I\_e + \alpha). {]}
+
+After elapsed time (\Delta t), influence decays exponentially:
+
+{[} I\_e(t+\Delta t)=\max(I\_\{min,e\}, I\_e(t)e\^{}\{-\mu\Delta t\}).
+{]}
+
+Protected rare-but-critical edges may use a non-zero floor
+(I\_\{min,e\}). Decay never removes the underlying node, edge, causal
+evidence, or transition count.
+
+For a causal path (\pi=(e\_1,\ldots,e\_k)), path influence is the
+geometric mean
+
+{[} I(\pi)=\left(\prod\emph{\{i=1\}\^{}\{k\}
+I}\{e\_i\}\right)\^{}\{1/k\}. {]}
+
+Outside recovery mode, terrain can act as a multiplicative navigational
+reranker. In \texttt{RECOVERY}, however, low influence is deliberately
+\textbf{not} a veto: an old but historically successful reachable route
+may need to be surfaced precisely because it has fallen out of current
+use.
+
+The implementation also supports a transition-surprise signal using a
+Laplace-smoothed empirical outgoing probability,
+
+{[} \mathrm{surprise}(e)=1-P(e\mid source(e),kind(e)), {]}
+
+but surprise-based reinforcement is not required for the primary results
+in this paper.
+
+\section{6. Recovery Ranking: Reachability and Conservative Historical
+Support}\label{recovery-ranking-reachability-and-conservative-historical-support}
+
+Recovery retrieval answers a different question from similarity search:
+\emph{from the current state, which historically observed routes can
+reach a desired recovered state, and which of those routes have credible
+evidence of success?}
+
+CT-RAG first requires causal reachability from the current anchor. A
+successful historical terminal with no causal path from the current
+state is ineligible, regardless of global success rate. For a reachable
+terminal, the final branch immediately preceding that terminal provides
+counts (s) successful outcomes among (n) observed outcomes.
+
+Rather than rank by the empirical ratio (\hat p=s/n) alone, CT-RAG uses
+the lower endpoint of the 95\% Wilson score interval:
+
+{[} LB\_W(s,n)=
+\frac{\hat p+\frac{z^2}{2n}-z\sqrt{\frac{\hat p(1-\hat p)}{n}+\frac{z^2}{4n^2}}}
+\{1+\frac{z^2}{n}\},\qquad z=1.96. {]}
+
+This folds small-sample uncertainty into the ranking without inventing
+an arbitrary support multiplier. For example, (LB\_W(1,1)\approx0.207),
+while (LB\_W(8,8)\approx0.676); both empirical rates are 1.0, but the
+latter has substantially stronger support.
+
+The terrain-aware recovery reranker retains \texttt{terrain\_influence}
+for explanation but adds conservative historical evidence only to
+causally reachable successful terminals. Conceptually,
+
+{[} S\_\{REC\}(v)=S\_\{base\}(v)+\lambda,LB\_W(s\_v,n\_v), {]}
+
+subject to
+
+{[} Reachable(A,v)=1. {]}
+
+The current implementation uses (\lambda=0.35). This coefficient is an
+implementation parameter, not claimed as universally optimal.
+
+\section{7. Experimental Method}\label{experimental-method}
+
+We separate \textbf{comparative experiments} from
+\textbf{property/mechanism tests}. Comparative experiments include
+competing conditions intended to succeed under plausible alternative
+assumptions. Property tests verify invariants and regression behavior
+but are not presented as evidence of superiority.
+
+All primary results below are synthetic controlled fixtures. They are
+designed for causal identification of \emph{mechanism behavior} inside
+the software artifact, not for estimating production effect sizes.
+
+\subsection{7.1 RQ1: Can runtime causal provenance recover evidence that
+semantic and recency geometry
+suppress?}\label{rq1-can-runtime-causal-provenance-recover-evidence-that-semantic-and-recency-geometry-suppress}
+
+We ingest child event \texttt{Action\_B\_Success} first with explicit
+
+\begin{verbatim}
+causation_id = Action_A_Intent
+\end{verbatim}
+
+while the parent is absent. We then ingest 25 unrelated events whose
+type is deliberately adversarial to semantic retrieval:
+\texttt{Action.B.Success.Context}. The parent finally arrives with event
+time 336 hours earlier than the child.
+
+We compare:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Semantic-only:} global dense retrieval over all nodes.
+\item
+  \textbf{Recency-only:} descending event-time ordering.
+\item
+  \textbf{CT-RAG WHY:} mode-aware retrieval anchored at
+  \texttt{Action\_B\_Success}, with causal provenance available from the
+  reconciled \texttt{causation\_id} edge.
+\end{itemize}
+
+The primary metric is absolute rank of the true parent. The test oracle
+requires CT-RAG parent rank = 1 and both baselines to place the parent
+outside the top 10.
+
+\subsection{7.2 RQ2: Does causal reachability add information beyond
+terrain, recency, and raw historical
+success?}\label{rq2-does-causal-reachability-add-information-beyond-terrain-recency-and-raw-historical-success}
+
+The current state is \texttt{retry}. Reachable historical recovery
+branches are:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{ProviderFallback}: 8/10 successful outcomes;
+\item
+  \texttt{ManualPatch}: 1/10;
+\item
+  \texttt{ScriptPatch}: 2/10;
+\item
+  \texttt{CacheReset}: 1/4.
+\end{itemize}
+
+A separate \texttt{GlobalFix} branch has 9/10 historical success but
+originates from a different root and is \textbf{not causally reachable
+from \texttt{retry}}.
+
+All historical recovery branches are eroded, while the current terrain
+is dominated by \texttt{Timeout\ -\textgreater{}\ HumanIntervention}.
+
+We compare:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Terrain-only:} current path influence;
+\item
+  \textbf{Recency-only:} most recent recovered terminal first;
+\item
+  \textbf{Raw-success-global:} global empirical (P(success)), ignoring
+  reachability;
+\item
+  \textbf{Structural reachable ceiling:} all recovered terminals
+  causally reachable from \texttt{retry}, deliberately treated as an
+  unranked candidate set;
+\item
+  \textbf{CT-RAG RECOVERY:} reachability gate plus Wilson-supported
+  historical success.
+\end{itemize}
+
+The gold top-1 recovery is \texttt{ProviderFallback}. We report
+Precision@1 and false-rescue@k for (k\in\{1,2,3,4\}). The broader
+false-rescue curve matters because a healer consuming multiple
+suggestions is exposed to harmful alternatives even when top-1 is
+correct.
+
+\subsection{7.3 RQ3: Does the behavioral signal lead an infrastructure
+signal under the same detection logic?}\label{rq3-same-logic-degradation}
+
+This secondary experiment uses daily windows whose terminal absorption
+distribution shifts gradually from \texttt{Recovered} toward
+\texttt{HumanIntervention}. Behavioral drift is total variation from a
+fixed healthy baseline. To avoid the original unfair comparison against
+a frozen infrastructure threshold, both behavioral and infrastructure
+signals use the same sustained-change detection pattern, and the
+infrastructure threshold is calibrated on stationary null scenarios.
+In the current generator, however, both achieved FPRs remain exactly
+zero across the tested grid, so this calibration does not establish a
+non-zero matched operating point.
+
+The robustness grid contains 28 combinations of behavioral drift
+threshold and sustained windows. We report the contiguous positive-lead
+region, lead distribution, FPR gap, and phase-offset sensitivity. The
+phase analysis shifts window boundaries by fractions 0, 0.25, 0.50, and
+0.75. This is an alignment test, not sub-daily evidence.
+
+\subsection{7.4 Mechanism/property
+validation}\label{mechanismproperty-validation}
+
+Additional CI-gated tests validate that:
+
+\begin{itemize}
+\tightlist
+\item
+  decay changes influence but preserves graph history;
+\item
+  newly observed recurrent cycles increase SCC internal observations and
+  confidence;
+\item
+  out-of-order causal reconciliation is deterministic;
+\item
+  execution-local temporal traversal is the fail-safe default.
+\end{itemize}
+
+These support implementation correctness but are not counted as
+comparative experimental wins.
+
+\section{8. Results}\label{results}
+
+\subsection{8.1 Out-of-order causal
+provenance}\label{out-of-order-causal-provenance}
+
+\textbf{Table 1. Absolute rank of the true causal parent among 26 total
+candidates under adversarial semantic and temporal geometry.}
+
+\begin{longtable}[]{@{}lrrl@{}}
+\toprule\noalign{}
+Method & True parent rank & Top-10 recall & Information used \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Semantic-only dense retrieval & 26 & 0 & semantic similarity \\
+Recency-only & 26 & 0 & event-time recency \\
+CT-RAG \texttt{WHY} & \textbf{1} & \textbf{1} & runtime causal
+provenance + topology \\
+\end{longtable}
+
+The reconciled edge carries provenance \texttt{EVENT}, evidence source
+\texttt{event.causation\_id}, and causal component 0.9 in the retrieved
+parent hit. The 336-hour temporal gap and 25 semantically close
+distractors therefore do not prevent the parent from ranking first.
+
+This experiment establishes a specific claim rather than generic
+retrieval superiority. Semantic similarity and recency fail because the
+fixture is constructed so that both geometries point toward distractors.
+CT-RAG succeeds because the runtime supplies a relation those baselines
+do not represent. The result is therefore evidence that \textbf{runtime
+causal provenance can carry retrieval information orthogonal to semantic
+and temporal proximity}.
+
+\subsubsection{First-page figure}\label{first-page-figure}
+
+We propose Figure 1 as a three-panel visual occupying the top half of
+the first page after the abstract.
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Panel A --- Semantic geometry:} \texttt{Action\_B\_Success} at
+  the center of a dense cluster of 25 \texttt{Action.B.Success.Context}
+  distractors; \texttt{Action\_A\_Intent} visually distant. Label:
+  \emph{semantic-only parent rank = 26}.
+\item
+  \textbf{Panel B --- Recency geometry:} horizontal event-time axis
+  showing \texttt{Action\_A\_Intent} 336 h to the left,
+  \texttt{Action\_B\_Success}, then the 25 recent distractors. Label:
+  \emph{recency-only parent rank = 26}.
+\item
+  \textbf{Panel C --- Runtime provenance:} collapse the same
+  observations into a causal view with a single highlighted
+  \texttt{Action\_A\_Intent\ -\/-causation\_id-\/-\textgreater{}\ Action\_B\_Success}
+  edge crossing the temporal gap. Label: \emph{CT-RAG WHY parent rank =
+  1}.
+\end{itemize}
+
+The caption should state: \textbf{Same evidence, three geometries.
+Similarity and recency concentrate on adversarial distractors; explicit
+runtime provenance identifies the causal parent.}
+
+\subsection{8.2 Eroded-path rescue}\label{eroded-path-rescue}
+
+The global raw-success baseline ranks \texttt{GlobalFix} first because
+its empirical success is 0.90, above \texttt{ProviderFallback} at 0.80.
+However, \texttt{GlobalFix} is not reachable from \texttt{retry}. The
+structural baseline correctly excludes it but does not order the
+remaining candidates.
+
+\textbf{Table 2. Recovery candidates and conservative historical
+support.}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1304}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1739}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1739}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1739}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1739}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1739}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Candidate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Raw success
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Wilson lower 95\%
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Reachable from \texttt{retry}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+CT-RAG rank
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+ProviderFallback & 0.80 & 10 & \textbf{0.490} & Yes & \textbf{1} \\
+ScriptPatch & 0.20 & 10 & 0.057 & Yes & 2 \\
+CacheReset & 0.25 & 4 & 0.046 & Yes & 3 \\
+ManualPatch & 0.10 & 10 & 0.018 & Yes & 4 \\
+GlobalFix & \textbf{0.90} & 10 & \textbf{0.596} & \textbf{No} & excluded \\
+\end{longtable}
+
+The order of \texttt{ScriptPatch} and \texttt{CacheReset} illustrates
+why empirical point rate alone is not the recovery score: Wilson support
+for 2/10 (0.057) exceeds 1/4 (0.046), despite the latter's higher raw
+point estimate. \texttt{ProviderFallback} remains clearly separated:
+its lower bound is 0.490, a gap of 0.433 from \texttt{ScriptPatch} and
+0.444 from \texttt{CacheReset}.
+
+\textbf{Table 3. Recovery comparison with metric scope made explicit.}
+
+\begin{longtable}[]{@{}llrr@{}}
+\toprule\noalign{}
+Method & Output & Precision@1 & Precision@4 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Terrain-only & HumanIntervention & 0.0 & --- \\
+Recency-only & ManualPatch & 0.0 & --- \\
+Raw success, global & GlobalFix & 0.0 & --- \\
+Structural reachable ceiling & unranked set of four & n/a & 0.25 \\
+CT-RAG \texttt{RECOVERY} & \textbf{ProviderFallback} & \textbf{1.0} & 0.25 \\
+\end{longtable}
+
+The top-1 result alone is insufficient for a healer that may consume
+multiple suggestions. The measured false-rescue curve is therefore
+reported directly:
+
+{[} FR@1=0.00,\quad FR@2=0.50,\quad FR@3=0.667,\quad FR@4=0.75. {]}
+
+This degradation is not hidden or thresholded away. It shows that the
+current mechanism is strong at selecting the first candidate in this
+fixture but does not solve the broader problem of returning a clean
+multi-candidate set. A production healer should therefore either consume
+top-1 under stricter confidence policy or add further constraints before
+acting on lower-ranked suggestions.
+
+The central inference from this experiment is again narrow:
+\textbf{global historical success is insufficient when the
+highest-success route is not reachable from the current state.} The
+causal topology supplies an eligibility relation not present in terrain,
+recency, or success statistics.
+
+\subsubsection{Reachability-gate isolation
+check}\label{reachability-gate-isolation-check}
+
+After the numerical evidence freeze used for Tables 1--3, we executed
+the preregistered mutation that changes only feasibility: an edge
+\texttt{retry\ -\textgreater{}\ global\_fix} is added while the
+terminal success statistics remain 9/10 for \texttt{GlobalFix} and 8/10
+for \texttt{ProviderFallback}. Under this mutation, both candidates are
+causally reachable and \texttt{GlobalFix} becomes the top-ranked
+recovery, with its Wilson lower bound (0.596) exceeding
+\texttt{ProviderFallback} (0.490). The test passed in GitHub Actions CI
+\textbf{\#213}, head commit
+\textbf{\texttt{9ed7878813b951ca04428e27868d5a4427e8011f}}, on Python
+3.11, 3.12, and 3.13.
+
+This isolation check is intentionally reported separately from the CI
+\#210 numerical freeze: it adds no new headline effect size. Its role is
+falsification-oriented. The observed rank flip supports the
+interpretation that causal reachability acts as an eligibility gate
+rather than as an undeclared continuous penalty hidden inside the
+recovery score.
+
+\subsection{8.3 Secondary result: same-logic early degradation under a
+zero-FPR null}\label{secondary-result-same-logic-zero-fpr}
+
+The original fixed infrastructure threshold produced an apparent +2-day
+lead at the default behavioral configuration. That comparison was
+demoted because it compared unlike detector operating rules. The
+stronger ablation applies the \textbf{same sustained-change detector
+logic} to behavioral and infrastructure signals and calibrates the
+infrastructure threshold on the same null generator. At
+(\theta=0.10) with two sustained windows, behavioral change is detected
+on day 8 and infrastructure change on day 9, yielding a \textbf{+1-day
+relative lead}.
+
+The current null generator, however, yields FPR = 0 for both detectors
+throughout the tested grid. Consequently, the observed FPR gap of 0 is
+\textbf{degenerate}: it does not demonstrate informative matching at a
+non-zero operating point. The protection of the +1-day result comes from
+comparing the same detector logic and from its robustness across
+parameter/phase perturbations, not from evidence that non-zero
+false-positive rates have been successfully matched.
+
+Across the full 28-cell grid:
+
+\begin{itemize}
+\tightlist
+\item
+  16 cells have positive lead;
+\item
+  achieved FPR is 0 for both detectors in all 28 cells, so the FPR gap
+  is 0 but non-informative as an operating-point match;
+\item
+  the 16 positive cells form one contiguous region in the tested
+  parameter lattice;
+\item
+  median lead across the 28 cells is +1 day;
+\item
+  the lead distribution ranges from -1 to +3 days.
+\end{itemize}
+
+The positive region is:
+
+{[}
+
+\begin{aligned}
+&\theta=0.05, &&s=1..4\\
+&\theta=0.075,&&s=1..3\\
+&\theta=0.10, &&s=1..3\\
+&\theta=0.125,&&s=1..3\\
+&\theta\in\{0.15,0.175,0.20\},&&s=1.
+\end{aligned}
+
+{]}
+
+This shape matters more than the fraction 16/28: positive lead persists
+under stricter sustained-window requirements only at lower drift
+thresholds, indicating a modest signal that requires sensitivity rather
+than a large, obvious separation.
+
+The phase-offset ablation produces paired leads
+\texttt{{[}1,\ 1,\ 1,\ 1{]}} for phase fractions 0, 0.25, 0.50, and
+0.75. At 0.50 and 0.75, both detectors move one day later, while their
+difference remains +1. We therefore do \textbf{not} claim an absolute
+detection date such as ``day 8'' as phase invariant. The stable quantity
+is the relative lead under this synthetic daily-resolution fixture.
+
+These observations should not be described as production forecasting.
+They show an early-warning mechanism under a controlled generative
+pattern, not predictive validity on independently sampled incidents.
+
+\section{9. Mechanism Validation}\label{mechanism-validation}
+
+Property tests help distinguish design invariants from performance
+claims.
+
+\subsubsection{Obsolete-path decay}\label{obsolete-path-decay}
+
+A historically reinforced legacy recovery edge peaks at influence 5.5
+and decays to approximately 0.309 while its historical transition count
+remains 10 and the edge remains present. The replacement async path
+reaches influence approximately 3.285 and its recovered terminal ranks
+above the legacy recovered terminal. This validates the separation
+between navigational erosion and historical deletion.
+
+\subsubsection{Basin attraction drift}\label{basin-attraction-drift}
+
+After a recurrent compensation cycle is introduced and repeatedly
+observed, internal SCC observations increase from 0 to 80 and discovered
+attractor confidence increases from 0.5 to 1.0. The affected-probe
+membership gain for the problematic basin is 0.75. These are
+deterministic fixture-level mechanism checks; they are not estimates of
+real-world basin dynamics.
+
+\subsubsection{Out-of-order
+reconciliation}\label{out-of-order-reconciliation}
+
+Before the delayed parent arrives, the child has no incoming causal
+edge. After the parent arrives, exactly one event-provenance causal edge
+is reconciled, despite the 336-hour event-time gap. This invariant
+underlies the comparative RQ1 result.
+
+\section{10. Threats to Validity}\label{threats-to-validity}
+
+\subsection{10.1 Internal validity}\label{internal-validity}
+
+The primary experiments are adversarial but hand-constructed. Their
+value is mechanistic isolation: each baseline is given a signal that
+should make it competitive, and the fixture tests whether causal
+topology contributes distinct information. Hand construction also
+creates a risk that the score function and fixture co-evolve. The
+\texttt{GlobalFix} reachability mutation described above is therefore
+important because it can falsify an undeclared scoring dependency.
+
+The recovery score contains a fixed coefficient (\lambda=0.35). We do
+not claim this value is optimal. The top-1 ordering in the current
+fixture is robust to the large Wilson separation between
+\texttt{ProviderFallback} and low-quality reachable distractors, but
+broader sensitivity analysis remains appropriate.
+
+\subsection{10.2 Construct validity}\label{construct-validity}
+
+\texttt{causation\_id} is treated as authoritative runtime provenance.
+This is valid only to the extent that the emitting runtime maintains the
+field correctly. CT-RAG guarantees provenance-preserving retrieval, not
+the truth of incorrectly emitted provenance.
+
+Likewise, ``basin'' is an engineered graph construct based on sinks,
+recurrent SCCs, and bounded reachability. It is not a claim about
+dynamical systems in the continuous mathematical sense.
+
+The Wilson lower bound is a conservative support score, not a posterior
+probability and not a causal success probability under intervention.
+
+\subsection{10.3 External validity}\label{external-validity}
+
+The strongest results are controlled synthetic fixtures. They establish
+that runtime topology can encode useful information under specific
+adversarial geometries, but they do not establish improvements on
+production incidents, LongMemEval, AIOps traces, or arbitrary agent
+tasks.
+
+The repository contains adapters and external-telemetry scaffolding, but
+a versioned external microservice fixture sufficient for a
+publication-level external-validity claim is not yet part of the
+evidence reported here. In telemetry without authoritative causation
+metadata, CT-RAG deliberately operates with weaker temporal/behavioral
+relations and should not be described as recovering authoritative
+causality. Systems that already propagate trace/request context and
+structured agent/tool telemetry have a substantially lower integration
+barrier than legacy systems that emit only unstructured logs;
+retrofitting provenance into the latter remains a real engineering cost,
+not something the current experiments eliminate.
+
+\subsection{10.4 Statistical validity}\label{statistical-validity}
+
+The recovery and causal-gap experiments are deterministic mechanism
+fixtures, not sampled populations; confidence intervals over repeated
+identical runs would be meaningless. Their evidence comes from
+adversarial counter-baselines and falsifiable mutation tests rather than
