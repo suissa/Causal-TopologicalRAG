@@ -18,13 +18,15 @@ link-citations: true
 
 Long-lived software agents accumulate execution histories that are difficult to use as memory. Conventional retrieval-augmented generation (RAG) primarily ranks items by semantic similarity, while temporal memory systems emphasize when facts were valid or observed. Neither geometry is sufficient when the relevant evidence is defined by runtime execution structure: an event can be causally authoritative despite being semantically dissimilar, temporally distant, or received out of order. We introduce **CT-RAG**, a retrieval architecture for **structured experiential memory** that represents execution evidence using typed causal, temporal, and behavioral relations, separates authoritative causal provenance from inferred association, and maintains a dynamic, non-authoritative **terrain** whose navigational influence can be reinforced or eroded without rewriting immutable historical evidence. Retrieval is therefore treated as navigation over preserved experience, while learning changes navigation rather than truth.
 
-We evaluate CT-RAG using controlled adversarial fixtures designed to separate causal structure from simpler ranking signals. In an out-of-order causation experiment, a child event is ingested before its parent, with a 336-hour event-time gap and 25 semantically adversarial distractors. Semantic-only and recency-only retrieval rank the true parent 26th, while CT-RAG `WHY` ranks it first using explicit runtime `causation_id` provenance. In an eroded-path recovery experiment, a raw-success baseline prefers an unreachable `GlobalFix` path with 9/10 historical success, whereas CT-RAG excludes it because it is not causally reachable from the current state and ranks the best reachable recovery first. Conservative small-sample support is represented by the 95% Wilson lower bound rather than an ad hoc count bonus. CT-RAG achieves Precision@1 = 1.0 in this controlled recovery fixture, while terrain-only, recency-only, and raw-success baselines each obtain 0.0; false-rescue increases from 0.0 at k=1 to 0.75 at k=4, exposing rather than hiding degradation as more alternatives are returned. A secondary matched-FPR degradation study yields a median +1 day relative lead across a 28-cell parameter surface, with the positive-lead cells forming one contiguous region and the +1-day lead invariant to four phase offsets. These experiments are mechanism-level synthetic evidence, not production generalization. The results support a narrower claim: **runtime causal reachability contains retrieval information that semantic similarity, recency, and global success statistics do not encode**.
+We evaluate CT-RAG using controlled adversarial fixtures designed to separate causal structure from simpler ranking signals. In an out-of-order causation experiment, a child event is ingested before its parent, with a 336-hour event-time gap and 25 semantically adversarial distractors. Semantic-only and recency-only retrieval rank the true parent 26th of 26 candidates, while CT-RAG `WHY` ranks it first using explicit runtime `causation_id` provenance. In an eroded-path recovery experiment, a raw-success baseline prefers an unreachable `GlobalFix` path with 9/10 historical success, whereas CT-RAG excludes it because it is not causally reachable from the current state and ranks the best reachable recovery first. Conservative small-sample support is represented by the 95% Wilson lower bound rather than an ad hoc count bonus. CT-RAG achieves Precision@1 = 1.0 in this controlled recovery fixture, while terrain-only, recency-only, and raw-success baselines each obtain 0.0; false-rescue increases from 0.0 at k=1 to 0.75 at k=4, exposing rather than hiding degradation as more alternatives are returned. A secondary matched-FPR degradation study yields a median +1 day relative lead across a 28-cell parameter surface, with the positive-lead cells forming one contiguous region and the +1-day lead invariant to four phase offsets. These experiments are mechanism-level synthetic evidence, not production generalization. The results support a narrower claim: **runtime causal reachability contains retrieval information that semantic similarity, recency, and global success statistics do not encode**.
 
 # 1. Introduction
 
 Retrieval-augmented generation augments a parametric language model with information retrieved from an external memory [@lewis2020rag]. Most deployed and research RAG systems begin from a geometric assumption: if two items are close in an embedding space, one is likely to be useful for answering a query. Long-term agent-memory systems add persistence, reflection, hierarchical storage, temporal knowledge graphs, or graph navigation [@park2023generative; @packer2023memgpt; @rasmussen2025zep; @gutierrez2024hipporag]. This progression is important, but agents operating inside event-driven systems face an additional problem. Their relevant memory is often not merely *about the same thing* or *nearby in time*. It is the execution that caused the current event, the previously successful route reachable from the current state, the basin toward which repeated behavior is drifting, or the historical branch whose current navigational influence has eroded without invalidating the evidence that it once occurred.
 
 Distributed systems make the distinction concrete. Event arrival order is not event time, event time is not causal order, and semantic similarity is not causal authority. Lamport's happens-before relation established the importance of partial order over physical-clock proximity in distributed computation [@lamport1978time]. Stream-processing systems similarly distinguish event time from processing time because out-of-order arrival is intrinsic rather than exceptional [@akidau2015dataflow]. Temporal databases distinguish valid time from transaction time for related reasons [@jensen2018temporal]. CT-RAG adopts the same discipline for agent memory: **different relations carry different semantics and must not silently collapse into one another**.
+
+This paper is organized around two distinct functions of experiential topology. **RQ1 treats topology as a relation of authority:** when several memories are semantically or temporally plausible, which prior event is entitled to explain the current event because the runtime explicitly identifies it as causal provenance? **RQ2 treats topology as a relation of feasibility:** among historically successful recovery routes, which alternatives are actually reachable from the current state? Similarity, recency, and global success statistics can rank observations, but they do not encode either authority or state-conditioned feasibility. The two primary experiments are designed to isolate these two roles separately.
 
 We use the term **structured experiential memory** to denote memory organized around observed execution experience rather than only facts or text fragments. This term is intentionally descriptive rather than a claim that graph-structured experience is unique to CT-RAG. Recent work explicitly studies graph-based agent memory and experiential memory [@yang2026graphmemory; @hu2025memorysurvey; @dai2026gsem], while other 2026 systems explore retrieval-driven reconsolidation and selective forgetting [@song2026realm; @rusu2026selective]. Our claim is narrower: CT-RAG combines runtime-owned causal provenance, typed separation of experiential relations, execution basins/attractors, and a dynamic terrain overlay that changes navigational influence without changing historical truth.
 
@@ -264,7 +266,7 @@ These support implementation correctness but are not counted as comparative expe
 
 ## 8.1 Out-of-order causal provenance
 
-**Table 1. Absolute rank of the true causal parent under adversarial semantic and temporal geometry.**
+**Table 1. Absolute rank of the true causal parent among 26 total candidates under adversarial semantic and temporal geometry.**
 
 | Method | True parent rank | Top-10 recall | Information used |
 |---|---:|---:|---|
@@ -294,23 +296,23 @@ The global raw-success baseline ranks `GlobalFix` first because its empirical su
 
 | Candidate | Raw success | n | Wilson lower 95% | Reachable from `retry` | CT-RAG rank |
 |---|---:|---:|---:|---:|---:|
-| GlobalFix | **0.90** | 10 | 0.596 | **No** | excluded |
 | ProviderFallback | 0.80 | 10 | **0.490** | Yes | **1** |
-| CacheReset | 0.25 | 4 | 0.046 | Yes | 3 |
 | ScriptPatch | 0.20 | 10 | 0.057 | Yes | 2 |
+| CacheReset | 0.25 | 4 | 0.046 | Yes | 3 |
 | ManualPatch | 0.10 | 10 | 0.018 | Yes | 4 |
+| GlobalFix | **0.90** | 10 | **0.596** | **No** | excluded |
 
-The order of `ScriptPatch` and `CacheReset` illustrates why empirical point rate alone is not the recovery score: Wilson support for 2/10 (0.057) exceeds 1/4 (0.046), despite the latter's higher raw point estimate. `ProviderFallback` remains clearly separated from both.
+The order of `ScriptPatch` and `CacheReset` illustrates why empirical point rate alone is not the recovery score: Wilson support for 2/10 (0.057) exceeds 1/4 (0.046), despite the latter's higher raw point estimate. `ProviderFallback` remains clearly separated: its lower bound is 0.490, a gap of 0.433 from `ScriptPatch` and 0.444 from `CacheReset`.
 
 **Table 3. Top-1 recovery comparison.**
 
-| Method | Top-ranked item | Precision@1 |
-|---|---|---:|
-| Terrain-only | HumanIntervention | 0.0 |
-| Recency-only | ManualPatch | 0.0 |
-| Raw success, global | GlobalFix | 0.0 |
-| Structural reachable ceiling | unranked set of four | 0.25 at k=4 |
-| CT-RAG `RECOVERY` | **ProviderFallback** | **1.0** |
+| Method | Output | Precision@1 | Precision@4 |
+|---|---|---:|---:|
+| Terrain-only | HumanIntervention | 0.0 | — |
+| Recency-only | ManualPatch | 0.0 | — |
+| Raw success, global | GlobalFix | 0.0 | — |
+| Structural reachable ceiling | unranked set of four | n/a | 0.25 |
+| CT-RAG `RECOVERY` | **ProviderFallback** | **1.0** | 0.25 |
 
 The top-1 result alone is insufficient for a healer that may consume multiple suggestions. The measured false-rescue curve is therefore reported directly:
 
@@ -322,18 +324,22 @@ This degradation is not hidden or thresholded away. It shows that the current me
 
 The central inference from this experiment is again narrow: **global historical success is insufficient when the highest-success route is not reachable from the current state.** The causal topology supplies an eligibility relation not present in terrain, recency, or success statistics.
 
-### Remaining isolation check
+### Reachability-gate isolation check
 
-One validation remains desirable before camera-ready submission. The same fixture should be mutated so that `GlobalFix` becomes causally reachable from `retry`. If causal reachability is strictly a gate rather than an undeclared penalty, the now-reachable 9/10 branch should be eligible and, all else controlled, its Wilson lower bound (0.596) should exceed `ProviderFallback` (0.490). This mutation test is **not yet reported as executed** in CI #210 and is preregistered here as a follow-up validation.
+After the numerical evidence freeze used for Tables 1--3, we executed the preregistered mutation that changes only feasibility: an edge `retry -> global_fix` is added while the terminal success statistics remain 9/10 for `GlobalFix` and 8/10 for `ProviderFallback`. Under this mutation, both candidates are causally reachable and `GlobalFix` becomes the top-ranked recovery, with its Wilson lower bound (0.596) exceeding `ProviderFallback` (0.490). The test passed in GitHub Actions CI **#213**, head commit **`9ed7878813b951ca04428e27868d5a4427e8011f`**, on Python 3.11, 3.12, and 3.13.
+
+This isolation check is intentionally reported separately from the CI #210 numerical freeze: it adds no new headline effect size. Its role is falsification-oriented. The observed rank flip supports the interpretation that causal reachability acts as an eligibility gate rather than as an undeclared continuous penalty hidden inside the recovery score.
 
 ## 8.3 Secondary result: matched-FPR early degradation
 
-The original fixed infrastructure threshold produced an apparent +2-day lead at the default behavioral configuration. That comparison was demoted because the detectors did not share matched false-positive operating points. Under the primary FPR-matched ablation, threshold \(\theta=0.10\) with two sustained windows detects behavioral change on day 8 and infrastructure change on day 9, yielding a **+1-day relative lead** with FPR gap 0.
+The original fixed infrastructure threshold produced an apparent +2-day lead at the default behavioral configuration. That comparison was demoted because it compared unlike detector operating rules. The stronger ablation applies the **same sustained-change detector logic** to behavioral and infrastructure signals and calibrates the infrastructure threshold on the same null generator. At \(\theta=0.10\) with two sustained windows, behavioral change is detected on day 8 and infrastructure change on day 9, yielding a **+1-day relative lead**.
+
+The current null generator, however, yields FPR = 0 for both detectors throughout the tested grid. Consequently, the observed FPR gap of 0 is **degenerate**: it does not demonstrate informative matching at a non-zero operating point. The protection of the +1-day result comes from comparing the same detector logic and from its robustness across parameter/phase perturbations, not from evidence that non-zero false-positive rates have been successfully matched.
 
 Across the full 28-cell grid:
 
 - 16 cells have positive lead;
-- all 28 cells are FPR matched with maximum FPR gap 0 in the controlled null generator;
+- achieved FPR is 0 for both detectors in all 28 cells, so the FPR gap is 0 but non-informative as an operating-point match;
 - the 16 positive cells form one contiguous region in the tested parameter lattice;
 - median lead across the 28 cells is +1 day;
 - the lead distribution ranges from -1 to +3 days.
@@ -376,7 +382,7 @@ Before the delayed parent arrives, the child has no incoming causal edge. After 
 
 ## 10.1 Internal validity
 
-The primary experiments are adversarial but hand-constructed. Their value is mechanistic isolation: each baseline is given a signal that should make it competitive, and the fixture tests whether causal topology contributes distinct information. Hand construction also creates a risk that the score function and fixture co-evolve. The `GlobalFix` reachability mutation described above is therefore important because it can falsify an undeclared scoring dependency.
+The primary experiments are adversarial but hand-constructed. Their value is mechanistic isolation: each baseline is given a signal that should make it competitive, and the fixture tests whether causal topology contributes distinct information. Hand construction also creates a risk that the score function and fixture co-evolve. We therefore executed the `GlobalFix` reachability-only mutation after the main numerical freeze. Making that 9/10 branch reachable flips the recovery winner to `GlobalFix`, as predicted by the declared gate-plus-Wilson rule. This reduces, but does not eliminate, the risk of an undeclared fixture-specific scoring dependency.
 
 The recovery score contains a fixed coefficient \(\lambda=0.35\). We do not claim this value is optimal. The top-1 ordering in the current fixture is robust to the large Wilson separation between `ProviderFallback` and low-quality reachable distractors, but broader sensitivity analysis remains appropriate.
 
@@ -398,7 +404,7 @@ The repository contains adapters and external-telemetry scaffolding, but a versi
 
 The recovery and causal-gap experiments are deterministic mechanism fixtures, not sampled populations; confidence intervals over repeated identical runs would be meaningless. Their evidence comes from adversarial counter-baselines and falsifiable mutation tests rather than frequentist population inference.
 
-The early-degradation experiment explores 28 parameter cells and should be reported as a robustness surface, not as a single tuned threshold. Its current null generator yields FPR 0 for both matched detectors across the grid, which makes the reported FPR gaps exactly zero but also limits evidence about behavior at non-zero operating FPR. Future experiments should use stochastic null regimes with enough events to resolve small false-positive rates.
+The early-degradation experiment explores 28 parameter cells and should be reported as a robustness surface, not as a single tuned threshold. Its current null generator yields FPR 0 for both detectors across the grid. This means the zero FPR gap does **not** provide meaningful matched-operating-point evidence: both methods sit at the floor. The present +1-day claim is therefore supported by same-logic detector comparison plus parameter/phase robustness, not by demonstrated equivalence at non-zero FPR. Before submission, a stochastic null regime with enough independent opportunities to resolve small but non-zero false-positive rates is required.
 
 A separate 2×2 `Evidence Shape Router × CT-RAG` factorial study is preregistered with N=240 held-out paired queries, paired nonparametric bootstrap, Holm FWER correction, and fixed context-token budget. That study has **not** been run and is not treated as evidence in this paper.
 
@@ -434,6 +440,8 @@ The implementation and benchmarks used for this draft are available in the `suis
 - CI matrix: Python 3.11, 3.12, 3.13, all successful;
 - paper values extracted from artifact `benchmarks-python-3.13`.
 
+A subsequent falsification-oriented isolation check changed only `GlobalFix` reachability and passed in CI **#213**, head commit **`9ed7878813b951ca04428e27868d5a4427e8011f`**, across Python 3.11--3.13. It validates the interpretation of reachability as an eligibility gate but does not replace the CI #210 numerical freeze.
+
 Primary artifact files are:
 
 - `eroded-path-rescue/eroded-path-rescue.json`;
@@ -446,9 +454,9 @@ The repository also contains regression, train/dev holdout, terrain-dynamics, an
 
 CT-RAG treats long-lived agent memory as structured execution experience rather than a flat collection of semantically retrievable records. Its core design separates causal, temporal, and behavioral relations; requires provenance for causal authority; scopes temporal traversal; and overlays a dynamic terrain whose influence can change without rewriting history.
 
-The strongest current evidence comes from two adversarial controlled experiments. First, with 25 semantically close distractors and a 336-hour gap, semantic-only and recency-only retrieval rank the true parent 26th while runtime causal provenance ranks it first. Second, a globally superior 9/10 recovery is rejected because it is unreachable from the current state, while a reachable 8/10 recovery is ranked first using causal reachability and conservative Wilson-supported historical evidence. These results do not establish universal superiority over vector or graph RAG. They establish a more precise proposition: **there are agent-memory queries for which runtime causal provenance and reachability encode information absent from similarity, recency, and global success statistics.**
+The strongest current evidence comes from two adversarial controlled experiments. First, with 25 semantically close distractors and a 336-hour gap, semantic-only and recency-only retrieval rank the true parent 26th of 26 candidates while runtime causal provenance ranks it first. Second, a globally superior 9/10 recovery is rejected because it is unreachable from the current state, while a reachable 8/10 recovery is ranked first using causal reachability and conservative Wilson-supported historical evidence. These results do not establish universal superiority over vector or graph RAG. They establish a more precise proposition: **there are agent-memory queries for which runtime causal provenance and reachability encode information absent from similarity, recency, and global success statistics.**
 
-The immediate next step is not to expand the claim surface but to test it on versioned external traces and larger held-out recovery sets, complete the reachability-gate mutation test, and evaluate whether the same advantage persists under incomplete provenance and non-zero-FPR stochastic regimes.
+The immediate next step is not to expand the claim surface but to test it on versioned external traces and larger held-out recovery sets, and to evaluate whether the same advantage persists under incomplete provenance and stochastic null regimes that produce measurable non-zero false-positive rates.
 
 # References
 
