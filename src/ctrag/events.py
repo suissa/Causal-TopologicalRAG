@@ -23,6 +23,8 @@ _RESERVED_METADATA = {
     "status",
     "event_time",
     "observed_at",
+    "valid_start",
+    "valid_end",
     "payload",
     "_event_fingerprint",
 }
@@ -61,6 +63,8 @@ class EventFieldMapping:
     event_type: str = "event_type"
     timestamp: str = "timestamp"
     observed_at: str = "observed_at"
+    valid_start: str = "valid_start"
+    valid_end: str = "valid_end"
     payload: str = "payload"
     causation_id: str = "causation_id"
     correlation_id: str = "correlation_id"
@@ -76,6 +80,8 @@ class EventFieldMapping:
             self.event_type,
             self.timestamp,
             self.observed_at,
+            self.valid_start,
+            self.valid_end,
             self.payload,
             self.causation_id,
             self.correlation_id,
@@ -97,6 +103,8 @@ class EventRecord:
     event_type: str
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     observed_at: datetime | None = None
+    valid_start: datetime | None = None
+    valid_end: datetime | None = None
     payload: dict[str, Any] = field(default_factory=dict)
     causation_id: str | None = None
     correlation_id: str | None = None
@@ -118,6 +126,15 @@ class EventRecord:
                 raise TypeError("observed_at must be a datetime")
             if self.observed_at.tzinfo is None or self.observed_at.utcoffset() is None:
                 raise ValueError("observed_at must be timezone-aware")
+        for field_name, value in (("valid_start", self.valid_start), ("valid_end", self.valid_end)):
+            if value is not None:
+                if not isinstance(value, datetime):
+                    raise TypeError(f"{field_name} must be a datetime")
+                if value.tzinfo is None or value.utcoffset() is None:
+                    raise ValueError(f"{field_name} must be timezone-aware")
+        if self.valid_start is not None and self.valid_end is not None:
+            if self.valid_end < self.valid_start:
+                raise ValueError("valid_end must be greater than or equal to valid_start")
         if not isinstance(self.payload, dict):
             raise TypeError("payload must be an object/dict")
         try:
@@ -146,7 +163,7 @@ class EventRecord:
         return self.timestamp
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        result = {
             "event_id": self.event_id,
             "event_type": self.event_type,
             "timestamp": self.timestamp.isoformat(),
@@ -160,6 +177,11 @@ class EventRecord:
             "action_id": self.action_id,
             "status": self.status,
         }
+        if self.valid_start is not None:
+            result["valid_start"] = self.valid_start.isoformat()
+        if self.valid_end is not None:
+            result["valid_end"] = self.valid_end.isoformat()
+        return result
 
     def fingerprint(self) -> str:
         # observed_at is transaction/ingest metadata, not part of the event's
@@ -236,6 +258,8 @@ class EventRecord:
             event_type=str(event_type),
             timestamp=timestamp,
             observed_at=optional_datetime(mapping.observed_at, "observed_at"),
+            valid_start=optional_datetime(mapping.valid_start, "valid_start"),
+            valid_end=optional_datetime(mapping.valid_end, "valid_end"),
             payload=dict(payload),
             causation_id=optional(mapping.causation_id),
             correlation_id=optional(mapping.correlation_id),
@@ -309,6 +333,8 @@ class EventProjector:
             "status": event.status,
             "event_time": event.timestamp.isoformat(),
             "observed_at": observed_at.isoformat(),
+            "valid_start": None if event.valid_start is None else event.valid_start.isoformat(),
+            "valid_end": None if event.valid_end is None else event.valid_end.isoformat(),
             "payload": dict(event.payload),
             "_event_fingerprint": event.fingerprint(),
         })
@@ -325,6 +351,8 @@ class EventProjector:
             text=" ".join(text_parts),
             timestamp=event.timestamp,
             metadata=self._metadata_for(event, observed_at),
+            valid_start=event.valid_start,
+            valid_end=event.valid_end,
         )
 
     def _ensure_edge(self, edge: Edge) -> None:

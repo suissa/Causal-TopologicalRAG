@@ -347,6 +347,25 @@ def test_event_keeps_event_time_and_observed_time_separate() -> None:
     assert node.metadata["observed_at"] == observed_at.isoformat()
 
 
+def test_event_validity_interval_reaches_projected_node() -> None:
+    event_time = datetime(2026, 9, 20, 8, 0, tzinfo=timezone.utc)
+    valid_end = datetime(2026, 9, 20, 9, 0, tzinfo=timezone.utc)
+    event = EventRecord(
+        event_id="evt-validity",
+        event_type="Subscription.Active",
+        timestamp=event_time,
+        valid_start=event_time,
+        valid_end=valid_end,
+    )
+    restored = EventRecord.from_dict(event.to_dict())
+    node = EventProjector(CausalTopology()).ingest(restored)
+
+    assert restored.valid_start == event_time
+    assert restored.valid_end == valid_end
+    assert node.valid_start == event_time
+    assert node.valid_end == valid_end
+
+
 def test_topology_as_of_distinguishes_observed_time_from_event_time() -> None:
     event_time = datetime(2026, 9, 20, 8, 0, tzinfo=timezone.utc)
     first_observed = datetime(2026, 9, 20, 8, 1, tzinfo=timezone.utc)
