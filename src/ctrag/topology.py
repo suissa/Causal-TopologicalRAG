@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict, deque
 from collections.abc import Iterable
+from datetime import datetime
 
 from .basins import AttractorDescriptor, BasinAffinity
 from .models import (
@@ -45,6 +46,72 @@ class CausalTopology:
         self.nodes[node.id] = node
         if node.is_attractor and node.id not in self._attractors:
             self._attractors[node.id] = AttractorDescriptor(node_id=node.id, origin="legacy")
+
+    def as_of(
+        self,
+        as_of: datetime,
+        *,
+        time_field: str = "observed_at",
+    ) -> "CausalTopology":
+        """Return the topology visible at a historical point in time.
+
+        ``observed_at`` reconstructs what the projection knew by ``as_of``;
+        ``event_time`` reconstructs the domain chronology.  The two views are
+        intentionally different when events arrive late.  Nodes without an
+        explicit ``observed_at`` retain backward-compatible event-time
+        visibility.
+        """
+        if not isinstance(as_of, datetime):
+            raise TypeError("as_of must be a datetime")
+        if as_of.tzinfo is None or as_of.utcoffset() is None:
+            raise ValueError("as_of must be timezone-aware")
+        if time_field not in {"observed_at", "event_time"}:
+            raise ValueError("time_field must be 'observed_at' or 'event_time'")
+
+        def visible(node: MemoryNode) -> bool:
+            if time_field == "event_time":
+                timestamp = node.timestamp
+            else:
+                raw_observed_at = node.metadata.get("observed_at")
+                if raw_observed_at is None:
+                    timestamp = node.timestamp
+                elif isinstance(raw_observed_at, datetime):
+                    timestamp = raw_observed_at
+                elif isinstance(raw_observed_at, str):
+                    try:
+                        timestamp = datetime.fromisoformat(raw_observed_at.replace("Z", "+00:00"))
+                    except ValueError as exc:
+                        raise ValueError(
+                            f"invalid observed_at metadata for node {node.id!r}"
+                        ) from exc
+                else:
+                    raise TypeError(f"observed_at metadata for node {node.id!r} must be ISO-8601")
+            if timestamp.tzinfo is None or timestamp.utcoffset() is None:
+                raise ValueError(f"timestamp for node {node.id!r} must be timezone-aware")
+            return timestamp <= as_of
+
+        visible_ids = {node_id for node_id, node in self.nodes.items() if visible(node)}
+        result = CausalTopology()
+        for node_id in sorted(visible_ids):
+            result.add_node(MemoryNode.from_dict(self.nodes[node_id].to_dict()))
+
+        seen_edges: set[tuple[str, str, EdgeKind, CausalProvenance | None, TemporalScope | None]] = set()
+        for source in sorted(visible_ids):
+            for edge in self.outgoing(source):
+                if edge.target not in visible_ids or edge.identity() in seen_edges:
+                    continue
+                result.add_edge(edge)
+                seen_edges.add(edge.identity())
+
+        for node_id in sorted(visible_ids.intersection(self._attractors)):
+            descriptor = self._attractors[node_id]
+            result.register_attractor(
+                node_id,
+                confidence=descriptor.confidence,
+                origin=descriptor.origin,
+                metadata=descriptor.metadata,
+            )
+        return result
 
     def has_edge(self, edge: Edge) -> bool:
         identity = edge.identity()
