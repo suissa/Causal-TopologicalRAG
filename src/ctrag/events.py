@@ -103,8 +103,6 @@ class EventRecord:
     event_type: str
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     observed_at: datetime | None = None
-    valid_start: datetime | None = None
-    valid_end: datetime | None = None
     payload: dict[str, Any] = field(default_factory=dict)
     causation_id: str | None = None
     correlation_id: str | None = None
@@ -113,6 +111,8 @@ class EventRecord:
     actor_id: str | None = None
     action_id: str | None = None
     status: str | None = None
+    valid_start: datetime | None = None
+    valid_end: datetime | None = None
 
     def __post_init__(self) -> None:
         _require_non_empty(self.event_id, "event_id")
