@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import sqlite3
 from collections.abc import Iterable, Mapping
+from datetime import datetime
 from pathlib import Path
 from typing import Protocol, runtime_checkable
 
@@ -42,6 +43,8 @@ class TopologyView(Protocol):
         kinds: Iterable[EdgeKind] | None = None,
         temporal_scopes: Iterable[TemporalScope] | None = None,
         temporal_window: TemporalConsistencyWindow | None = None,
+        valid_start: datetime | None = None,
+        valid_end: datetime | None = None,
         max_hops: int = 4,
     ) -> dict[str, int]: ...
     def neighborhood(
@@ -52,6 +55,8 @@ class TopologyView(Protocol):
         kinds: Iterable[EdgeKind] | None = None,
         temporal_scopes: Iterable[TemporalScope] | None = None,
         temporal_window: TemporalConsistencyWindow | None = None,
+        valid_start: datetime | None = None,
+        valid_end: datetime | None = None,
         max_hops: int = 4,
         include_anchor: bool = False,
     ) -> set[str]: ...

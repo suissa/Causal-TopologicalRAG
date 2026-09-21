@@ -259,6 +259,8 @@ class CausalTopology:
         kinds: Iterable[EdgeKind] | None = None,
         temporal_scopes: Iterable[TemporalScope] | None = None,
         temporal_window: TemporalConsistencyWindow | None = None,
+        valid_start: datetime | None = None,
+        valid_end: datetime | None = None,
         max_hops: int = 4,
         include_anchor: bool = False,
     ) -> set[str]:
@@ -268,6 +270,8 @@ class CausalTopology:
             kinds=kinds,
             temporal_scopes=temporal_scopes,
             temporal_window=temporal_window,
+            valid_start=valid_start,
+            valid_end=valid_end,
             max_hops=max_hops,
         )
         result = set(distances)
@@ -283,6 +287,8 @@ class CausalTopology:
         kinds: Iterable[EdgeKind] | None = None,
         temporal_scopes: Iterable[TemporalScope] | None = None,
         temporal_window: TemporalConsistencyWindow | None = None,
+        valid_start: datetime | None = None,
+        valid_end: datetime | None = None,
         max_hops: int = 4,
     ) -> dict[str, int]:
         if direction not in {"in", "out", "both"}:
@@ -291,6 +297,7 @@ class CausalTopology:
             raise KeyError(node_id)
         if max_hops < 0:
             raise ValueError("max_hops must be non-negative")
+        self._validate_validity_window(valid_start, valid_end)
         allowed = set(kinds) if kinds is not None else None
         # Fail-safe default: temporal traversal is execution-local unless the
         # caller explicitly opts into cross-execution scopes.
@@ -328,11 +335,72 @@ class CausalTopology:
                             continue
                         if abs(delta_seconds) > temporal_window.max_gap_seconds:
                             continue
+                if neighbor != node_id and not self._node_overlaps_window(
+                    self.nodes[neighbor], valid_start, valid_end
+                ):
+                    continue
                 candidate_hops = hops + 1
                 if neighbor in distances and distances[neighbor] <= candidate_hops:
                     continue
                 distances[neighbor] = candidate_hops
                 queue.append((neighbor, candidate_hops))
+        return distances
+
+    @staticmethod
+    def _validate_validity_window(
+        valid_start: datetime | None,
+        valid_end: datetime | None,
+    ) -> None:
+        for name, value in (("valid_start", valid_start), ("valid_end", valid_end)):
+            if value is not None and (value.tzinfo is None or value.utcoffset() is None):
+                raise ValueError(f"{name} must be timezone-aware")
+        if valid_start is not None and valid_end is not None and valid_end < valid_start:
+            raise ValueError("valid_end must be greater than or equal to valid_start")
+
+    @staticmethod
+    def _node_overlaps_window(
+        node: MemoryNode,
+        valid_start: datetime | None,
+        valid_end: datetime | None,
+    ) -> bool:
+        if valid_start is None and valid_end is None:
+            return True
+        node_start = node.valid_start
+        node_end = node.valid_end
+        if valid_end is not None and node_start is not None and node_start > valid_end:
+            return False
+        if valid_start is not None and node_end is not None and node_end < valid_start:
+            return False
+        return True
+
+    def nearest_neighbors(
+        self,
+        node_id: str,
+        *,
+        direction: str = "both",
+        kinds: Iterable[EdgeKind] | None = None,
+        temporal_scopes: Iterable[TemporalScope] | None = None,
+        temporal_window: TemporalConsistencyWindow | None = None,
+        valid_start: datetime | None = None,
+        valid_end: datetime | None = None,
+    ) -> dict[str, int]:
+        """Return graph-distance-one neighbors valid during a query interval.
+
+        Interval matching is inclusive and uses overlap semantics. A missing
+        node bound is treated as open-ended. The anchor is always retained as
+        the traversal root and is removed from the returned neighbor map.
+        """
+        distances = self.distances(
+            node_id,
+            direction=direction,
+            kinds=kinds,
+            temporal_scopes=temporal_scopes,
+            temporal_window=temporal_window,
+            valid_start=valid_start,
+            valid_end=valid_end,
+            max_hops=1,
+        )
+        distances.pop(node_id, None)
         return distances
 
     @staticmethod
