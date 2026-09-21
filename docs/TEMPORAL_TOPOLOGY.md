@@ -4,11 +4,11 @@ CT-RAG treats time as a first-class retrieval dimension, but **not as a substitu
 
 The memory topology is modeled as a heterogeneous directed graph:
 
-[
+$$
 G=(V,E_s,E_c,E_t,E_b)
-]
+$$
 
-where `E_t` contains temporal-order relations that remain distinct from causal (`E_c`), semantic (`E_s`) and behavioral/execution (`E_b`) relations.
+where `E_t` contains temporal-order relations that remain distinct from causal (`E_c`), semantic (`E_s`) and behavioral/execution (`E_b`) relations. The direction of a temporal edge is meaningful only under its declared ordering contract; it is not causal evidence.
 
 ## Core invariant
 
@@ -24,9 +24,9 @@ Temporal adjacency can support navigation, ordering and hypothesis generation, b
 
 The current implementation already contains temporal semantics in several places:
 
-- `MemoryNode.timestamp` records when a memory/event occurred.
-- `EdgeKind.TEMPORAL` represents explicit observed ordering.
-- `EventProjector` can project temporal relations between events while keeping them separate from `CAUSAL` edges.
+- `MemoryNode.timestamp` carries the current single event timestamp; it is not an ingest-time or bitemporal record.
+- `EdgeKind.TEMPORAL` represents observed sequence under a declared scope.
+- `EventProjector` projects execution-local temporal relations in projection/ingest order while keeping them separate from `CAUSAL` edges.
 - `CTRetriever._temporal_scores()` contributes temporal relevance to retrieval.
 - Topological expansion can traverse `CAUSAL`, `BEHAVIORAL` and `TEMPORAL` relations.
 - The ranking model already has an independent temporal component.
@@ -36,15 +36,15 @@ The current implementation already contains temporal semantics in several places
 
 For memories `x_i` and `x_j`, CT-RAG distinguishes at least two notions of temporal distance:
 
-[
+$$
 d_t^{clock}(x_i,x_j)=|t_i-t_j|
-]
+$$
 
 and a graph-relative temporal distance:
 
-[
-d_t^{hop}(x_i,x_j)=	ext{minimum number of TEMPORAL edges connecting them}
-]
+$$
+d_t^{hop}(x_i,x_j)=\text{minimum number of TEMPORAL edges connecting them}
+$$
 
 These answer different questions.
 
@@ -65,9 +65,9 @@ Temporal order can be necessary for a causal hypothesis without being sufficient
 
 For a candidate path \(P=(v_0,\ldots,v_n)\), define:
 
-[
+$$
 C_{time}(P;\tau)=1 \iff \max_i d_t^{clock}(v_i,v_{i+1}) \le \tau
-]
+$$
 
 where \(\tau\) is a domain- or operation-specific bound such as an expected timeout, lease duration, retry interval or SLA-derived window.
 
@@ -81,15 +81,15 @@ Time is directional.
 
 For an anchor `a`, retrieval can distinguish:
 
-[
+$$
 Past(a)=\{v:t_v<t_a\}
-]
+$$
 
 from
 
-[
+$$
 Future(a)=\{v:t_v>t_a\}
-]
+$$
 
 This matters for query modes:
 
@@ -102,7 +102,7 @@ This matters for query modes:
 
 The retrieval score can include an independent temporal prior:
 
-[
+$$
 Score(v|q,a)=
 \alpha S_{dense}+
 \beta S_{lexical}+
@@ -110,13 +110,13 @@ Score(v|q,a)=
 \delta P_{causal}+
 \epsilon P_{temporal}+
 \zeta P_{behavioral}
-]
+$$
 
 A simple recency prior can be expressed as:
 
-[
+$$
 P_{temporal}(v)=e^{-\lambda |t_{query}-t_v|}
-]
+$$
 
 but CT-RAG does **not** require recency to always be preferred. Query intent can change the temporal policy.
 
@@ -159,7 +159,9 @@ The same pair of nodes may legitimately have both temporal and causal edges.
 
 ## Temporal scope hierarchy
 
-The reference projector currently creates execution-local temporal edges between consecutive events sharing one `execution_id`. Production systems also require explicit temporal relations across executions.
+The reference projector currently creates execution-local temporal edges between consecutive events sharing one `execution_id`, in the order in which `EventProjector.ingest()` receives them. Their direction records projection/ingest order, not normalized event-time order: a late event may therefore point forward in the projected sequence while carrying an earlier event timestamp. Event-time ordering is a planned, explicit contract rather than an implicit property of the current edge direction.
+
+Production systems also require explicit temporal relations across executions.
 
 Recommended temporal scopes are:
 
@@ -190,15 +192,15 @@ The historical graph remains authoritative and immutable in meaning, while `Dyna
 
 Conceptually:
 
-[
+$$
 w_{ij}(t+1)=w_{ij}(t)+\eta
-]
+$$
 
 for reinforced observed transitions, and:
 
-[
+$$
 w_{ij}(t+\Delta t)=w_{ij}(t)e^{-\mu\Delta t}
-]
+$$
 
 for navigational erosion.
 
@@ -218,18 +220,22 @@ Basins and attractors need not be static.
 
 Given basin snapshots `B_t(A)` and `B_{t+1}(A)`, CT-RAG can measure structural drift over time:
 
-[
+$$
 Drift(B_t,B_{t+1})
-]
+$$
 
-This allows questions such as:
+The current `DynamicTerrain.basin_drift()` is a Jaccard-distance comparison of basin memberships. It measures **structural membership drift** only; it does not measure transition volume, outcome probability, or whether a path became dominant.
 
-- Is the system converging toward a different failure mode than last month?
-- Did a healing change reduce the size of a failure basin?
-- Has a formerly rare recovery path become a dominant attractor?
+This already supports questions such as:
+
+- Did a healing change the membership/shape of a failure basin?
 - Did a configuration change reshape the execution terrain?
 
-This is more than timestamp filtering: it treats **changes in topology through time** as evidence.
+Questions such as “has a formerly rare recovery path become dominant?” require a future longitudinal, support-weighted measure over timestamped snapshots. Such a snapshot must record `observed_at`, window policy, topology/terrain version, and transition support so comparisons remain reproducible.
+
+**Temporal Drift Detection Accuracy** is therefore a planned benchmark metric, not a reported result: against a labelled regime change it should report precision, recall, F1, false-alert rate, and lead time under a predeclared window and threshold policy.
+
+This is more than timestamp filtering: it treats **changes in topology through time** as evidence, while preserving the distinction between structural change and flow change.
 
 ## Temporal layers we should distinguish
 
@@ -283,8 +289,9 @@ The temporal model should be extended with:
 - periodicity/seasonality descriptors;
 - bitemporal projections where domains require them;
 - temporal consistency checks for out-of-order ingestion;
-- time-aware basin/attractor snapshots;
-- longitudinal basin-drift benchmarks.
+- time-aware basin/attractor snapshots with `observed_at`, window policy and topology/terrain version;
+- support-weighted longitudinal basin-drift benchmarks that distinguish structural membership drift from transition-flow drift;
+- Temporal Drift Detection Accuracy evaluation against labelled regime changes.
 
 These extensions must preserve the core invariant that temporal proximity is evidence about **order and time**, not automatic evidence of **cause**.
 
