@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict, deque
 from collections.abc import Iterable
+from datetime import datetime
 
 from .basins import AttractorDescriptor, BasinAffinity
 from .models import (
@@ -45,6 +46,72 @@ class CausalTopology:
         self.nodes[node.id] = node
         if node.is_attractor and node.id not in self._attractors:
             self._attractors[node.id] = AttractorDescriptor(node_id=node.id, origin="legacy")
+
+    def as_of(
+        self,
+        as_of: datetime,
+        *,
+        time_field: str = "observed_at",
+    ) -> "CausalTopology":
+        """Return the topology visible at a historical point in time.
+
+        ``observed_at`` reconstructs what the projection knew by ``as_of``;
+        ``event_time`` reconstructs the domain chronology.  The two views are
+        intentionally different when events arrive late.  Nodes without an
+        explicit ``observed_at`` retain backward-compatible event-time
+        visibility.
+        """
+        if not isinstance(as_of, datetime):
+            raise TypeError("as_of must be a datetime")
+        if as_of.tzinfo is None or as_of.utcoffset() is None:
+            raise ValueError("as_of must be timezone-aware")
+        if time_field not in {"observed_at", "event_time"}:
+            raise ValueError("time_field must be 'observed_at' or 'event_time'")
+
+        def visible(node: MemoryNode) -> bool:
+            if time_field == "event_time":
+                timestamp = node.timestamp
+            else:
+                raw_observed_at = node.metadata.get("observed_at")
+                if raw_observed_at is None:
+                    timestamp = node.timestamp
+                elif isinstance(raw_observed_at, datetime):
+                    timestamp = raw_observed_at
+                elif isinstance(raw_observed_at, str):
+                    try:
+                        timestamp = datetime.fromisoformat(raw_observed_at.replace("Z", "+00:00"))
+                    except ValueError as exc:
+                        raise ValueError(
+                            f"invalid observed_at metadata for node {node.id!r}"
+                        ) from exc
+                else:
+                    raise TypeError(f"observed_at metadata for node {node.id!r} must be ISO-8601")
+            if timestamp.tzinfo is None or timestamp.utcoffset() is None:
+                raise ValueError(f"timestamp for node {node.id!r} must be timezone-aware")
+            return timestamp <= as_of
+
+        visible_ids = {node_id for node_id, node in self.nodes.items() if visible(node)}
+        result = CausalTopology()
+        for node_id in sorted(visible_ids):
+            result.add_node(MemoryNode.from_dict(self.nodes[node_id].to_dict()))
+
+        seen_edges: set[tuple[str, str, EdgeKind, CausalProvenance | None, TemporalScope | None]] = set()
+        for source in sorted(visible_ids):
+            for edge in self.outgoing(source):
+                if edge.target not in visible_ids or edge.identity() in seen_edges:
+                    continue
+                result.add_edge(edge)
+                seen_edges.add(edge.identity())
+
+        for node_id in sorted(visible_ids.intersection(self._attractors)):
+            descriptor = self._attractors[node_id]
+            result.register_attractor(
+                node_id,
+                confidence=descriptor.confidence,
+                origin=descriptor.origin,
+                metadata=descriptor.metadata,
+            )
+        return result
 
     def has_edge(self, edge: Edge) -> bool:
         identity = edge.identity()
@@ -192,6 +259,8 @@ class CausalTopology:
         kinds: Iterable[EdgeKind] | None = None,
         temporal_scopes: Iterable[TemporalScope] | None = None,
         temporal_window: TemporalConsistencyWindow | None = None,
+        valid_start: datetime | None = None,
+        valid_end: datetime | None = None,
         max_hops: int = 4,
         include_anchor: bool = False,
     ) -> set[str]:
@@ -201,6 +270,8 @@ class CausalTopology:
             kinds=kinds,
             temporal_scopes=temporal_scopes,
             temporal_window=temporal_window,
+            valid_start=valid_start,
+            valid_end=valid_end,
             max_hops=max_hops,
         )
         result = set(distances)
@@ -216,6 +287,8 @@ class CausalTopology:
         kinds: Iterable[EdgeKind] | None = None,
         temporal_scopes: Iterable[TemporalScope] | None = None,
         temporal_window: TemporalConsistencyWindow | None = None,
+        valid_start: datetime | None = None,
+        valid_end: datetime | None = None,
         max_hops: int = 4,
     ) -> dict[str, int]:
         if direction not in {"in", "out", "both"}:
@@ -224,6 +297,7 @@ class CausalTopology:
             raise KeyError(node_id)
         if max_hops < 0:
             raise ValueError("max_hops must be non-negative")
+        self._validate_validity_window(valid_start, valid_end)
         allowed = set(kinds) if kinds is not None else None
         # Fail-safe default: temporal traversal is execution-local unless the
         # caller explicitly opts into cross-execution scopes.
@@ -261,11 +335,72 @@ class CausalTopology:
                             continue
                         if abs(delta_seconds) > temporal_window.max_gap_seconds:
                             continue
+                if neighbor != node_id and not self._node_overlaps_window(
+                    self.nodes[neighbor], valid_start, valid_end
+                ):
+                    continue
                 candidate_hops = hops + 1
                 if neighbor in distances and distances[neighbor] <= candidate_hops:
                     continue
                 distances[neighbor] = candidate_hops
                 queue.append((neighbor, candidate_hops))
+        return distances
+
+    @staticmethod
+    def _validate_validity_window(
+        valid_start: datetime | None,
+        valid_end: datetime | None,
+    ) -> None:
+        for name, value in (("valid_start", valid_start), ("valid_end", valid_end)):
+            if value is not None and (value.tzinfo is None or value.utcoffset() is None):
+                raise ValueError(f"{name} must be timezone-aware")
+        if valid_start is not None and valid_end is not None and valid_end < valid_start:
+            raise ValueError("valid_end must be greater than or equal to valid_start")
+
+    @staticmethod
+    def _node_overlaps_window(
+        node: MemoryNode,
+        valid_start: datetime | None,
+        valid_end: datetime | None,
+    ) -> bool:
+        if valid_start is None and valid_end is None:
+            return True
+        node_start = node.valid_start
+        node_end = node.valid_end
+        if valid_end is not None and node_start is not None and node_start > valid_end:
+            return False
+        if valid_start is not None and node_end is not None and node_end < valid_start:
+            return False
+        return True
+
+    def nearest_neighbors(
+        self,
+        node_id: str,
+        *,
+        direction: str = "both",
+        kinds: Iterable[EdgeKind] | None = None,
+        temporal_scopes: Iterable[TemporalScope] | None = None,
+        temporal_window: TemporalConsistencyWindow | None = None,
+        valid_start: datetime | None = None,
+        valid_end: datetime | None = None,
+    ) -> dict[str, int]:
+        """Return graph-distance-one neighbors valid during a query interval.
+
+        Interval matching is inclusive and uses overlap semantics. A missing
+        node bound is treated as open-ended. The anchor is always retained as
+        the traversal root and is removed from the returned neighbor map.
+        """
+        distances = self.distances(
+            node_id,
+            direction=direction,
+            kinds=kinds,
+            temporal_scopes=temporal_scopes,
+            temporal_window=temporal_window,
+            valid_start=valid_start,
+            valid_end=valid_end,
+            max_hops=1,
+        )
+        distances.pop(node_id, None)
         return distances
 
     @staticmethod

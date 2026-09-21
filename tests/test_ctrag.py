@@ -133,6 +133,50 @@ def test_memory_node_round_trip_preserves_identity_metadata_and_embedding() -> N
     assert restored.to_dict() == node.to_dict()
 
 
+def test_memory_node_validity_interval_round_trip_and_validation() -> None:
+    start = datetime(2026, 9, 20, 8, 0, tzinfo=timezone.utc)
+    end = datetime(2026, 9, 20, 9, 0, tzinfo=timezone.utc)
+    node = MemoryNode(
+        id="validity-window",
+        text="state",
+        timestamp=start,
+        valid_start=start,
+        valid_end=end,
+    )
+
+    assert MemoryNode.from_dict(node.to_dict()).to_dict() == node.to_dict()
+    with pytest.raises(ValueError, match="valid_end"):
+        MemoryNode(id="invalid-window", text="state", timestamp=start, valid_start=end, valid_end=start)
+
+
+def test_nearest_neighbors_filters_by_overlapping_validity_interval() -> None:
+    start = datetime(2026, 9, 20, 8, 0, tzinfo=timezone.utc)
+    topology = CausalTopology()
+    topology.add_node(MemoryNode("root", "root", start))
+    topology.add_node(MemoryNode(
+        "near-overlap", "near", start,
+        valid_start=start + timedelta(minutes=10),
+        valid_end=start + timedelta(minutes=30),
+    ))
+    topology.add_node(MemoryNode(
+        "near-miss", "near", start,
+        valid_start=start + timedelta(hours=2),
+        valid_end=start + timedelta(hours=3),
+    ))
+    topology.add_edge(Edge("root", "near-overlap", EdgeKind.BEHAVIORAL))
+    topology.add_edge(Edge("root", "near-miss", EdgeKind.BEHAVIORAL))
+
+    neighbors = topology.nearest_neighbors(
+        "root",
+        direction="out",
+        kinds={EdgeKind.BEHAVIORAL},
+        valid_start=start + timedelta(minutes=20),
+        valid_end=start + timedelta(minutes=25),
+    )
+
+    assert neighbors == {"near-overlap": 1}
+
+
 def test_causal_edge_round_trip_preserves_evidence_and_provenance_metadata() -> None:
     edge = Edge(
         source="a",

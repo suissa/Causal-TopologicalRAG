@@ -98,6 +98,34 @@ This matters for query modes:
 - `RECOVERY` can search historical trajectories that start near a failure and later converge toward recovery.
 - `COUNTERFACTUAL` can compare observed branches after a common historical state without treating the branch comparison itself as causal proof.
 
+## Validity intervals and temporal neighborhood
+
+An event timestamp describes when an observation occurred. A modeled state may
+also have an interval during which it is valid:
+
+```text
+valid_start <= valid_end
+```
+
+`MemoryNode.valid_start` and `MemoryNode.valid_end` are optional inclusive
+bounds. An absent bound is open-ended. They are distinct from both event time
+and observed/ingest time.
+
+The topology can therefore answer a graph-local temporal query such as:
+
+```python
+topology.nearest_neighbors(
+    "branch-root",
+    valid_start=query_start,
+    valid_end=query_end,
+)
+```
+
+The result contains graph-distance-one neighbors whose validity interval
+overlaps the requested interval. This is interval-constrained navigation, not
+causal inference; edge kind, provenance and temporal scope retain their normal
+semantics.
+
 ## Temporal relevance
 
 The retrieval score can include an independent temporal prior:
@@ -259,7 +287,7 @@ Basins(as_of = t0)
 Attractors(as_of = t0)
 ```
 
-This requires separating at least valid/event time from system/ingest time. A later correction may change what the system knows today without retroactively changing what the agent could have known at \(t_0\).
+This requires separating at least valid/event time from system/ingest time. A later correction may change what the system knows today without retroactively changing what the agent could have known at \(t_0\). `CausalTopology.as_of(t0)` defaults to the observed-time view, while `time_field="event_time"` requests the domain-time view.
 
 The intended post-mortem invariant is:
 

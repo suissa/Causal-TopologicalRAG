@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
 from typing import Iterable
 
@@ -95,6 +96,21 @@ class TerrainSnapshot:
     attractors: dict[str, AttractorDescriptor]
     basins: dict[str, frozenset[str]]
     protected_edges: frozenset[EdgeIdentity]
+    observed_at: datetime | None = None
+    window_policy: str | None = None
+    topology_version: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.observed_at is not None and (
+            self.observed_at.tzinfo is None or self.observed_at.utcoffset() is None
+        ):
+            raise ValueError("snapshot observed_at must be timezone-aware")
+        for name, value in (
+            ("window_policy", self.window_policy),
+            ("topology_version", self.topology_version),
+        ):
+            if value is not None and not value.strip():
+                raise ValueError(f"snapshot {name} must be non-empty when provided")
 
 
 @dataclass(slots=True, frozen=True)
@@ -489,7 +505,14 @@ class DynamicTerrain:
         unique = {(item.node_id, item.origin): item for item in discovered}
         return tuple(unique[key] for key in sorted(unique))
 
-    def snapshot(self, *, max_hops: int = 8) -> TerrainSnapshot:
+    def snapshot(
+        self,
+        *,
+        max_hops: int = 8,
+        observed_at: datetime | None = None,
+        window_policy: str | None = None,
+        topology_version: str | None = None,
+    ) -> TerrainSnapshot:
         attractors = {
             item.node_id: item
             for item in self.topology.attractor_descriptors()
@@ -504,6 +527,9 @@ class DynamicTerrain:
             attractors=attractors,
             basins=basins,
             protected_edges=frozenset(self._protected),
+            observed_at=observed_at,
+            window_policy=window_policy,
+            topology_version=topology_version,
         )
 
     @staticmethod

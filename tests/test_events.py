@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -345,6 +345,56 @@ def test_event_keeps_event_time_and_observed_time_separate() -> None:
     assert node.timestamp == event_time
     assert node.metadata["event_time"] == event_time.isoformat()
     assert node.metadata["observed_at"] == observed_at.isoformat()
+
+
+def test_event_validity_interval_reaches_projected_node() -> None:
+    event_time = datetime(2026, 9, 20, 8, 0, tzinfo=timezone.utc)
+    valid_end = datetime(2026, 9, 20, 9, 0, tzinfo=timezone.utc)
+    event = EventRecord(
+        event_id="evt-validity",
+        event_type="Subscription.Active",
+        timestamp=event_time,
+        valid_start=event_time,
+        valid_end=valid_end,
+    )
+    restored = EventRecord.from_dict(event.to_dict())
+    node = EventProjector(CausalTopology()).ingest(restored)
+
+    assert restored.valid_start == event_time
+    assert restored.valid_end == valid_end
+    assert node.valid_start == event_time
+    assert node.valid_end == valid_end
+
+
+def test_topology_as_of_distinguishes_observed_time_from_event_time() -> None:
+    event_time = datetime(2026, 9, 20, 8, 0, tzinfo=timezone.utc)
+    first_observed = datetime(2026, 9, 20, 8, 1, tzinfo=timezone.utc)
+    late_observed = datetime(2026, 9, 20, 8, 5, tzinfo=timezone.utc)
+    topology = CausalTopology()
+    projector = EventProjector(topology)
+    projector.ingest(EventRecord(
+        event_id="as-of-first",
+        event_type="First",
+        timestamp=event_time,
+        observed_at=first_observed,
+        execution_id="exec-as-of",
+    ))
+    projector.ingest(EventRecord(
+        event_id="as-of-late",
+        event_type="Late",
+        timestamp=event_time - timedelta(minutes=10),
+        observed_at=late_observed,
+        execution_id="exec-as-of",
+    ))
+
+    cutoff = datetime(2026, 9, 20, 8, 3, tzinfo=timezone.utc)
+    observed_view = topology.as_of(cutoff)
+    event_view = topology.as_of(cutoff, time_field="event_time")
+
+    assert set(observed_view.nodes) == {"as-of-first"}
+    assert set(event_view.nodes) == {"as-of-first", "as-of-late"}
+    assert observed_view.outgoing("as-of-first") == []
+    assert len(event_view.outgoing("as-of-first", {EdgeKind.TEMPORAL})) == 1
 
 
 def test_observed_time_is_not_part_of_event_fingerprint() -> None:
