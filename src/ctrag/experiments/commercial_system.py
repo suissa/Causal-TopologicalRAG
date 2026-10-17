@@ -649,7 +649,8 @@ def evaluate(
                 "arm": "codemanager_evidence_ranker",
                 **metrics,
             })
-        for arm in diagnostic_arms:            hits = retriever.search(
+        for arm in diagnostic_arms:
+            hits = retriever.search(
                 case.diagnostic_query,
                 mode=QueryMode.WHY,
                 anchor_ids=[case.symptom_event_id],
