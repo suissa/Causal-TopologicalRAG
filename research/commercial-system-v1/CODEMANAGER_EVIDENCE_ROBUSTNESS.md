@@ -16,3 +16,18 @@ pytest tests/test_codemanager_evidence.py
 ```
 
 The next integration step is to adapt public projected event metadata into `EvidenceSignal` objects and compare this ranker with the current `codemanager_hypotheses` baseline using leave-one-signal-out and adversarial-group tests. This PR intentionally does not replace the existing baseline until those comparisons run.
+
+
+## Experiment integration update
+
+The commercial experiment now adapts public projected observations into
+`EvidenceSignal` values and emits `codemanager_evidence_ranker` alongside
+the legacy `codemanager_hypotheses` output. The specialist evaluation is scoped
+to the current incident and is counted only when the candidate set contains
+that incident's held-out root-cause event; unrelated incident types are not
+counted as CodeManager false negatives.
+
+The focused tests now include leave-one-independent-signal-out behavior and
+evidence-group isolation. They have been added to the PR, but have not yet been
+executed in a Python environment. Do not treat the implementation as validated
+until CI or a local test run passes.
