@@ -633,7 +633,14 @@ def evaluate(
         scenario_detail["codemanager_evidence_ranker"] = codemanager_ranked_hypotheses(topology)
         # This specialist arm is scored only when the candidate set contains
         # the held-out root-cause event; unrelated incidents are not negatives.
-        candidate_ids = [item["event_id"] for item in scenario_detail["codemanager_evidence_ranker"]]
+        incident_prefix = f"incident:{case.scenario_id}"
+        scenario_candidates = [
+            item for item in scenario_detail["codemanager_evidence_ranker"]
+            if (topology.nodes[item["event_id"]].metadata.get("correlation_id")
+                or _fact(topology.nodes[item["event_id"]], "correlation_id")) == incident_prefix
+        ]
+        scenario_detail["codemanager_evidence_ranker"] = scenario_candidates
+        candidate_ids = [item["event_id"] for item in scenario_candidates]
         if case.root_cause_event_id in candidate_ids:
             metrics = _rank(candidate_ids, case.root_cause_event_id, config.k)
             rows.append({
