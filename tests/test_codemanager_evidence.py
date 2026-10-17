@@ -82,3 +82,27 @@ def test_code_and_config_contract_mismatch_are_both_candidates():
     ranked = rank_hypotheses(rows)
     assert {item.event_id for item in ranked} == {"code", "config"}
     assert all(item.score < 0.99 for item in ranked)
+
+
+
+def test_leave_one_independent_signal_out_reduces_evidence_support():
+    candidate = signal("release", 0, "code", "error", artifact="serializer")
+    trace = signal("trace", 1, "trace", "warning", artifact="serializer",
+                   independent_source="trace-backend")
+    log = signal("log", 2, "log", "error", artifact="serializer",
+                 independent_source="log-backend")
+    metric = signal("metric", 3, "metric", "warning", artifact="serializer",
+                    independent_source="metrics")
+    full = rank_hypotheses([candidate, trace, log, metric])[0]
+    without_trace = rank_hypotheses([candidate, log, metric])[0]
+    assert full.score > without_trace.score
+    assert set(full.evidence) == {"trace", "log", "metric"}
+    assert set(without_trace.evidence) == {"log", "metric"}
+
+
+def test_candidate_does_not_join_future_evidence_from_another_group():
+    candidate = signal("release", 0, "code", "error", artifact="serializer")
+    later_unrelated = signal("trace", 1, "trace", "error", artifact="serializer",
+                             evidence_group="other-incident")
+    ranked = rank_hypotheses([candidate, later_unrelated])
+    assert ranked[0].evidence == ()
