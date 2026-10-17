@@ -20,6 +20,7 @@ from typing import Any, Iterable
 
 from ctrag.benchmarks.runner import BASELINES
 from ctrag.embedding import HashingEmbedder
+from ctrag.experiments.codemanager import EvidenceSignal, rank_hypotheses
 from ctrag.events import EventProjector, EventRecord
 from ctrag.models import CausalProvenance, Edge, EdgeEvidence, EdgeKind, QueryMode, RetrievalHit
 from ctrag.retriever import CTRetriever
@@ -421,6 +422,53 @@ def _fact(node: Any, key: str) -> str | None:
     return text.split(marker, 1)[1].split('"', 1)[0]
 
 
+def _public_signal_value(node: Any, key: str) -> str | None:
+    value = node.metadata.get(key)
+    if value is None:
+        value = _fact(node, key)
+    return None if value is None else str(value)
+
+
+def codemanager_ranked_hypotheses(topology: CausalTopology) -> list[dict[str, Any]]:
+    """Adapt public projected observations to the independent-evidence ranker.
+
+    The adapter reads only event metadata/payload facts and timestamps. It does
+    not inspect scenario definitions, oracle roles, or authoritative causation
+    fields. Each candidate is scored from its evidence group, artifact links,
+    and distinct signal sources.
+    """
+    signals: list[EvidenceSignal] = []
+    for node in topology.nodes.values():
+        kind = _public_signal_value(node, "signal_kind")
+        if kind not in {"code", "config", "trace", "log", "metric", "symptom"}:
+            continue
+        attributes = {
+            key: value for key in ("artifact", "uses", "used_by", "producer", "consumer", "service", "component", "source")
+            if (value := _public_signal_value(node, key)) is not None
+        }
+        signals.append(EvidenceSignal(
+            event_id=node.id,
+            timestamp=node.timestamp,
+            kind=kind,
+            status=str(node.metadata.get("status") or ""),
+            evidence_group=_public_signal_value(node, "evidence_group") or "",
+            artifact=_public_signal_value(node, "artifact"),
+            producer_artifact=_public_signal_value(node, "producer_artifact") or _public_signal_value(node, "producer"),
+            consumer_artifact=_public_signal_value(node, "consumer_artifact") or _public_signal_value(node, "used_by"),
+            uses_artifact=_public_signal_value(node, "uses_artifact") or _public_signal_value(node, "uses"),
+            expected_version=_public_signal_value(node, "expected_version"),
+            loaded_version=_public_signal_value(node, "loaded_version"),
+            expected_contract=_public_signal_value(node, "expected_contract"),
+            loaded_contract=_public_signal_value(node, "loaded_contract"),
+            independent_source=(
+                _public_signal_value(node, "independent_source")
+                or _public_signal_value(node, "source")
+                or _public_signal_value(node, "component")
+            ),
+            attributes=attributes,
+        ))
+    return [hypothesis.as_dict() for hypothesis in rank_hypotheses(signals)]
+
 def codemanager_hypotheses(topology: CausalTopology) -> list[dict[str, Any]]:
     """Generate CodeManager hypotheses by crossing artifact dependencies.
 
@@ -582,8 +630,19 @@ def evaluate(
     for case in oracle:
         scenario_detail: dict[str, Any] = {"diagnosis": {}, "recovery": {}}
         scenario_detail["codemanager_hypotheses"] = codemanager_hypotheses(topology)
-        for arm in diagnostic_arms:
-            hits = retriever.search(
+        scenario_detail["codemanager_evidence_ranker"] = codemanager_ranked_hypotheses(topology)
+        # This specialist arm is scored only when the candidate set contains
+        # the held-out root-cause event; unrelated incidents are not negatives.
+        candidate_ids = [item["event_id"] for item in scenario_detail["codemanager_evidence_ranker"]]
+        if case.root_cause_event_id in candidate_ids:
+            metrics = _rank(candidate_ids, case.root_cause_event_id, config.k)
+            rows.append({
+                "scenario_id": case.scenario_id,
+                "task": "diagnosis",
+                "arm": "codemanager_evidence_ranker",
+                **metrics,
+            })
+        for arm in diagnostic_arms:            hits = retriever.search(
                 case.diagnostic_query,
                 mode=QueryMode.WHY,
                 anchor_ids=[case.symptom_event_id],
