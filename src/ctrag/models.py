@@ -99,17 +99,26 @@ class MemoryNode:
     metadata: dict[str, Any] = field(default_factory=dict)
     embedding: tuple[float, ...] | None = None
     is_attractor: bool = False
+    valid_start: datetime | None = None
+    valid_end: datetime | None = None
 
     def __post_init__(self) -> None:
         _validate_identity(self.id, "node id")
         if not isinstance(self.text, str):
             raise TypeError("node text must be a string")
         _validate_timestamp(self.timestamp)
+        if self.valid_start is not None:
+            _validate_timestamp(self.valid_start)
+        if self.valid_end is not None:
+            _validate_timestamp(self.valid_end)
+        if self.valid_start is not None and self.valid_end is not None:
+            if self.valid_end < self.valid_start:
+                raise ValueError("valid_end must be greater than or equal to valid_start")
         if self.embedding is not None and any(not math.isfinite(value) for value in self.embedding):
             raise ValueError("embedding values must be finite")
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        result = {
             "id": self.id,
             "text": self.text,
             "timestamp": self.timestamp.isoformat(),
@@ -117,6 +126,13 @@ class MemoryNode:
             "embedding": list(self.embedding) if self.embedding is not None else None,
             "is_attractor": self.is_attractor,
         }
+        # Omit absent interval bounds to preserve serialized compatibility for
+        # nodes created before interval-valued validity was introduced.
+        if self.valid_start is not None:
+            result["valid_start"] = self.valid_start.isoformat()
+        if self.valid_end is not None:
+            result["valid_end"] = self.valid_end.isoformat()
+        return result
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> "MemoryNode":
@@ -133,6 +149,16 @@ class MemoryNode:
             metadata=dict(raw.get("metadata") or {}),
             embedding=None if embedding is None else tuple(float(value) for value in embedding),
             is_attractor=bool(raw.get("is_attractor", False)),
+            valid_start=(
+                None
+                if raw.get("valid_start") is None
+                else datetime.fromisoformat(str(raw["valid_start"]).replace("Z", "+00:00"))
+            ),
+            valid_end=(
+                None
+                if raw.get("valid_end") is None
+                else datetime.fromisoformat(str(raw["valid_end"]).replace("Z", "+00:00"))
+            ),
         )
 
 

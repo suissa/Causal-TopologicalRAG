@@ -7,6 +7,8 @@ from ctrag.benchmarks.temporal_terrain_scenarios import (
     out_of_order_causation_gap,
     run,
 )
+from datetime import datetime, timezone
+from ctrag import TerrainSnapshot
 
 
 def test_obsolete_healing_path_erodes_without_deleting_history() -> None:
@@ -28,6 +30,22 @@ def test_recurrent_failure_creates_new_scc_attractor_and_basin_drift() -> None:
     assert result["recurrent_internal_observations_after"] > result["recurrent_internal_observations_before"]
     assert result["recurrent_confidence_after"] > result["recurrent_confidence_before"]
     assert result["historical_success_edges_preserved"] is True
+
+
+def test_terrain_snapshot_records_longitudinal_contract_metadata() -> None:
+    snapshot = TerrainSnapshot(
+        transition_counts={},
+        influences={},
+        attractors={},
+        basins={},
+        protected_edges=frozenset(),
+        observed_at=datetime(2026, 9, 20, 8, 0, tzinfo=timezone.utc),
+        window_policy="rolling:1h",
+        topology_version="topology-v1",
+    )
+    assert snapshot.observed_at is not None
+    assert snapshot.window_policy == "rolling:1h"
+    assert snapshot.topology_version == "topology-v1"
 
 
 def test_out_of_order_causation_reconciles_across_large_clock_gap() -> None:
