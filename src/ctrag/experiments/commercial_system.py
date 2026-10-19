@@ -631,22 +631,27 @@ def evaluate(
         scenario_detail: dict[str, Any] = {"diagnosis": {}, "recovery": {}}
         scenario_detail["codemanager_hypotheses"] = codemanager_hypotheses(topology)
         scenario_detail["codemanager_evidence_ranker"] = codemanager_ranked_hypotheses(topology)
-        # This specialist arm is scored only when the candidate set contains
-        # the held-out root-cause event; unrelated incidents are not negatives.
+        # Compare both specialist rankers on the same incident-scoped candidate
+        # universe. Candidate coverage is scored separately from ranking quality.
         incident_prefix = f"incident:{case.scenario_id}"
-        scenario_candidates = [
-            item for item in scenario_detail["codemanager_evidence_ranker"]
-            if (topology.nodes[item["event_id"]].metadata.get("correlation_id")
-                or _fact(topology.nodes[item["event_id"]], "correlation_id")) == incident_prefix
-        ]
-        scenario_detail["codemanager_evidence_ranker"] = scenario_candidates
-        candidate_ids = [item["event_id"] for item in scenario_candidates]
-        if case.root_cause_event_id in candidate_ids:
-            metrics = _rank(candidate_ids, case.root_cause_event_id, config.k)
+        for arm in ("codemanager_hypotheses", "codemanager_evidence_ranker"):
+            scenario_candidates = [
+                item for item in scenario_detail[arm]
+                if (topology.nodes[item["event_id"]].metadata.get("correlation_id")
+                    or _fact(topology.nodes[item["event_id"]], "correlation_id")) == incident_prefix
+            ]
+            scenario_detail[arm] = scenario_candidates
+            candidate_ids = [item["event_id"] for item in scenario_candidates]
+            has_gold = case.root_cause_event_id in candidate_ids
+            metrics = _rank(candidate_ids, case.root_cause_event_id, config.k) if has_gold else {
+                "rank": None, "top1": 0, f"recall_at_{config.k}": 0, "mrr": 0.0,
+            }
             rows.append({
                 "scenario_id": case.scenario_id,
-                "task": "diagnosis",
-                "arm": "codemanager_evidence_ranker",
+                "task": "codemanager_diagnosis",
+                "arm": arm,
+                "candidate_count": len(candidate_ids),
+                "gold_in_candidates": int(has_gold),
                 **metrics,
             })
         for arm in diagnostic_arms:
