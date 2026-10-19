@@ -176,3 +176,31 @@ def test_codemanager_ranker_finds_code_and_independent_config_candidates():
     config_root = next(item for item in by_scenario[config_case.scenario_id] if item["event_id"] == config_case.root_cause_event_id)
     assert set(config_root["evidence_kinds"]) == {"log", "metric", "symptom", "trace"}
     assert config_root["score"] > 0.7
+
+
+def test_codemanager_comparison_reports_candidate_coverage_and_rank_metrics():
+    config = CommercialExperimentConfig()
+    observations, oracle = generate(config)
+    result = evaluate(project(observations), oracle, config)
+
+    rows = [
+        row for row in result["rows"]
+        if row["task"] == "codemanager_diagnosis"
+    ]
+    assert len(rows) == len(oracle) * 2
+    for case in oracle:
+        paired = [row for row in rows if row["scenario_id"] == case.scenario_id]
+        assert {row["arm"] for row in paired} == {
+            "codemanager_hypotheses", "codemanager_evidence_ranker"
+        }
+        assert all("candidate_count" in row and "gold_in_candidates" in row for row in paired)
+        assert all(row["gold_in_candidates"] in {0, 1} for row in paired)
+
+    summary = [
+        row for row in result["summary"]
+        if row["task"] == "codemanager_diagnosis"
+    ]
+    assert {row["arm"] for row in summary} == {
+        "codemanager_hypotheses", "codemanager_evidence_ranker"
+    }
+    assert all(row["n"] == len(oracle) for row in summary)
