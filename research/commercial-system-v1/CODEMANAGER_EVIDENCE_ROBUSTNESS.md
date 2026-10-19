@@ -42,3 +42,23 @@ all four signal kinds. This closes an important fixture-quality gap: an evidence
 group alone must never be sufficient to join observations when the artifacts do
 not connect. The follow-up commit must pass CI before these new assertions are
 considered validated.
+
+
+## Paired baseline comparison
+
+The evaluation now emits a paired row for each CodeManager method on every
+scenario under the separate task `codemanager_diagnosis`. Both methods receive
+the same incident-scoped candidate universe. Each row reports:
+
+- `candidate_count`: number of hypotheses generated for that incident;
+- `gold_in_candidates`: whether the held-out root cause was generated at all;
+- `rank`, `top1`, `recall_at_k`, and `mrr`: ranking metrics, with missing
+  causes counted as misses rather than silently dropped from the denominator.
+
+This separates candidate-generation coverage from ranking quality and avoids
+inflating the ranker's score by evaluating only incidents where it happened to
+generate the correct candidate. The legacy baseline and evidence-aware ranker
+are summarized separately in `results.json`. These remain synthetic,
+scenario-dependent results; they are not evidence of external validity or
+calibrated causal probabilities. CI validation is required before interpreting
+the resulting numbers.
