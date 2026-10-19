@@ -62,3 +62,23 @@ are summarized separately in `results.json`. These remain synthetic,
 scenario-dependent results; they are not evidence of external validity or
 calibrated causal probabilities. CI validation is required before interpreting
 the resulting numbers.
+
+
+## Robustness perturbation matrix
+
+A dedicated test module now exercises four controlled perturbations against the
+same evidence-aware ranker:
+
+| Perturbation | Expected invariant |
+|---|---|
+| Reverse input order | Identical ordered hypothesis records and scores |
+| Inject unrelated artifacts and another evidence group | Candidate evidence and score unchanged |
+| Duplicate an observation from an already-counted source | No increase in evidence support or score |
+| Add a healthy, artifact-linked independent signal | Score decreases and the counter-evidence ID is retained |
+| Remove one independent source at a time | Evidence support and heuristic priority decrease |
+
+These are deterministic software robustness checks, not estimates of production
+error rates. The comparison does not establish causal validity; it checks that
+the heuristic responds predictably to known evidence perturbations. The new
+tests must pass across the supported Python matrix before this stage is marked
+validated.
