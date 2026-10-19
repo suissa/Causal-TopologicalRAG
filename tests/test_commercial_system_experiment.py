@@ -9,6 +9,7 @@ from ctrag.experiments.commercial_system import (
     CommercialExperimentConfig,
     assert_no_oracle_leakage,
     causal_frontier_diagnosis,
+    codemanager_ranked_hypotheses,
     evaluate,
     generate,
     project,
@@ -149,3 +150,29 @@ def test_invalid_config(kwargs):
     with pytest.raises(ValueError):
         CommercialExperimentConfig(**kwargs)
 
+
+
+
+def test_codemanager_ranker_finds_code_and_independent_config_candidates():
+    config = CommercialExperimentConfig()
+    observations, oracle = generate(config)
+    topology = project(observations)
+
+    by_scenario = {}
+    for case in oracle:
+        ranked = codemanager_ranked_hypotheses(topology)
+        incident_prefix = f"incident:{case.scenario_id}"
+        ranked = [
+            item for item in ranked
+            if (topology.nodes[item["event_id"]].metadata.get("correlation_id")
+                or topology.nodes[item["event_id"]].text.find(incident_prefix) >= 0)
+        ]
+        by_scenario[case.scenario_id] = ranked
+
+    code_case = next(case for case in oracle if case.scenario_id == "code_serializer_regression")
+    config_case = next(case for case in oracle if case.scenario_id == "pricing_configuration_drift")
+    assert any(item["event_id"] == code_case.root_cause_event_id for item in by_scenario[code_case.scenario_id])
+    assert any(item["event_id"] == config_case.root_cause_event_id for item in by_scenario[config_case.scenario_id])
+    config_root = next(item for item in by_scenario[config_case.scenario_id] if item["event_id"] == config_case.root_cause_event_id)
+    assert set(config_root["evidence_kinds"]) == {"log", "metric", "symptom", "trace"}
+    assert config_root["score"] > 0.7
