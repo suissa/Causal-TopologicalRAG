@@ -1,8 +1,19 @@
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 from ctrag.experiments.codemanager import EvidenceSignal, rank_hypotheses
 
-from test_codemanager_robustness import T0, signal
+T0 = datetime(2026, 10, 1, tzinfo=timezone.utc)
+
+
+def signal(event_id, seconds, kind, status, **kwargs):
+    return EvidenceSignal(
+        event_id=event_id,
+        timestamp=T0 + timedelta(seconds=seconds),
+        kind=kind,
+        status=status,
+        evidence_group=kwargs.pop("evidence_group", "incident-a"),
+        **kwargs,
+    )
 
 
 def test_pre_candidate_evidence_cannot_support_a_later_candidate():
