@@ -82,3 +82,15 @@ error rates. The comparison does not establish causal validity; it checks that
 the heuristic responds predictably to known evidence perturbations. The new
 tests must pass across the supported Python matrix before this stage is marked
 validated.
+
+
+## Adversarial evidence invariants
+
+The adversarial suite adds four checks beyond perturbation invariance:
+
+- **Temporal leakage:** a linked anomaly timestamped before the candidate cannot support it.
+- **Cross-kind source duplication:** trace and log records declared to come from one independent source count as one support item, not two.
+- **Score bounds under volume:** large support and counter-evidence sets cannot move the score outside `[0.0, 0.99]`; retained evidence IDs remain inspectable.
+- **Unscoped evidence:** signals with an empty evidence-group key are not joined, even when their artifact names match.
+
+These tests target failure modes that could otherwise make a plausible-looking ranking depend on future observations, duplicated telemetry, or an absent join boundary. They are invariant checks on the implementation, not proof that source declarations are truthful or that the score predicts real-world root causes.
