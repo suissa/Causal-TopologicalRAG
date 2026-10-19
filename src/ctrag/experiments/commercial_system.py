@@ -20,6 +20,7 @@ from typing import Any, Iterable
 
 from ctrag.benchmarks.runner import BASELINES
 from ctrag.embedding import HashingEmbedder
+from ctrag.experiments.codemanager import EvidenceSignal, rank_hypotheses
 from ctrag.events import EventProjector, EventRecord
 from ctrag.models import CausalProvenance, Edge, EdgeEvidence, EdgeKind, QueryMode, RetrievalHit
 from ctrag.retriever import CTRetriever
@@ -212,11 +213,11 @@ SCENARIOS: tuple[Scenario, ...] = (
             # These observations deliberately have no step.parent.  The
             # diagnosis must combine independent config, metric, trace and log
             # signals sharing an evidence group.
-            _step("config", "Config.PricingRuleVersionDrift", "warning", "pricing", "checkout and pricing workers loaded different promotion rule versions", None, signal_kind="config", evidence_group="pricing-drift-01", expected_version="promo-v18", loaded_version="promo-v17"),
-            _step("metric", "Metrics.OrderConversionDrop", "warning", "observability", "conversion metric dropped after promotion traffic increased", None, signal_kind="metric", evidence_group="pricing-drift-01", baseline=0.084, observed=0.031),
-            _step("trace", "Trace.CheckoutDiscountMismatch", "warning", "observability", "checkout trace shows discount decision rejected by pricing response", None, signal_kind="trace", evidence_group="pricing-drift-01", mismatch_count=41),
-            _step("log", "Logs.PromotionVersionMismatch", "error", "observability", "distributed logs report incompatible promotion versions", None, signal_kind="log", evidence_group="pricing-drift-01", mismatch_count=41),
-            _step("symptom", "Sales.OrderConversionDropped", "error", "sales", "commercial conversion fell below the operating threshold", None, signal_kind="symptom", evidence_group="pricing-drift-01", observed=0.031),
+            _step("config", "Config.PricingRuleVersionDrift", "warning", "pricing", "checkout and pricing workers loaded different promotion rule versions", None, signal_kind="config", evidence_group="pricing-drift-01", artifact="pricing-worker", consumer_artifact="checkout-api", expected_version="promo-v18", loaded_version="promo-v17"),
+            _step("metric", "Metrics.OrderConversionDrop", "warning", "observability", "conversion metric dropped after promotion traffic increased", None, signal_kind="metric", evidence_group="pricing-drift-01", artifact="conversion-metrics", uses="pricing-worker", independent_source="conversion-dashboard", baseline=0.084, observed=0.031),
+            _step("trace", "Trace.CheckoutDiscountMismatch", "warning", "observability", "checkout trace shows discount decision rejected by pricing response", None, signal_kind="trace", evidence_group="pricing-drift-01", artifact="checkout-api", uses="pricing-worker", independent_source="checkout-traces", mismatch_count=41),
+            _step("log", "Logs.PromotionVersionMismatch", "error", "observability", "distributed logs report incompatible promotion versions", None, signal_kind="log", evidence_group="pricing-drift-01", artifact="pricing-worker", independent_source="pricing-logs", mismatch_count=41),
+            _step("symptom", "Sales.OrderConversionDropped", "error", "sales", "commercial conversion fell below the operating threshold", None, signal_kind="symptom", evidence_group="pricing-drift-01", artifact="checkout-api", uses="pricing-worker", independent_source="sales-kpi", observed=0.031),
             _step("solution", "Config.PromotionVersionAligned", "healed", "pricing", "all workers loaded the same promotion rule version", "symptom", signal_kind="remediation", evidence_group="pricing-drift-01", loaded_version="promo-v18"),
             _step("recovered", "Sales.OrderConversionRecovered", "completed", "sales", "conversion returned to the expected operating range", "solution", signal_kind="recovery", evidence_group="pricing-drift-01", observed=0.081),
         ),
@@ -421,6 +422,53 @@ def _fact(node: Any, key: str) -> str | None:
     return text.split(marker, 1)[1].split('"', 1)[0]
 
 
+def _public_signal_value(node: Any, key: str) -> str | None:
+    value = node.metadata.get(key)
+    if value is None:
+        value = _fact(node, key)
+    return None if value is None else str(value)
+
+
+def codemanager_ranked_hypotheses(topology: CausalTopology) -> list[dict[str, Any]]:
+    """Adapt public projected observations to the independent-evidence ranker.
+
+    The adapter reads only event metadata/payload facts and timestamps. It does
+    not inspect scenario definitions, oracle roles, or authoritative causation
+    fields. Each candidate is scored from its evidence group, artifact links,
+    and distinct signal sources.
+    """
+    signals: list[EvidenceSignal] = []
+    for node in topology.nodes.values():
+        kind = _public_signal_value(node, "signal_kind")
+        if kind not in {"code", "config", "trace", "log", "metric", "symptom"}:
+            continue
+        attributes = {
+            key: value for key in ("artifact", "uses", "used_by", "producer", "consumer", "service", "component", "source")
+            if (value := _public_signal_value(node, key)) is not None
+        }
+        signals.append(EvidenceSignal(
+            event_id=node.id,
+            timestamp=node.timestamp,
+            kind=kind,
+            status=str(node.metadata.get("status") or ""),
+            evidence_group=_public_signal_value(node, "evidence_group") or "",
+            artifact=_public_signal_value(node, "artifact"),
+            producer_artifact=_public_signal_value(node, "producer_artifact") or _public_signal_value(node, "producer"),
+            consumer_artifact=_public_signal_value(node, "consumer_artifact") or _public_signal_value(node, "used_by"),
+            uses_artifact=_public_signal_value(node, "uses_artifact") or _public_signal_value(node, "uses"),
+            expected_version=_public_signal_value(node, "expected_version"),
+            loaded_version=_public_signal_value(node, "loaded_version"),
+            expected_contract=_public_signal_value(node, "expected_contract"),
+            loaded_contract=_public_signal_value(node, "loaded_contract"),
+            independent_source=(
+                _public_signal_value(node, "independent_source")
+                or _public_signal_value(node, "source")
+                or _public_signal_value(node, "component")
+            ),
+            attributes=attributes,
+        ))
+    return [hypothesis.as_dict() for hypothesis in rank_hypotheses(signals)]
+
 def codemanager_hypotheses(topology: CausalTopology) -> list[dict[str, Any]]:
     """Generate CodeManager hypotheses by crossing artifact dependencies.
 
@@ -582,6 +630,30 @@ def evaluate(
     for case in oracle:
         scenario_detail: dict[str, Any] = {"diagnosis": {}, "recovery": {}}
         scenario_detail["codemanager_hypotheses"] = codemanager_hypotheses(topology)
+        scenario_detail["codemanager_evidence_ranker"] = codemanager_ranked_hypotheses(topology)
+        # Compare both specialist rankers on the same incident-scoped candidate
+        # universe. Candidate coverage is scored separately from ranking quality.
+        incident_prefix = f"incident:{case.scenario_id}"
+        for arm in ("codemanager_hypotheses", "codemanager_evidence_ranker"):
+            scenario_candidates = [
+                item for item in scenario_detail[arm]
+                if (topology.nodes[item["event_id"]].metadata.get("correlation_id")
+                    or _fact(topology.nodes[item["event_id"]], "correlation_id")) == incident_prefix
+            ]
+            scenario_detail[arm] = scenario_candidates
+            candidate_ids = [item["event_id"] for item in scenario_candidates]
+            has_gold = case.root_cause_event_id in candidate_ids
+            metrics = _rank(candidate_ids, case.root_cause_event_id, config.k) if has_gold else {
+                "rank": None, "top1": 0, f"recall_at_{config.k}": 0, "mrr": 0.0,
+            }
+            rows.append({
+                "scenario_id": case.scenario_id,
+                "task": "codemanager_diagnosis",
+                "arm": arm,
+                "candidate_count": len(candidate_ids),
+                "gold_in_candidates": int(has_gold),
+                **metrics,
+            })
         for arm in diagnostic_arms:
             hits = retriever.search(
                 case.diagnostic_query,
