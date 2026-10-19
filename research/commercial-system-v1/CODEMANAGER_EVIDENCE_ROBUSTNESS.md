@@ -15,7 +15,7 @@ Run the focused tests with:
 pytest tests/test_codemanager_evidence.py
 ```
 
-The next integration step is to adapt public projected event metadata into `EvidenceSignal` objects and compare this ranker with the current `codemanager_hypotheses` baseline using leave-one-signal-out and adversarial-group tests. This PR intentionally does not replace the existing baseline until those comparisons run.
+The commercial experiment now adapts public projected event metadata into `EvidenceSignal` objects and keeps the existing `codemanager_hypotheses` baseline for side-by-side evaluation. The next evaluation step is to report per-incident CodeManager recall and compare against that baseline on held-out incidents.
 
 
 ## Experiment integration update
@@ -31,3 +31,14 @@ The focused tests now include leave-one-independent-signal-out behavior and
 evidence-group isolation. They have been added to the PR, but have not yet been
 executed in a Python environment. Do not treat the implementation as validated
 until CI or a local test run passes.
+
+
+## Artifact-link coverage follow-up
+
+The pricing-drift fixture now declares explicit artifact relationships among the
+configuration candidate, conversion metric, checkout trace, logs, and symptom.
+The end-to-end test asserts that the configuration candidate is ranked using
+all four signal kinds. This closes an important fixture-quality gap: an evidence
+group alone must never be sufficient to join observations when the artifacts do
+not connect. The follow-up commit must pass CI before these new assertions are
+considered validated.
