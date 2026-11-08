@@ -1,27 +1,28 @@
-# CodeManager controlled perturbation evaluation
+# Paired CodeManager perturbation evaluation
 
-Run from repository root:
+Run the evidence-aware perturbation suite:
 
 ```bash
-PYTHONPATH=src python -m ctrag.benchmarks.codemanager_perturbations
-pytest tests/test_codemanager_perturbations.py
+python -m ctrag.benchmarks.codemanager_perturbations
 ```
 
-The experiment emits a JSON object with per-scenario ordered candidates, scores,
-gold-candidate coverage, Top-1, Recall@1/@2, and MRR. The denominator is the
-entire fixed set of scenarios; a missing gold candidate contributes zero to
-ranking metrics and coverage rather than disappearing from the denominator.
+Run the paired comparison:
 
-Perturbations include input reversal, irrelevant evidence, same-source
-duplication, independent-source removal, counter-evidence removal, and a
-cross-evidence-group leakage attempt. Tests assert determinism and invariance
-under duplicate observations and unrelated evidence groups.
+```bash
+python -m ctrag.benchmarks.codemanager_paired
+```
 
-## Current boundary
+The paired report uses the same nine deterministic perturbation scenarios and fixed denominator for both arms. It reports candidate coverage, Top-1, Recall@1, Recall@2 and MRR, plus the evidence-aware minus baseline delta.
 
-This first executable slice evaluates the evidence-aware ranker only. It does
-**not** claim a baseline comparison: the legacy ranker/candidate-generation
-contract must be pinned before a paired baseline can be considered fair. The
-fixture is synthetic; it is not production validation, human-ground-truth
-evaluation, or causal identification. CodeManager scores are heuristic ranking
-priorities, not calibrated probabilities.
+## Baseline contract
+
+The comparison arm is a deliberately transparent **legacy-style proxy**: anomalous code/config candidates receive votes for every anomalous observation that mentions the same artifact. It does not enforce evidence-group isolation, temporal ordering, or independent-source deduplication.
+
+This is not represented as the historical production CodeManager implementation. The repository does not currently expose a pinned historical ranker API, so claiming an exact legacy comparison would be misleading. Replacing this proxy with the actual historical implementation requires pinning that revision and its input/output contract.
+
+## Interpretation boundaries
+
+- Synthetic fixtures only; no production incident data or human adjudication.
+- Scores are heuristic priorities, not calibrated probabilities.
+- Rank changes measure robustness to the defined perturbations, not causal identification or proof that a code artifact caused an incident.
+- Cross-group and temporal leakage sensitivity is intentionally visible in the proxy arm and constrained in the evidence-aware arm.
