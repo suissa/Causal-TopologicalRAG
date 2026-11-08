@@ -23,4 +23,4 @@ def test_proxy_exposes_cross_group_and_temporal_sensitivity():
     # Raw co-occurrence proxy is deliberately sensitive to unrelated group noise.
     from ctrag.benchmarks.codemanager_perturbations import perturbations
     scenarios = perturbations(signals)
-    assert legacy_proxy_rank(scenarios["cross_group_leak_attempt"]) == baseline
+    assert legacy_proxy_rank(scenarios["cross_group_leak_attempt"]) != baseline
