@@ -1,5 +1,6 @@
 from ctrag.benchmarks.codemanager_paired import legacy_proxy_rank, run_paired
-from ctrag.benchmarks.codemanager_perturbations import fixture, perturbations, signal
+from ctrag.benchmarks.codemanager_perturbations import fixture, signal
+from ctrag.experiments.codemanager import rank_hypotheses
 
 
 def test_legacy_proxy_is_deterministic():
@@ -29,5 +30,10 @@ def test_naive_proxy_is_sensitive_to_cross_group_cooccurrence():
 
 
 def test_evidence_aware_ranker_is_not_affected_by_cross_group_injection():
-    scenarios = perturbations(fixture())
-    assert scenarios["cross_group_leak_attempt"]
+    signals = fixture()
+    injected = signals + [
+        signal(f"noise-b-{index}", 8 + index, "trace", "error", "other-group",
+               "svc-b", f"external-{index}")
+        for index in range(4)
+    ]
+    assert rank_hypotheses(signals) == rank_hypotheses(injected)
