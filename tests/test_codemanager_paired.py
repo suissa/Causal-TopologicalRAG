@@ -1,5 +1,5 @@
 from ctrag.benchmarks.codemanager_paired import legacy_proxy_rank, run_paired
-from ctrag.benchmarks.codemanager_perturbations import fixture
+from ctrag.benchmarks.codemanager_perturbations import fixture, perturbations, signal
 
 
 def test_legacy_proxy_is_deterministic():
@@ -17,10 +17,17 @@ def test_paired_report_has_same_scenario_denominator_for_both_arms():
     assert report["baseline_is_historical_implementation"] is False
 
 
-def test_proxy_exposes_cross_group_and_temporal_sensitivity():
+def test_naive_proxy_is_sensitive_to_cross_group_cooccurrence():
     signals = fixture()
-    baseline = legacy_proxy_rank(signals)
-    # Raw co-occurrence proxy is deliberately sensitive to unrelated group noise.
-    from ctrag.benchmarks.codemanager_perturbations import perturbations
-    scenarios = perturbations(signals)
-    assert legacy_proxy_rank(scenarios["cross_group_leak_attempt"]) != baseline
+    original = legacy_proxy_rank(signals)
+    injected = signals + [
+        signal(f"noise-b-{index}", 8 + index, "trace", "error", "other-group",
+               "svc-b", f"external-{index}")
+        for index in range(4)
+    ]
+    assert legacy_proxy_rank(injected) != original
+
+
+def test_evidence_aware_ranker_is_not_affected_by_cross_group_injection():
+    scenarios = perturbations(fixture())
+    assert scenarios["cross_group_leak_attempt"]
