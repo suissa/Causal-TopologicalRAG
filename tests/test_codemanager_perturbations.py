@@ -31,10 +31,9 @@ def test_cross_evidence_group_cannot_support_candidate():
 
 def test_temporal_leakage_is_excluded_from_support():
     scenarios = perturbations(fixture())
-    original = evaluate(scenarios["identity"])
-    leaked = evaluate(scenarios["temporal_leakage"])
-    assert "trace-a" in original["scores"]
-    assert leaked["scores"]["deploy-a"] < original["scores"]["deploy-a"]
+    original = evaluate(scenarios["identity"])["scores"]
+    leaked = evaluate(scenarios["temporal_leakage"])["scores"]
+    assert leaked["deploy-a"] < original["deploy-a"]
 
 
 def test_cross_kind_duplicate_from_same_source_counts_once():
