@@ -6,9 +6,8 @@ Outputs JSON to stdout. Scores are heuristic priorities, not probabilities.
 from __future__ import annotations
 
 import json
-from dataclasses import asdict
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
-from typing import Callable
 
 from ctrag.experiments.codemanager import EvidenceSignal, rank_hypotheses
 
@@ -36,6 +35,19 @@ def fixture() -> list[EvidenceSignal]:
 
 def perturbations(base: list[EvidenceSignal]) -> dict[str, list[EvidenceSignal]]:
     by_id = {s.event_id: s for s in base}
+    temporal_leakage = [
+        replace(item, timestamp=T0 - timedelta(minutes=1))
+        if item.event_id == "trace-a" else item for item in base
+    ]
+    cross_kind_duplicate = base + [
+        signal("trace-a-copy", 2, "metric", "degraded", "incident-1",
+               "svc-a", "trace-source")
+    ]
+    unscoped_evidence = [
+        replace(item, evidence_group="")
+        if item.event_id in {"deploy-a", "trace-a", "metric-a", "log-a"}
+        else item for item in base
+    ]
     return {
         "identity": list(base),
         "reverse_input": list(reversed(base)),
@@ -46,6 +58,9 @@ def perturbations(base: list[EvidenceSignal]) -> dict[str, list[EvidenceSignal]]
         "remove_log_source": [s for s in base if s.event_id != "log-a"],
         "remove_counter_evidence": [s for s in base if s.event_id != "healthy-a"],
         "cross_group_leak_attempt": base + [signal("cross-group", 8, "metric", "error", "incident-2", "svc-a", "leak")],
+        "temporal_leakage": temporal_leakage,
+        "cross_kind_source_duplicate": cross_kind_duplicate,
+        "unscoped_evidence": unscoped_evidence,
     }
 
 
@@ -69,9 +84,8 @@ def evaluate(signals: list[EvidenceSignal], gold: str = "deploy-a") -> dict:
 def main() -> None:
     base = fixture()
     runs = {name: evaluate(items) for name, items in perturbations(base).items()}
-    # Candidate coverage and rank metrics share a fixed scenario denominator.
     summary = {
-        "protocol": "codemanager-perturbations-v1",
+        "protocol": "codemanager-perturbations-v2",
         "scenario_count": len(runs),
         "denominator": len(runs),
         "aggregate": {
@@ -83,7 +97,7 @@ def main() -> None:
             "Synthetic fixture only; no production incidents or human adjudication.",
             "CodeManager scores are heuristic priorities, not calibrated probabilities.",
             "This evaluates rank stability/behavior, not causal identification.",
-            "Legacy baseline comparison is not included until its candidate/ranker API is pinned."
+            "Legacy comparison is a naive proxy, not a verified historical implementation.",
         ],
     }
     print(json.dumps(summary, indent=2, sort_keys=True))
