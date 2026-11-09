@@ -12,7 +12,7 @@ def test_legacy_proxy_is_deterministic():
 
 def test_paired_report_has_same_scenario_denominator_and_candidate_universe():
     report = run_paired()
-    assert report["scenario_count"] == report["denominator"] == 9
+    assert report["scenario_count"] == report["denominator"] == 12
     assert set(report["aggregate"]) == {"legacy_proxy", "evidence_aware"}
     assert set(report["delta_evidence_aware_minus_legacy"]) == {
         "gold_in_candidates", "top1", "recall_at_1", "recall_at_2", "mrr"
