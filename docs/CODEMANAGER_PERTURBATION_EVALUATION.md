@@ -12,11 +12,17 @@ Run the paired comparison:
 python -m ctrag.benchmarks.codemanager_paired
 ```
 
-The paired report uses the same nine deterministic perturbation scenarios and fixed scenario denominator for both arms. It reports candidate coverage, Top-1, Recall@1, Recall@2 and MRR, plus the evidence-aware minus baseline delta.
+The paired report uses twelve deterministic scenarios and a fixed scenario denominator for both arms. It reports candidate coverage, Top-1, Recall@1, Recall@2 and MRR, plus the evidence-aware minus baseline delta.
 
 ## Candidate-universe parity
 
 For each scenario, candidate IDs are materialized once as the sorted set of anomalous `code`/`config` signals with an artifact. Both rankers must return a permutation of this exact set; duplicate, missing, or invented candidate IDs fail the evaluation. The report includes the universe and candidate count per scenario. Candidate coverage is reported separately; when gold is absent, Top-1/Recall/MRR remain misses rather than dropping that scenario from the denominator.
+
+## Perturbation matrix
+
+The twelve scenarios include input reversal, unrelated noise, same-source duplicate, removal of each independent source, healthy counter-evidence, cross-group leakage, temporal leakage, cross-kind duplication from one source, and unscoped evidence.
+
+The evidence-aware ranker must not use evidence timestamped before the candidate, must count a shared independent source only once even across signal kinds, and must not join evidence with an empty/unscoped evidence-group identifier. Tests assert these invariants directly.
 
 ## Baseline contract
 
@@ -29,4 +35,4 @@ This is not represented as the historical production CodeManager implementation.
 - Synthetic fixtures only; no production incident data or human adjudication.
 - Scores are heuristic priorities, not calibrated probabilities.
 - Rank changes measure robustness to the defined perturbations, not causal identification or proof that a code artifact caused an incident.
-- Cross-group and temporal leakage sensitivity is intentionally visible in the proxy arm and constrained in the evidence-aware arm.
+- Cross-group, temporal, source-identity and scope leakage sensitivity is intentionally visible in the proxy arm and constrained in the evidence-aware arm.
