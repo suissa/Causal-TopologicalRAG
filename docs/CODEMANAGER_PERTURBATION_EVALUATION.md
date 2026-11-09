@@ -12,7 +12,11 @@ Run the paired comparison:
 python -m ctrag.benchmarks.codemanager_paired
 ```
 
-The paired report uses the same nine deterministic perturbation scenarios and fixed denominator for both arms. It reports candidate coverage, Top-1, Recall@1, Recall@2 and MRR, plus the evidence-aware minus baseline delta.
+The paired report uses the same nine deterministic perturbation scenarios and fixed scenario denominator for both arms. It reports candidate coverage, Top-1, Recall@1, Recall@2 and MRR, plus the evidence-aware minus baseline delta.
+
+## Candidate-universe parity
+
+For each scenario, candidate IDs are materialized once as the sorted set of anomalous `code`/`config` signals with an artifact. Both rankers must return a permutation of this exact set; duplicate, missing, or invented candidate IDs fail the evaluation. The report includes the universe and candidate count per scenario. Candidate coverage is reported separately; when gold is absent, Top-1/Recall/MRR remain misses rather than dropping that scenario from the denominator.
 
 ## Baseline contract
 
